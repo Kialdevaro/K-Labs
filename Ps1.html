@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>K-Labs - PS1 Professional Web Emulator Engine</title>
+  <title>K-Labs - PS1 Branded Web Emulator Engine</title>
   <style>
     :root {
       --bg-color: #030712;
-      --panel-bg: #0b0f19;
-      --border-color: #1e293b;
+      --panel-bg: rgba(11, 15, 25, 0.75);
+      --border-color: rgba(0, 255, 204, 0.25);
       --accent-color: #00ffcc;
       --accent-glow: rgba(0, 255, 204, 0.4);
       --text-main: #f8fafc;
@@ -18,6 +18,7 @@
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
       background-color: var(--bg-color);
+      background-image: radial-gradient(circle at 50% 20%, #0f172a 0%, #030712 100%);
       color: var(--text-main);
       font-family: 'Segoe UI', system-ui, sans-serif;
       margin: 0;
@@ -38,26 +39,49 @@
       gap: 10px;
     }
     .header {
-      text-align: center;
-      padding: 8px 0;
-      border-bottom: 1px solid var(--border-color);
+      background: var(--panel-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 10px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    }
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-badge {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #ff3366, #00ffcc);
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      color: #030712;
+      font-size: 14px;
+      box-shadow: 0 0 10px var(--accent-glow);
     }
     .header-title h1 {
       color: var(--accent-color);
-      font-size: 18px;
+      font-size: 16px;
       text-transform: uppercase;
       margin: 0;
-      letter-spacing: 2px;
+      letter-spacing: 1.5px;
       text-shadow: 0 0 10px var(--accent-glow);
-      text-align: left;
     }
-    .header-title p { color: var(--text-muted); font-size: 10px; margin: 2px 0 0 0; text-align: left; }
+    .header-title p { color: var(--text-muted); font-size: 9px; margin: 1px 0 0 0; }
     
     .dashboard-panel {
       background: var(--panel-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border: 1px solid var(--border-color);
       border-radius: 12px;
       padding: 14px;
@@ -69,7 +93,7 @@
     }
     .ad-banner-box {
       grid-column: 1 / -1;
-      background: #020617;
+      background: rgba(2, 6, 23, 0.6);
       border: 1px dashed var(--border-color);
       border-radius: 8px;
       padding: 10px;
@@ -91,7 +115,7 @@
       text-transform: uppercase;
     }
     .control-input, .control-select {
-      background: #020617;
+      background: rgba(2, 6, 23, 0.8);
       color: white;
       border: 1px solid var(--border-color);
       padding: 7px 10px;
@@ -100,7 +124,7 @@
       outline: none;
     }
     .btn-action {
-      background: #1e293b;
+      background: rgba(30, 41, 59, 0.8);
       color: var(--text-main);
       border: 1px solid var(--border-color);
       padding: 8px 12px;
@@ -110,8 +134,8 @@
       cursor: pointer;
       transition: background 0.2s;
     }
-    .btn-action:hover { background: #334155; }
-    .btn-settings { background: #0f766e; color: white; border: none; box-shadow: 0 0 10px rgba(15, 118, 110, 0.4); }
+    .btn-action:hover { background: rgba(51, 65, 85, 0.9); }
+    .btn-settings { background: rgba(15, 118, 110, 0.8); color: white; border: 1px solid var(--accent-color); box-shadow: 0 0 10px rgba(15, 118, 110, 0.4); }
     .btn-fullscreen {
       background: linear-gradient(135deg, #00ffcc, #009977);
       color: #030712;
@@ -127,43 +151,45 @@
       box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
     }
 
-    /* MODAL SETELAN PROFESIONAL (DUCKSTATION STYLE) */
+    /* MODAL SETELAN TRANSPARAN (GLASSMORPHISM PRO THEME) */
     #settingsModal {
       display: none;
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(3, 7, 18, 0.9);
+      background: rgba(3, 7, 18, 0.75);
       z-index: 1000;
       justify-content: center;
       align-items: center;
-      backdrop-filter: blur(6px);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
     }
     .modal-content {
-      background: var(--panel-bg);
+      background: rgba(11, 15, 25, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border: 1px solid var(--accent-color);
-      border-radius: 14px;
+      border-radius: 16px;
       width: 92%;
       max-width: 480px;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      box-shadow: 0 0 30px var(--accent-glow);
+      box-shadow: 0 0 35px var(--accent-glow);
     }
     .modal-header {
-      background: #020617;
+      background: rgba(2, 6, 23, 0.7);
       padding: 12px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       border-bottom: 1px solid var(--border-color);
     }
-    .modal-header h3 { margin: 0; color: var(--accent-color); font-size: 15px; text-transform: uppercase; letter-spacing: 1px; }
+    .modal-header h3 { margin: 0; color: var(--accent-color); font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
     .close-modal { background: none; border: none; color: var(--text-muted); font-size: 18px; cursor: pointer; }
     
-    /* Tab Navigasi */
     .modal-tabs {
       display: flex;
-      background: #020617;
+      background: rgba(2, 6, 23, 0.5);
       border-bottom: 1px solid var(--border-color);
       overflow-x: auto;
     }
@@ -183,16 +209,15 @@
     .tab-btn.active {
       color: var(--accent-color);
       border-bottom: 2px solid var(--accent-color);
-      background: rgba(0, 255, 204, 0.05);
+      background: rgba(0, 255, 204, 0.08);
     }
 
-    /* Tab Content Panels */
     .tab-pane {
       display: none;
       padding: 16px;
       flex-direction: column;
       gap: 12px;
-      max-height: 320px;
+      max-height: 300px;
       overflow-y: auto;
     }
     .tab-pane.active { display: flex; }
@@ -200,7 +225,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: #020617;
+      background: rgba(2, 6, 23, 0.6);
       padding: 10px 12px;
       border-radius: 8px;
       border: 1px solid var(--border-color);
@@ -211,7 +236,7 @@
 
     .modal-footer {
       padding: 12px 16px;
-      background: #020617;
+      background: rgba(2, 6, 23, 0.7);
       border-top: 1px solid var(--border-color);
       display: flex;
       justify-content: flex-end;
@@ -238,22 +263,24 @@
 <body oncontextmenu="return false;">
   <div class="app-container">
     <div class="header">
-      <div class="header-title">
-        <h1>K-Labs Retro Engine</h1>
-        <p>© 2026 Kialdevaro Group - Professional Architecture</p>
+      <div class="header-branding">
+        <div class="brand-badge">K</div>
+        <div class="header-title">
+          <h1>K-Labs Retro Engine</h1>
+          <p>© 2026 Kialdevaro Group - Branded Architecture</p>
+        </div>
       </div>
       <button class="btn-action btn-settings" onclick="toggleSettingsModal()">⚙ Setelan Pro</button>
     </div>
 
-    <!-- MODAL TAB SETELAN (DUCKSTATION STYLE) -->
+    <!-- MODAL SETELAN TRANSPARANS PRO -->
     <div id="settingsModal">
       <div class="modal-content">
         <div class="modal-header">
-          <h3>Setelan Emulator Pro</h3>
+          <h3>Setelan Emulator Pro (K-Labs)</h3>
           <button class="close-modal" onclick="toggleSettingsModal()">✕</button>
         </div>
         
-        <!-- Tab Navigasi -->
         <div class="modal-tabs">
           <button class="tab-btn active" onclick="switchTab(event, 'tabGraphics')">Graphics</button>
           <button class="tab-btn" onclick="switchTab(event, 'tabSystem')">System</button>
@@ -261,58 +288,54 @@
           <button class="tab-btn" onclick="switchTab(event, 'tabInterface')">Interface</button>
         </div>
 
-        <!-- TAB 1: GRAPHICS -->
         <div id="tabGraphics" class="tab-pane active">
           <div class="setting-row">
             <div class="setting-info">
               <span class="setting-title">Resolusi Internal</span>
-              <span class="setting-desc">Makin tinggi makin tajam, makin rendah makin anti-lag.</span>
+              <span class="setting-desc">Pilih 1x Native untuk performa anti-lag maksimal di HP.</span>
             </div>
             <select id="setResolution" class="control-select">
-              <option value="1">1x Native (Paling Ringan / HP Kentang)</option>
-              <option value="2" selected>2x HD (Seimbang 60 FPS)</option>
+              <option value="1" selected>1x Native (Super Ringan / Anti-Lag)</option>
+              <option value="2">2x HD (Standar Seimbang)</option>
               <option value="4">4x Ultra HD (Khusus HP/PC Sultan)</option>
             </select>
           </div>
           <div class="setting-row">
             <div class="setting-info">
               <span class="setting-title">GPU Renderer</span>
-              <span class="setting-desc">Akselerasi perangkat keras berbasis WebGL/Hardware.</span>
+              <span class="setting-desc">Akselerasi perangkat keras berbasis WebGL.</span>
             </div>
             <span style="color: var(--accent-color); font-size: 11px; font-weight: bold;">WebGL Accelerated</span>
           </div>
         </div>
 
-        <!-- TAB 2: SYSTEM -->
         <div id="tabSystem" class="tab-pane">
           <div class="setting-row">
             <div class="setting-info">
               <span class="setting-title">Fast Boot</span>
-              <span class="setting-desc">Mempatenkan BIOS untuk melewati animasi logo awal.</span>
+              <span class="setting-desc">Melewati animasi logo BIOS untuk masuk game lebih cepat.</span>
             </div>
             <input type="checkbox" id="setFastBoot" checked style="accent-color: var(--accent-color); width: 16px; height: 16px;">
           </div>
           <div class="setting-row">
             <div class="setting-info">
-              <span class="setting-title">VSync (Vertical Sync)</span>
-              <span class="setting-desc">Sinkronisasi frame agar gambar tidak robek (tearing).</span>
+              <span class="setting-title">VSync</span>
+              <span class="setting-desc">Sinkronisasi frame untuk kestabilan visual.</span>
             </div>
             <input type="checkbox" id="setVSync" checked style="accent-color: var(--accent-color); width: 16px; height: 16px;">
           </div>
         </div>
 
-        <!-- TAB 3: AUDIO -->
         <div id="tabAudio" class="tab-pane">
           <div class="setting-row">
             <div class="setting-info">
-              <span class="setting-title">Sinkronisasi Suara (Audio Sync)</span>
-              <span class="setting-desc">Mencegah suara patah-patah (*stutter*) pada HP spesifikasi rendah.</span>
+              <span class="setting-title">Audio Sync</span>
+              <span class="setting-desc">Mencegah suara patah-patah pada perangkat seluler.</span>
             </div>
             <input type="checkbox" id="setAudioSync" checked style="accent-color: var(--accent-color); width: 16px; height: 16px;">
           </div>
         </div>
 
-        <!-- TAB 4: INTERFACE -->
         <div id="tabInterface" class="tab-pane">
           <div class="setting-row">
             <div class="setting-info">
@@ -324,7 +347,7 @@
         </div>
 
         <div class="modal-footer">
-          <button class="btn-action btn-play" onclick="saveUserSettings()">Simpan & Terapkan Setelan</button>
+          <button class="btn-action btn-play" onclick="saveUserSettings()">Simpan & Terapkan</button>
         </div>
       </div>
     </div>
@@ -352,7 +375,7 @@
       <div id="emulator-screen">
         <div id="game"></div>
         <div id="placeholder-text" style="position: absolute; color: var(--text-muted); font-size: 13px; text-align: center; padding: 0 20px; z-index: 5;">
-          Atur Setelan Pro di pojok kanan atas, unggah BIOS & Game, lalu mainkan!
+          Atur Setelan Pro, unggah BIOS & Game, lalu klik Jalankan Game!
         </div>
         
         <div id="virtualGamepad" class="virtual-gamepad" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: flex; justify-content: space-between; align-items: flex-end; padding: 15px; box-sizing: border-box; z-index: 100;">
@@ -366,7 +389,7 @@
           </div>
           <div class="center-controls" style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; pointer-events: auto;">
             <button class="sys-btn" style="opacity: var(--btn-opacity);" ontouchstart="pressKey('SELECT', true)" ontouchend="pressKey('SELECT', false)" onmousedown="pressKey('SELECT', true)" onmouseup="pressKey('SELECT', false)">SELECT</button>
-            <button class="sys-btn" style="opacity: var(--btn-opacity);">DUALSHOCK</button>
+            <button class="sys-btn" style="opacity: var(--btn-opacity);">K-LABS</button>
             <button class="sys-btn" style="opacity: var(--btn-opacity);" ontouchstart="pressKey('START', true)" ontouchend="pressKey('START', false)" onmousedown="pressKey('START', true)" onmouseup="pressKey('START', false)">START</button>
           </div>
           <div class="analog-container" id="analogBase" style="pointer-events: auto; width: 130px; height: 130px; background: rgba(11, 15, 25, var(--btn-opacity)); border: 2px solid var(--accent-color); border-radius: 50%; position: relative; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(4px); box-shadow: 0 0 12px var(--accent-glow); touch-action: none;">
@@ -382,7 +405,8 @@
       </div>
     </div>
   </div>
-    <script>
+
+  <script>
     let biosBlobUrl = null;
     let romBlobUrl = null;
 
@@ -392,7 +416,6 @@
       }
     });
 
-    // Sistem Navigasi Tab Pro
     function switchTab(evt, tabName) {
       const panes = document.getElementsByClassName('tab-pane');
       for (let p of panes) p.classList.remove('active');
@@ -409,7 +432,6 @@
       modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
     }
 
-    // Penyimpanan Setelan Pengguna ke localStorage
     function saveUserSettings() {
       const res = document.getElementById('setResolution').value;
       const fastBoot = document.getElementById('setFastBoot').checked;
@@ -427,18 +449,11 @@
       alert("Setelan Pro berhasil disimpan & diterapkan!");
     }
 
-    // Muat setelan otomatis saat halaman dibuka
     window.addEventListener('DOMContentLoaded', () => {
       const savedRes = localStorage.getItem('klabs_res');
-      const savedFastBoot = localStorage.getItem('klabs_fastboot');
-      const savedVsync = localStorage.getItem('klabs_vsync');
-      const savedAudioSync = localStorage.getItem('klabs_audiosync');
       const savedOpacity = localStorage.getItem('klabs_opacity');
 
       if (savedRes) document.getElementById('setResolution').value = savedRes;
-      if (savedFastBoot !== null) document.getElementById('setFastBoot').checked = (savedFastBoot === 'true');
-      if (savedVsync !== null) document.getElementById('setVSync').checked = (savedVsync === 'true');
-      if (savedAudioSync !== null) document.getElementById('setAudioSync').checked = (savedAudioSync === 'true');
       if (savedOpacity) {
         document.getElementById('setOpacity').value = savedOpacity;
         changeOpacity(savedOpacity);
@@ -463,7 +478,11 @@
       }
     }
 
+    // Router Iframe yang meneruskan event tombol ke emulator secara langsung
     function pressKey(btn, isDown) {
+      const iframe = document.querySelector('#game iframe');
+      if (!iframe || !iframe.contentWindow) return;
+
       let keyCode;
       switch(btn) {
         case 'CROSS': keyCode = 'KeyX'; break;
@@ -478,11 +497,12 @@
         case 'START': keyCode = 'Enter'; break;
         default: return;
       }
+      
       const eventType = isDown ? 'keydown' : 'keyup';
-      window.dispatchEvent(new KeyboardEvent(eventType, { code: keyCode, bubbles: true }));
+      iframe.contentWindow.dispatchEvent(new KeyboardEvent(eventType, { code: keyCode, bubbles: true, cancelable: true }));
     }
 
-    // Analog Stick Interaktif dengan Performa Tinggi
+    // Touch & Mouse Analog Handling
     const analogBase = document.getElementById('analogBase');
     const analogStick = document.getElementById('analogStick');
     let isDragging = false;
@@ -543,7 +563,7 @@
       if (f) { romBlobUrl = URL.createObjectURL(f); }
     });
 
-    // EKSEKUSI MASTER ENGINE DENGAN SETELAN TAB PRO PENGGUNA
+    // MASTER ENGINE BOOT DENGAN OPTIMALISASI ZERO-LAG
     function bootMasterEngine() {
       if (!biosBlobUrl) {
         alert("Harap pilih file BIOS PS1 (.bin) terlebih dahulu!");
@@ -556,7 +576,6 @@
 
       document.getElementById('placeholder-text').style.display = 'none';
 
-      // Ambil preferensi dari localStorage atau default aman
       const userRes = localStorage.getItem('klabs_res') || '1';
 
       window.EJS_player = '#game';
@@ -565,7 +584,7 @@
       window.EJS_biosUrl = biosBlobUrl;
       window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
       window.EJS_mouse = false;
-      window.EJS_multitouch = true;
+      window.EJS_multitouch = false;
       window.EJS_color = '#00ffcc';
       window.EJS_threads = false;
       window.EJS_startOnLoad = true;
