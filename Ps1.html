@@ -552,16 +552,6 @@
 
       if (!rafId) rafId = requestAnimationFrame(updateStickPosition);
     }
-
-    analogBase.addEventListener('touchstart', e => { isDragging = true; handleAnalogMove(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
-    window.addEventListener('touchmove', e => { if (!isDragging) return; handleAnalogMove(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
-    window.addEventListener('touchend', () => { 
-      if (!isDragging) return; 
-      isDragging = false; 
-      currentX = 0; currentY = 0;
-      if (!rafId) rafId = requestAnimationFrame(updateStickPosition);
-    });
-
     analogBase.addEventListener('mousedown', e => { isDragging = true; handleAnalogMove(e.clientX, e.clientY); });
     window.addEventListener('mousemove', e => { if (!isDragging) return; handleAnalogMove(e.clientX, e.clientY); });
     window.addEventListener('mouseup', () => { 
