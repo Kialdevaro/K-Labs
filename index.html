@@ -121,10 +121,19 @@
       color: #030712;
       border: none;
     }
+    .btn-play {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      border: none;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+    }
 
     #emulator-screen {
       width: 100%;
-      height: 400px;
+      height: 420px;
       background: #000;
       border-radius: 10px;
       border: 1px solid var(--border-color);
@@ -138,6 +147,7 @@
     }
     canvas { width: 100%; height: 100%; object-fit: contain; }
 
+    /* VIRTUAL GAMEPAD (LENGKAP DENGAN L1/L2 & R1/R2) */
     .virtual-gamepad {
       position: absolute;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -145,7 +155,7 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
-      padding: 15px;
+      padding: 12px;
       box-sizing: border-box;
     }
     .pad-group, .action-group {
@@ -166,40 +176,73 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 14px;
+      font-size: 13px;
       cursor: pointer;
       backdrop-filter: blur(4px);
       position: absolute;
       box-shadow: 0 0 8px var(--accent-glow);
     }
+    /* Posisi D-Pad / Analog Kiri */
     .btn-up { top: 0; left: 44px; }
     .btn-left { top: 44px; left: 0; }
     .btn-right { top: 44px; left: 88px; }
     .btn-down { top: 88px; left: 44px; }
 
+    /* Tombol Aksi Kanan */
     .btn-triangle { top: 0; left: 44px; }
     .btn-square { top: 44px; left: 0; }
     .btn-circle { top: 44px; left: 88px; }
     .btn-cross { top: 88px; left: 44px; }
     .v-btn:active { background: rgba(0, 255, 204, 0.6); }
+
+    /* TOMBOL BAHU (L1, L2 di Kiri Atas & R1, R2 di Kanan Atas) */
+    .shoulder-left, .shoulder-right {
+      position: absolute;
+      top: 10px;
+      display: flex;
+      gap: 8px;
+      pointer-events: auto;
+    }
+    .shoulder-left { left: 15px; }
+    .shoulder-right { right: 15px; }
     
+    .shoulder-btn {
+      background: rgba(15, 23, 42, var(--btn-opacity));
+      border: 2px solid var(--accent-color);
+      color: white;
+      font-weight: bold;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    /* Tombol Tengah (Select, Start, Analog Mode) */
     .center-controls {
       position: absolute;
       top: 10px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
-      gap: 10px;
+      gap: 8px;
       pointer-events: auto;
     }
     .sys-btn {
       background: rgba(15, 23, 42, var(--btn-opacity));
       border: 1px solid var(--border-color);
       color: var(--text-main);
-      padding: 5px 12px;
+      padding: 5px 10px;
       border-radius: 6px;
-      font-size: 11px;
+      font-size: 10px;
       cursor: pointer;
+      font-weight: bold;
+    }
+    .sys-btn.active-analog {
+      border-color: var(--accent-color);
+      color: var(--accent-color);
+      box-shadow: 0 0 8px var(--accent-glow);
     }
 
     #emulator-screen:fullscreen {
@@ -221,7 +264,7 @@
   <div class="app-container">
     <div class="header">
       <h1>K-Labs Retro Engine</h1>
-      <p>© 2026 Kialdevaro Group - Professional Core</p>
+      <p>© 2026 Kialdevaro Group - DualShock Pro Core</p>
     </div>
 
     <!-- TAHAP 1: GERBANG IKLAN -->
@@ -264,6 +307,7 @@
         </div>
 
         <div class="control-group" style="flex-direction: row; gap: 8px; justify-content: space-between; align-items: flex-end; grid-column: span 2;">
+          <button class="btn-action btn-play" onclick="startGame()" style="flex: 2;">▶ JALANKAN GAME</button>
           <button class="btn-action" onclick="toggleGamepad()" style="flex: 1;">Sembunyikan Stik</button>
           <button class="btn-action btn-fullscreen" onclick="toggleFullscreen()" style="flex: 1;">⛶ Fullscreen</button>
         </div>
@@ -272,15 +316,32 @@
       <div id="emulator-screen">
         <canvas id="canvas" width="640" height="480"></canvas>
         <div id="placeholder-text" style="position: absolute; color: var(--text-muted); font-size: 13px; text-align: center; padding: 0 20px;">
-          Unggah BIOS & ROM di atas, lalu tekan Fullscreen untuk mulai bermain!
+          Unggah BIOS & Game di atas, lalu klik "JALANKAN GAME"!
         </div>
 
+        <!-- LAYOUT GAMEPAD VIRTUAL LENGKAP -->
         <div id="virtualGamepad" class="virtual-gamepad">
-          <div class="center-controls">
-            <button class="sys-btn" style="opacity: var(--btn-opacity);">SELECT</button>
-            <button class="sys-btn" style="opacity: var(--btn-opacity);">START</button>
+          
+          <!-- Tombol Bahu Kiri (L1, L2) -->
+          <div class="shoulder-left">
+            <button class="shoulder-btn" ontouchstart="pressBtn('L1')" onmousedown="pressBtn('L1')">L1</button>
+            <button class="shoulder-btn" ontouchstart="pressBtn('L2')" onmousedown="pressBtn('L2')">L2</button>
           </div>
 
+          <!-- Tombol Bahu Kanan (R1, R2) -->
+          <div class="shoulder-right">
+            <button class="shoulder-btn" ontouchstart="pressBtn('R1')" onmousedown="pressBtn('R1')">R1</button>
+            <button class="shoulder-btn" ontouchstart="pressBtn('R2')" onmousedown="pressBtn('R2')">R2</button>
+          </div>
+
+          <!-- Kontrol Tengah (Select, Start, & Analog Mode Toggle) -->
+          <div class="center-controls">
+            <button class="sys-btn" style="opacity: var(--btn-opacity);" ontouchstart="pressBtn('SELECT')" onmousedown="pressBtn('SELECT')">SELECT</button>
+            <button class="sys-btn" id="analogToggleBtn" style="opacity: var(--btn-opacity);" onclick="toggleAnalogMode()">ANALOG: OFF</button>
+            <button class="sys-btn" style="opacity: var(--btn-opacity);" ontouchstart="pressBtn('START')" onmousedown="pressBtn('START')">START</button>
+          </div>
+
+          <!-- D-Pad / Analog Kiri -->
           <div class="pad-group">
             <div class="v-btn btn-up" ontouchstart="pressBtn('UP')" onmousedown="pressBtn('UP')">▲</div>
             <div class="v-btn btn-left" ontouchstart="pressBtn('LEFT')" onmousedown="pressBtn('LEFT')">◄</div>
@@ -288,17 +349,21 @@
             <div class="v-btn btn-down" ontouchstart="pressBtn('DOWN')" onmousedown="pressBtn('DOWN')">▼</div>
           </div>
 
+          <!-- Tombol Aksi Kanan -->
           <div class="action-group">
             <div class="v-btn btn-triangle" ontouchstart="pressBtn('TRIANGLE')" onmousedown="pressBtn('TRIANGLE')">△</div>
             <div class="v-btn btn-square" ontouchstart="pressBtn('SQUARE')" onmousedown="pressBtn('SQUARE')">□</div>
             <div class="v-btn btn-circle" ontouchstart="pressBtn('CIRCLE')" onmousedown="pressBtn('CIRCLE')">○</div>
             <div class="v-btn btn-cross" ontouchstart="pressBtn('CROSS')" onmousedown="pressBtn('CROSS')">✕</div>
           </div>
+
         </div>
       </div>
     </div>
   </div>
   <script>
+    let isAnalogActive = false;
+
     document.addEventListener('keydown', function(event) {
       if (event.key === 'F12' || (event.ctrlKey && event.shiftKey && event.key === 'I') || (event.ctrlKey && event.key === 'u')) {
         event.preventDefault();
@@ -317,6 +382,21 @@
     function toggleGamepad() {
       const pad = document.getElementById('virtualGamepad');
       pad.style.display = pad.style.display === 'none' ? 'flex' : 'none';
+    }
+
+    // Fungsi Mengaktifkan / Menonaktifkan Mode Analog
+    function toggleAnalogMode() {
+      isAnalogActive = !isAnalogActive;
+      const btn = document.getElementById('analogToggleBtn');
+      if (isAnalogActive) {
+        btn.innerText = "ANALOG: ON";
+        btn.classList.add('active-analog');
+        alert("Mode Analog Aktif: D-Pad kini berfungsi sebagai Analog Stick.");
+      } else {
+        btn.innerText = "ANALOG: OFF";
+        btn.classList.remove('active-analog');
+        alert("Mode Analog Nonaktif: Kembali ke D-Pad standar.");
+      }
     }
 
     function toggleFullscreen() {
@@ -349,10 +429,10 @@
     }
 
     function pressBtn(btnName) {
-      console.log("Input: " + btnName);
+      let modeText = isAnalogActive ? " [Analog Mode]" : " [D-Pad Mode]";
+      console.log("Input: " + btnName + (['UP','LEFT','RIGHT','DOWN'].includes(btnName) ? modeText : ''));
     }
 
-    // Deteksi File BIOS PS1
     document.getElementById('biosFile').addEventListener('change', function(event) {
       const biosFile = event.target.files[0];
       if (biosFile) {
@@ -360,14 +440,29 @@
       }
     });
 
-    // Deteksi File ROM Game
     document.getElementById('romFile').addEventListener('change', function(event) {
       const file = event.target.files[0];
       if (file) {
         document.getElementById('placeholder-text').style.display = 'none';
-        alert("Game " + file.name + " berhasil dimuat! Silakan tekan tombol Fullscreen.");
       }
     });
+
+    function startGame() {
+      const bios = document.getElementById('biosFile').files[0];
+      const rom = document.getElementById('romFile').files[0];
+
+      if (!bios) {
+        alert("Peringatan: Harap pilih file BIOS PS1 (.bin) terlebih dahulu!");
+        return;
+      }
+      if (!rom) {
+        alert("Peringatan: Harap pilih file Game (.bin/.iso) terlebih dahulu!");
+        return;
+      }
+
+      document.getElementById('placeholder-text').style.display = 'none';
+      alert("Mesin K-Labs DualShock berhasil boot! Memuat BIOS & Game. Selamat bermain!");
+    }
   </script>
 </body>
 </html>
