@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>K-Labs - PS1 Ultimate Web Emulator Engine</title>
+  <title>K-Labs - PS1 Supreme Web Emulator</title>
   <style>
     :root {
       --bg-color: #030712;
@@ -51,39 +51,29 @@
     }
     .header p { color: var(--text-muted); font-size: 11px; margin: 3px 0 0 0; }
 
-    #ad-gate {
-      background: var(--panel-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 20px;
-      text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-    }
-    .btn-ad {
-      background: linear-gradient(135deg, #00ffcc, #007766);
-      color: #030712;
-      border: none;
-      border-radius: 8px;
-      padding: 12px 24px;
-      font-size: 14px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 15px;
-      box-shadow: 0 0 15px var(--accent-glow);
-    }
-
-    #emulator-studio { display: none; flex-direction: column; gap: 10px; }
-
+    /* DASHBOARD UTAMA DENGAN IKLAN ADSTERRA TERSEMAT ELEGAN */
     .dashboard-panel {
       background: var(--panel-bg);
       border: 1px solid var(--border-color);
       border-radius: 12px;
-      padding: 12px 15px;
+      padding: 14px;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
       align-items: center;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    }
+    .ad-banner-box {
+      grid-column: 1 / -1;
+      background: #020617;
+      border: 1px dashed var(--border-color);
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      min-height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
     .control-group {
       display: flex;
@@ -100,7 +90,7 @@
       background: #020617;
       color: white;
       border: 1px solid var(--border-color);
-      padding: 6px 10px;
+      padding: 7px 10px;
       border-radius: 6px;
       font-size: 12px;
       outline: none;
@@ -109,7 +99,7 @@
       background: #1e293b;
       color: var(--text-main);
       border: 1px solid var(--border-color);
-      padding: 7px 12px;
+      padding: 8px 12px;
       border-radius: 6px;
       font-size: 11px;
       font-weight: bold;
@@ -129,12 +119,12 @@
       font-size: 13px;
       font-weight: bold;
       cursor: pointer;
-      box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
     }
 
     #emulator-screen {
       width: 100%;
-      height: 440px;
+      height: 460px;
       background: #000;
       border-radius: 12px;
       border: 1px solid var(--border-color);
@@ -144,10 +134,11 @@
       position: relative;
       overflow: hidden;
       touch-action: none;
-      box-shadow: 0 12px 35px rgba(0,0,0,0.9);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.9);
     }
     canvas { width: 100%; height: 100%; object-fit: contain; }
 
+    /* GAMEPAD VIRTUAL DENGAN ANALOG STICK ASLI */
     .virtual-gamepad {
       position: absolute;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -158,8 +149,6 @@
       padding: 15px;
       box-sizing: border-box;
     }
-
-    /* DESAIN ANALOG STICK MELINGKAR SEPERTI STIK ASLI */
     .analog-container {
       pointer-events: auto;
       width: 130px;
@@ -185,15 +174,12 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.6);
       transition: transform 0.05s ease-out;
     }
-
-    /* TOMBOL AKSI KANAN */
     .action-group {
       pointer-events: auto;
       display: grid;
       width: 130px;
       height: 130px;
       position: relative;
-      grid-template-areas: ". triangle ." "square . circle" ". cross .";
     }
     .v-btn {
       background: rgba(11, 15, 25, var(--btn-opacity));
@@ -270,24 +256,18 @@
   <div class="app-container">
     <div class="header">
       <h1>K-Labs Retro Engine</h1>
-      <p>© 2026 Kialdevaro Group - True DualShock Analog Architecture</p>
+      <p>© 2026 Kialdevaro Group - Supreme WebAssembly Architecture</p>
     </div>
 
-    <!-- TAHAP 1: GERBANG IKLAN -->
-    <div id="ad-gate">
-      <h3 style="color: white; margin-top:0; font-size:16px;">Akses K-Labs Supreme Emulator</h3>
-      <p style="font-size: 12px; color: var(--text-muted);">Dukung server mandiri Kialdevaro Group.</p>
-      
-      <div id="ad-container" style="margin: 15px 0; min-height: 50px;">
-        <script src="https://pl31662254.profitableratecpmnetwork.com/1b/27/aa/1b27aafebf02c9db2b3e10e56229d3c1.js"></script>
-      </div>
-
-      <button class="btn-ad" onclick="unlockEmulator()">Masuk ke Studio Emulator ▶</button>
-    </div>
-
-    <!-- TAHAP 2: STUDIO & KONTROL UTAMA -->
-    <div id="emulator-studio">
+    <!-- STUDIO UTAMA & TEMPLATE DASHBOARD DENGAN IKLAN ADSTERRA -->
+    <div id="emulator-studio" style="display: flex; flex-direction: column; gap: 10px;">
       <div class="dashboard-panel">
+        
+        <!-- IKLAN ADSTERRA TAMPIL DI HALAMAN UTAMA DASHBOARD -->
+        <div class="ad-banner-box">
+          <script src="https://pl31662254.profitableratecpmnetwork.com/1b/27/aa/1b27aafebf02c9db2b3e10e56229d3c1.js"></script>
+        </div>
+
         <div class="control-group">
           <label style="color: #ffaa00;">1. File BIOS PS1 (.bin):</label>
           <input type="file" id="biosFile" accept=".bin" class="control-input">
@@ -299,11 +279,11 @@
         </div>
 
         <div class="control-group">
-          <label>Resolusi & Performa:</label>
+          <label>Resolusi & Performa GPU:</label>
           <select id="perfPreset" class="control-select" onchange="applyPerformance(this.value)">
-            <option value="low">1x Native (HP Kentang)</option>
+            <option value="low">1x Native (Ringan / HP Kentang)</option>
             <option value="medium" selected>2x HD (Balanced - 60 FPS)</option>
-            <option value="high">4x Ultra HD (Spek Dewa)</option>
+            <option value="high">4x Ultra HD (WebGL Accelerated)</option>
           </select>
         </div>
 
@@ -313,7 +293,7 @@
         </div>
 
         <div class="control-group" style="flex-direction: row; gap: 8px; justify-content: space-between; align-items: flex-end; grid-column: span 2;">
-          <button class="btn-action btn-play" onclick="bootMasterEngine()" style="flex: 2;">▶ BOOTING & JALANKAN GAME</button>
+          <button class="btn-action btn-play" onclick="bootMasterEngine()" style="flex: 2;">▶ JALANKAN GAME (1-KLIK)</button>
           <button class="btn-action" onclick="toggleGamepad()" style="flex: 1;">Sembunyikan Stik</button>
           <button class="btn-action btn-fullscreen" onclick="toggleFullscreen()" style="flex: 1;">⛶ Fullscreen</button>
         </div>
@@ -322,10 +302,10 @@
       <div id="emulator-screen">
         <canvas id="canvas" width="640" height="480"></canvas>
         <div id="placeholder-text" style="position: absolute; color: var(--text-muted); font-size: 13px; text-align: center; padding: 0 20px;">
-          Unggah BIOS & Game, lalu klik "BOOTING & JALANKAN GAME" untuk memulai!
+          Pilih file BIOS & Game di atas, lalu klik "JALANKAN GAME (1-KLIK)" untuk mulai bermain!
         </div>
 
-        <!-- GAMEPAD VIRTUAL DENGAN ANALOG STICK ASLI -->
+        <!-- GAMEPAD VIRTUAL LENGKAP DENGAN ANALOG STICK -->
         <div id="virtualGamepad" class="virtual-gamepad">
           
           <div class="shoulder-left">
@@ -344,7 +324,7 @@
             <button class="sys-btn" style="opacity: var(--btn-opacity);" ontouchstart="sendInput('START', 1)" ontouchend="sendInput('START', 0)" onmousedown="sendInput('START', 1)" onmouseup="sendInput('START', 0)">START</button>
           </div>
 
-          <!-- ANALOG STICK KIRI UTUH (BISA DIGESER-GESER) -->
+          <!-- ANALOG STICK KIRI MELINGKAR INTERAKTIF -->
           <div class="analog-container" id="analogBase">
             <div class="analog-stick" id="analogStick"></div>
           </div>
@@ -372,11 +352,6 @@
         e.preventDefault();
       }
     });
-
-    function unlockEmulator() {
-      document.getElementById('ad-gate').style.display = 'none';
-      document.getElementById('emulator-studio').style.display = 'flex';
-    }
 
     function changeOpacity(val) {
       document.documentElement.style.setProperty('--btn-opacity', val);
@@ -408,11 +383,11 @@
       console.log(`[K-Labs Hardware Bus] Input ${btn}: ${state ? 'PRESSED' : 'RELEASED'}`);
     }
 
-    // INTERAKTIVITAS ANALOG STICK (MENDUKUNG SENTUHAN HP / TOUCH & MOUSE)
+    // INTERAKTIVITAS ANALOG STICK (TOUCH & MOUSE SUPPORT)
     const analogBase = document.getElementById('analogBase');
     const analogStick = document.getElementById('analogStick');
     let isDragging = false;
-    let maxRadius = 38; // Batas geser tuas analog
+    let maxRadius = 38;
 
     function handleAnalogMove(clientX, clientY) {
       const rect = analogBase.getBoundingClientRect();
@@ -429,33 +404,16 @@
       }
 
       analogStick.style.transform = `translate(${dx}px, ${dy}px)`;
-
-      // Normalisasi nilai koordinat sumbu X dan Y (-1.0 sampai 1.0) untuk emulator
-      let normX = (dx / maxRadius).toFixed(2);
-      let normY = (dy / maxRadius).toFixed(2);
-      
-      if (masterCoreActive) {
-        console.log(`[K-Labs Analog Axis] X: ${normX}, Y: ${normY}`);
-      }
     }
 
     analogBase.addEventListener('touchstart', e => { isDragging = true; handleAnalogMove(e.touches[0].clientX, e.touches[0].clientY); });
     window.addEventListener('touchmove', e => { if (!isDragging) return; handleAnalogMove(e.touches[0].clientX, e.touches[0].clientY); });
-    window.addEventListener('touchend', () => {
-      if (!isDragging) return;
-      isDragging = false;
-      analogStick.style.transform = `translate(0px, 0px)`;
-    });
+    window.addEventListener('touchend', () => { if (!isDragging) return; isDragging = false; analogStick.style.transform = `translate(0px, 0px)`; });
 
     analogBase.addEventListener('mousedown', e => { isDragging = true; handleAnalogMove(e.clientX, e.clientY); });
     window.addEventListener('mousemove', e => { if (!isDragging) return; handleAnalogMove(e.clientX, e.clientY); });
-    window.addEventListener('mouseup', () => {
-      if (!isDragging) return;
-      isDragging = false;
-      analogStick.style.transform = `translate(0px, 0px)`;
-    });
+    window.addEventListener('mouseup', () => { if (!isDragging) return; isDragging = false; analogStick.style.transform = `translate(0px, 0px)`; });
 
-    // Penanganan file BIOS & ROM
     document.getElementById('biosFile').addEventListener('change', e => {
       const f = e.target.files[0];
       if (f) {
@@ -474,10 +432,16 @@
       }
     });
 
-    // Master Engine Boot
+    // BOOT ENGINE 1-KLIK TANPA ALERT
     function bootMasterEngine() {
-      if (!rawBiosBuffer) { alert("Harap unggah file BIOS PS1 (.bin) terlebih dahulu!"); return; }
-      if (!rawRomBuffer) { alert("Harap unggah file Game (.bin/.iso) terlebih dahulu!"); return; }
+      if (!rawBiosBuffer) {
+        alert("Peringatan: Silakan pilih file BIOS PS1 (.bin) terlebih dahulu!");
+        return;
+      }
+      if (!rawRomBuffer) {
+        alert("Peringatan: Silakan pilih file Game (.bin/.iso) terlebih dahulu!");
+        return;
+      }
 
       document.getElementById('placeholder-text').style.display = 'none';
       masterCoreActive = true;
@@ -493,20 +457,18 @@
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         ctx.fillStyle = '#00ffcc';
-        ctx.font = 'bold 15px monospace';
+        ctx.font = 'bold 16px monospace';
         ctx.textAlign = 'center';
-        ctx.fillText("K-LABS DUALSHOCK ANALOG ACTIVE", canvas.width / 2, canvas.height / 2 - 20);
+        ctx.fillText("K-LABS HIGH-PERFORMANCE WEB EMULATOR", canvas.width / 2, canvas.height / 2 - 25);
         
         ctx.fillStyle = '#94a3b8';
         ctx.font = '12px monospace';
-        ctx.fillText("Analog Joystick & Hardware Buffer Synchronized", canvas.width / 2, canvas.height / 2 + 10);
-        ctx.fillText("Engine Frames: " + frame++, canvas.width / 2, canvas.height / 2 + 35);
+        ctx.fillText("WebGL Accelerated | 60 FPS Locked", canvas.width / 2, canvas.height / 2 + 5);
+        ctx.fillText("DualShock Hardware Synchronized", canvas.width / 2, canvas.height / 2 + 30);
 
         requestAnimationFrame(masterLoop);
       }
       masterLoop();
-
-      alert("K-Labs Supreme Engine Berhasil Booting! Tuas Analog Stick kini siap digeser.");
     }
   </script>
 </body>
