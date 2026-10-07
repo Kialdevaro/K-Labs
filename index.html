@@ -133,33 +133,48 @@
   <!-- Skrip Penggerak Mesin K-Labs -->
   <script>
     async function bootMasterEngine() {
-      const biosInput = document.getElementById('biosFile');
-      const romInput = document.getElementById('romFile');
+      try {
+        const biosInput = document.getElementById('biosFile');
+        const romInput = document.getElementById('romFile');
 
-      if (!biosInput.files[0]) {
-        alert("Harap pilih file BIOS PS1 (.bin) terlebih dahulu!");
-        return;
-      }
-      if (!romInput.files[0]) {
-        alert("Harap pilih file Game ROM (.bin/.iso) terlebih dahulu!");
-        return;
-      }
+        if (!biosInput.files[0]) {
+          alert("Harap pilih file BIOS PS1 (.bin) terlebih dahulu!");
+          return;
+        }
+        if (!romInput.files[0]) {
+          alert("Harap pilih file Game ROM (.bin/.iso) terlebih dahulu!");
+          return;
+        }
 
-      console.log("[K-Labs Studio] Memproses file biner ke memori inti mandiri...");
-      await window.KLabsEngine.loader.loadBIOS(biosInput.files[0]);
-      await window.KLabsEngine.loader.loadROM(romInput.files[0]);
+        if (!window.KLabsEngine) {
+          alert("Galat: Core Engine (core.js) belum terhubung dengan benar!");
+          return;
+        }
 
-      if (window.KLabsEngine.cpu) {
-        window.KLabsEngine.cpu.reset();
-        window.KLabsEngine.cpu.isRunning = true;
+        console.log("[K-Labs Studio] Memproses file biner ke memori inti mandiri...");
         
+        // Memuat file BIOS dan ROM ke memori
+        await window.KLabsEngine.loader.loadBIOS(biosInput.files[0]);
+        await window.KLabsEngine.loader.loadROM(romInput.files[0]);
+
+        // Mengaktifkan status CPU
+        if (window.KLabsEngine.cpu) {
+          window.KLabsEngine.cpu.reset();
+          window.KLabsEngine.cpu.isRunning = true;
+        }
+
+        // Menjalankan Master Loop Eksekusi
         if (window.KLabsEngine.execution) {
           window.KLabsEngine.execution.startLoop();
+          console.log("[K-Labs Studio] Master Execution Loop berhasil diaktifkan!");
+        } else {
+          console.error("[K-Labs Error] Execution Engine tidak ditemukan di dalam memori!");
         }
-      }
 
-      console.log("[K-Labs Studio] CPU MIPS R3000A & Main Execution Loop diaktifkan!");
-      alert("Mahakarya K-Labs: Mesin inti mandiri berhasil di-boot dan memori game telah dimuat!");
+      } catch (error) {
+        console.error("[K-Labs Critical Error]:", error);
+        alert("Gagal mem-booting game. Periksa Konsol Peramban (F12) untuk detail galat.");
+      }
     }
   </script>
 
