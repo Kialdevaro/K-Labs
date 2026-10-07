@@ -590,10 +590,16 @@
       window.EJS_startOnLoad = true;
       window.EJS_internalResolution = userRes;
 
-      const script = document.createElement('script');
-      script.src = 'https://cdn.emulatorjs.org/stable/data/loader.js';
-      document.body.appendChild(script);
-    }
-  </script>
-</body>
-</html>
+                const script = document.createElement('script');
+          script.src = 'https://cdn.emulatorjs.org/stable/data/loader.js';
+          document.body.appendChild(script);
+        }
+      </script>
+
+      <!-- Panggil Core Engine Mandiri K-Labs -->
+      <script src="Core.js"></script>
+
+    </body>
+    </html>
+
+
