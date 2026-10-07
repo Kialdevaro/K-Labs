@@ -51,7 +51,6 @@
     }
     .header p { color: var(--text-muted); font-size: 11px; margin: 3px 0 0 0; }
 
-    /* DASHBOARD UTAMA DENGAN IKLAN ADSTERRA */
     .dashboard-panel {
       background: var(--panel-bg);
       border: 1px solid var(--border-color);
@@ -137,10 +136,9 @@
       box-shadow: 0 15px 40px rgba(0,0,0,0.9);
     }
     
-    /* Wadah canvas dari Core Emulator */
-    #game { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+    /* Wadah utama EmulatorJS */
+    #game { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 2; }
 
-    /* GAMEPAD VIRTUAL DENGAN ANALOG STICK ASLI */
     .virtual-gamepad {
       position: absolute;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -265,7 +263,7 @@
     <div id="emulator-studio" style="display: flex; flex-direction: column; gap: 10px;">
       <div class="dashboard-panel">
         
-        <!-- IKLAN ADSTERRA DI HALAMAN UTAMA DASHBOARD -->
+        <!-- IKLAN ADSTERRA -->
         <div class="ad-banner-box">
           <script src="https://pl31662254.profitableratecpmnetwork.com/1b/27/aa/1b27aafebf02c9db2b3e10e56229d3c1.js"></script>
         </div>
@@ -302,11 +300,11 @@
       </div>
 
       <div id="emulator-screen">
-        <!-- Wadah Rendering Core Emulator -->
+        <!-- Wadah Murni untuk Core Emulator -->
         <div id="game"></div>
         
-        <div id="placeholder-text" style="position: absolute; color: var(--text-muted); font-size: 13px; text-align: center; padding: 0 20px; z-index: 5;">
-          Unggah BIOS & Game di atas, lalu klik "JALANKAN GAME (1-KLIK)" untuk mulai bermain!
+        <div id="placeholder-text" style="position: absolute; color: var(--text-muted); font-size: 13px; text-align: center; padding: 0 20px; z-index: 1;">
+          Pilih file BIOS & Game di atas, lalu klik "JALANKAN GAME (1-KLIK)"!
         </div>
 
         <!-- GAMEPAD VIRTUAL SUPREME -->
@@ -374,7 +372,6 @@
       }
     }
 
-    // Pemetaan tombol virtual ke event keyboard peramban untuk diumpankan ke Core Engine
     function pressKey(btn, isDown) {
       let keyCode;
       switch(btn) {
@@ -425,8 +422,7 @@
     window.addEventListener('mousemove', e => { if (!isDragging) return; handleAnalogMove(e.clientX, e.clientY); });
     window.addEventListener('mouseup', () => { if (!isDragging) return; isDragging = false; analogStick.style.transform = `translate(0px, 0px)`; });
 
-    // Konversi File Lokal ke Blob URL agar bisa dibaca oleh Core Engine
-    document.getElementById('biosFile').addEventListener('change', e => {
+        document.getElementById('biosFile').addEventListener('change', e => {
       const f = e.target.files[0];
       if (f) { biosBlobUrl = URL.createObjectURL(f); }
     });
@@ -436,7 +432,7 @@
       if (f) { romBlobUrl = URL.createObjectURL(f); }
     });
 
-    // INISIALISASI MASTER CORE ENGINE (EMULATORJS) 1-KLIK BOOT
+    // EKSEKUSI NYATA CORE ENGINE
     function bootMasterEngine() {
       if (!biosBlobUrl) {
         alert("Harap pilih file BIOS PS1 (.bin) terlebih dahulu!");
@@ -449,7 +445,7 @@
 
       document.getElementById('placeholder-text').style.display = 'none';
 
-      // Konfigurasi Global Core Engine PS1
+      // Parameter Resmi Core EmulatorJS
       window.EJS_player = '#game';
       window.EJS_core = 'psx';
       window.EJS_gameUrl = romBlobUrl;
@@ -459,7 +455,7 @@
       window.EJS_multitouch = true;
       window.EJS_color = '#00ffcc';
 
-      // Suntikkan Skrip Pemuat Core WebAssembly secara Dinamis
+      // Muat Pemuat Engine WebAssembly
       const script = document.createElement('script');
       script.src = 'https://cdn.emulatorjs.org/stable/data/loader.js';
       document.body.appendChild(script);
