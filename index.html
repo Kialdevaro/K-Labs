@@ -240,12 +240,17 @@
     <div id="emulator-studio">
       <div class="dashboard-panel">
         <div class="control-group">
-          <label>Pilih File Game (.bin / .iso):</label>
+          <label style="color: #ffaa00;">1. File BIOS PS1 (.bin):</label>
+          <input type="file" id="biosFile" accept=".bin" class="control-input">
+        </div>
+
+        <div class="control-group">
+          <label style="color: var(--accent-color);">2. File Game (.bin / .iso):</label>
           <input type="file" id="romFile" accept=".bin,.cue,.iso,.img" class="control-input">
         </div>
 
         <div class="control-group">
-          <label>Performa Grafik / Framerate:</label>
+          <label>Performa & Framerate:</label>
           <select id="perfPreset" class="control-select" onchange="applyPerformance(this.value)">
             <option value="low">Rendah / Anti-Lag (HP Kentang)</option>
             <option value="medium" selected>Standar / Balanced (60 FPS)</option>
@@ -258,7 +263,7 @@
           <input type="range" class="control-input" min="0.2" max="1.0" step="0.1" value="0.6" oninput="changeOpacity(this.value)" style="padding: 2px;">
         </div>
 
-        <div class="control-group" style="flex-direction: row; gap: 8px; justify-content: space-between; align-items: flex-end;">
+        <div class="control-group" style="flex-direction: row; gap: 8px; justify-content: space-between; align-items: flex-end; grid-column: span 2;">
           <button class="btn-action" onclick="toggleGamepad()" style="flex: 1;">Sembunyikan Stik</button>
           <button class="btn-action btn-fullscreen" onclick="toggleFullscreen()" style="flex: 1;">⛶ Fullscreen</button>
         </div>
@@ -267,7 +272,7 @@
       <div id="emulator-screen">
         <canvas id="canvas" width="640" height="480"></canvas>
         <div id="placeholder-text" style="position: absolute; color: var(--text-muted); font-size: 13px; text-align: center; padding: 0 20px;">
-          Pilih file ROM di atas, lalu tekan tombol Fullscreen untuk pengalaman maksimal!
+          Unggah BIOS & ROM di atas, lalu tekan Fullscreen untuk mulai bermain!
         </div>
 
         <div id="virtualGamepad" class="virtual-gamepad">
@@ -347,6 +352,15 @@
       console.log("Input: " + btnName);
     }
 
+    // Deteksi File BIOS PS1
+    document.getElementById('biosFile').addEventListener('change', function(event) {
+      const biosFile = event.target.files[0];
+      if (biosFile) {
+        console.log("BIOS PS1 dimuat: " + biosFile.name);
+      }
+    });
+
+    // Deteksi File ROM Game
     document.getElementById('romFile').addEventListener('change', function(event) {
       const file = event.target.files[0];
       if (file) {
