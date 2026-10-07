@@ -1,17 +1,17 @@
 /**
  * K-Labs Proprietary Core Engine - Foundation Module v1.0
  * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
+ * Sistem Penyetelan Manual Adaptif & Alokasi Memori Utama
  */
 
 class KLabsCoreSystem {
   constructor() {
-    // 1. Inisialisasi Profil Perangkat (Manual Tuning System)
+    // 1. Sistem Profil Perangkat (Manual Tuning untuk HP Kentang / PC Sultan)
     this.profile = {
-      mode: 'light', // 'light' (HP kentang), 'balanced', 'ultra' (PC/Sultan)
-      internalResolution: 1, // 1x Native, 2x HD, 4x Ultra
-      audioBufferLatency: 2048,
+      mode: 'light',          // 'light' (HP kentang), 'balanced', 'ultra' (PC/Sultan)
+      internalResolution: 1,  // 1x Native, 2x HD, 4x Ultra
       fastBoot: true,
-      skipDuplicateFrames: false
+      audioSync: true
     };
 
     // 2. Alokasi Peta Memori Utama PS1 (Memory Bus Architecture)
@@ -23,7 +23,6 @@ class KLabsCoreSystem {
       biosROM: new ArrayBuffer(512 * 1024),
       scratchpad: new ArrayBuffer(1024),
       
-      // Tampilan Views untuk akses data cepat (32-bit & 8-bit)
       ramView32: null,
       biosView32: null
     };
@@ -31,11 +30,11 @@ class KLabsCoreSystem {
     this.initMemoryBus();
   }
 
-  // Menyiapkan jalur komunikasi memori
+  // Menyiapkan jalur komunikasi memori berkecepatan tinggi
   initMemoryBus() {
     this.memory.ramView32 = new Uint32Array(this.memory.mainRAM);
     this.memory.biosView32 = new Uint32Array(this.memory.biosROM);
-    console.log("[K-Labs Core] Memory Bus initialized successfully: 2MB RAM + 512KB BIOS allocated.");
+    console.log("[K-Labs Core] Memory Bus initialized: 2MB RAM + 512KB BIOS allocated successfully.");
   }
 
   // Penyetelan Manual oleh Pengguna (Dynamic Profile Changer)
@@ -43,10 +42,11 @@ class KLabsCoreSystem {
     this.profile.mode = userConfig.mode || 'light';
     this.profile.internalResolution = parseInt(userConfig.resolution) || 1;
     this.profile.fastBoot = userConfig.fastBoot ?? true;
+    this.profile.audioSync = userConfig.audioSync ?? true;
     
-    console.log(`[K-Labs Core] Profile updated to [${this.profile.mode.toUpperCase()}]. Resolution: ${this.profile.internalResolution}x`);
+    console.log(`[K-Labs Core] Profile updated -> Mode: ${this.profile.mode.toUpperCase()}, Resolution: ${this.profile.internalResolution}x`);
   }
 }
 
-// Ekspor sistem inti untuk dihubungkan ke antarmuka K-Labs
+// Inisialisasi Global Core Engine
 window.KLabsEngine = new KLabsCoreSystem();
