@@ -615,12 +615,18 @@ async function bootMasterEngine() {
     await window.KLabsEngine.loader.loadBIOS(biosInput.files[0]);
     await window.KLabsEngine.loader.loadROM(romInput.files[0]);
 
-    if (window.KLabsEngine.cpu) {
+        if (window.KLabsEngine.cpu) {
       window.KLabsEngine.cpu.reset();
       window.KLabsEngine.cpu.isRunning = true;
-      console.log("[K-Labs Studio] CPU MIPS R3000A diaktifkan pada alamat vektor: 0xbfc00000");
-    }
-
+      
+      // Jalankan Siklus Eksekusi Inti Mandiri K-Labs
+      if (window.KLabsEngine.execution) {
+        window.KLabsEngine.execution.startLoop();
+      }
+      
+      console.log("[K-Labs Studio] CPU MIPS R3000A & Main Execution Loop diaktifkan!");
+        }
+    
     alert("Mahakarya K-Labs: Mesin inti mandiri berhasil di-boot dan memori game telah dimuat!");
   } else {
     alert("Gagal memuat Core Engine. Pastikan file Core.js terhubung dengan benar.");
