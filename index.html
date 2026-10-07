@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>K-Labs - PS1 Supreme Web Emulator</title>
+  <title>K-Labs - PS1 Ultimate Web Emulator Engine</title>
   <style>
     :root {
       --bg-color: #030712;
@@ -51,7 +51,7 @@
     }
     .header p { color: var(--text-muted); font-size: 11px; margin: 3px 0 0 0; }
 
-    /* DASHBOARD UTAMA DENGAN IKLAN ADSTERRA TERSEMAT ELEGAN */
+    /* DASHBOARD UTAMA DENGAN IKLAN ADSTERRA */
     .dashboard-panel {
       background: var(--panel-bg);
       border: 1px solid var(--border-color);
@@ -124,7 +124,7 @@
 
     #emulator-screen {
       width: 100%;
-      height: 460px;
+      height: 480px;
       background: #000;
       border-radius: 12px;
       border: 1px solid var(--border-color);
@@ -136,7 +136,9 @@
       touch-action: none;
       box-shadow: 0 15px 40px rgba(0,0,0,0.9);
     }
-    canvas { width: 100%; height: 100%; object-fit: contain; }
+    
+    /* Wadah canvas dari Core Emulator */
+    #game { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
 
     /* GAMEPAD VIRTUAL DENGAN ANALOG STICK ASLI */
     .virtual-gamepad {
@@ -148,6 +150,7 @@
       align-items: flex-end;
       padding: 15px;
       box-sizing: border-box;
+      z-index: 100;
     }
     .analog-container {
       pointer-events: auto;
@@ -259,11 +262,10 @@
       <p>© 2026 Kialdevaro Group - Supreme WebAssembly Architecture</p>
     </div>
 
-    <!-- STUDIO UTAMA & TEMPLATE DASHBOARD DENGAN IKLAN ADSTERRA -->
     <div id="emulator-studio" style="display: flex; flex-direction: column; gap: 10px;">
       <div class="dashboard-panel">
         
-        <!-- IKLAN ADSTERRA TAMPIL DI HALAMAN UTAMA DASHBOARD -->
+        <!-- IKLAN ADSTERRA DI HALAMAN UTAMA DASHBOARD -->
         <div class="ad-banner-box">
           <script src="https://pl31662254.profitableratecpmnetwork.com/1b/27/aa/1b27aafebf02c9db2b3e10e56229d3c1.js"></script>
         </div>
@@ -280,7 +282,7 @@
 
         <div class="control-group">
           <label>Resolusi & Performa GPU:</label>
-          <select id="perfPreset" class="control-select" onchange="applyPerformance(this.value)">
+          <select id="perfPreset" class="control-select">
             <option value="low">1x Native (Ringan / HP Kentang)</option>
             <option value="medium" selected>2x HD (Balanced - 60 FPS)</option>
             <option value="high">4x Ultra HD (WebGL Accelerated)</option>
@@ -300,41 +302,43 @@
       </div>
 
       <div id="emulator-screen">
-        <canvas id="canvas" width="640" height="480"></canvas>
-        <div id="placeholder-text" style="position: absolute; color: var(--text-muted); font-size: 13px; text-align: center; padding: 0 20px;">
-          Pilih file BIOS & Game di atas, lalu klik "JALANKAN GAME (1-KLIK)" untuk mulai bermain!
+        <!-- Wadah Rendering Core Emulator -->
+        <div id="game"></div>
+        
+        <div id="placeholder-text" style="position: absolute; color: var(--text-muted); font-size: 13px; text-align: center; padding: 0 20px; z-index: 5;">
+          Unggah BIOS & Game di atas, lalu klik "JALANKAN GAME (1-KLIK)" untuk mulai bermain!
         </div>
 
-        <!-- GAMEPAD VIRTUAL LENGKAP DENGAN ANALOG STICK -->
+        <!-- GAMEPAD VIRTUAL SUPREME -->
         <div id="virtualGamepad" class="virtual-gamepad">
           
           <div class="shoulder-left">
-            <button class="shoulder-btn" ontouchstart="sendInput('L1', 1)" ontouchend="sendInput('L1', 0)" onmousedown="sendInput('L1', 1)" onmouseup="sendInput('L1', 0)">L1</button>
-            <button class="shoulder-btn" ontouchstart="sendInput('L2', 1)" ontouchend="sendInput('L2', 0)" onmousedown="sendInput('L2', 1)" onmouseup="sendInput('L2', 0)">L2</button>
+            <button class="shoulder-btn" ontouchstart="pressKey('L1', true)" ontouchend="pressKey('L1', false)" onmousedown="pressKey('L1', true)" onmouseup="pressKey('L1', false)">L1</button>
+            <button class="shoulder-btn" ontouchstart="pressKey('L2', true)" ontouchend="pressKey('L2', false)" onmousedown="pressKey('L2', true)" onmouseup="pressKey('L2', false)">L2</button>
           </div>
 
           <div class="shoulder-right">
-            <button class="shoulder-btn" ontouchstart="sendInput('R1', 1)" ontouchend="sendInput('R1', 0)" onmousedown="sendInput('R1', 1)" onmouseup="sendInput('R1', 0)">R1</button>
-            <button class="shoulder-btn" ontouchstart="sendInput('R2', 1)" ontouchend="sendInput('R2', 0)" onmousedown="sendInput('R2', 1)" onmouseup="sendInput('R2', 0)">R2</button>
+            <button class="shoulder-btn" ontouchstart="pressKey('R1', true)" ontouchend="pressKey('R1', false)" onmousedown="pressKey('R1', true)" onmouseup="pressKey('R1', false)">R1</button>
+            <button class="shoulder-btn" ontouchstart="pressKey('R2', true)" ontouchend="pressKey('R2', false)" onmousedown="pressKey('R2', true)" onmouseup="pressKey('R2', false)">R2</button>
           </div>
 
           <div class="center-controls">
-            <button class="sys-btn" style="opacity: var(--btn-opacity);" ontouchstart="sendInput('SELECT', 1)" ontouchend="sendInput('SELECT', 0)" onmousedown="sendInput('SELECT', 1)" onmouseup="sendInput('SELECT', 0)">SELECT</button>
+            <button class="sys-btn" style="opacity: var(--btn-opacity);" ontouchstart="pressKey('SELECT', true)" ontouchend="pressKey('SELECT', false)" onmousedown="pressKey('SELECT', true)" onmouseup="pressKey('SELECT', false)">SELECT</button>
             <button class="sys-btn" style="opacity: var(--btn-opacity);">DUALSHOCK</button>
-            <button class="sys-btn" style="opacity: var(--btn-opacity);" ontouchstart="sendInput('START', 1)" ontouchend="sendInput('START', 0)" onmousedown="sendInput('START', 1)" onmouseup="sendInput('START', 0)">START</button>
+            <button class="sys-btn" style="opacity: var(--btn-opacity);" ontouchstart="pressKey('START', true)" ontouchend="pressKey('START', false)" onmousedown="pressKey('START', true)" onmouseup="pressKey('START', false)">START</button>
           </div>
 
-          <!-- ANALOG STICK KIRI MELINGKAR INTERAKTIF -->
+          <!-- ANALOG STICK MELINGKAR -->
           <div class="analog-container" id="analogBase">
             <div class="analog-stick" id="analogStick"></div>
           </div>
 
           <!-- TOMBOL AKSI KANAN -->
           <div class="action-group">
-            <div class="v-btn btn-triangle" ontouchstart="sendInput('TRIANGLE', 1)" ontouchend="sendInput('TRIANGLE', 0)" onmousedown="sendInput('TRIANGLE', 1)" onmouseup="sendInput('TRIANGLE', 0)">△</div>
-            <div class="v-btn btn-square" ontouchstart="sendInput('SQUARE', 1)" ontouchend="sendInput('SQUARE', 0)" onmousedown="sendInput('SQUARE', 1)" onmouseup="sendInput('SQUARE', 0)">□</div>
-            <div class="v-btn btn-circle" ontouchstart="sendInput('CIRCLE', 1)" ontouchend="sendInput('CIRCLE', 0)" onmousedown="sendInput('CIRCLE', 1)" onmouseup="sendInput('CIRCLE', 0)">○</div>
-            <div class="v-btn btn-cross" ontouchstart="sendInput('CROSS', 1)" ontouchend="sendInput('CROSS', 0)" onmousedown="sendInput('CROSS', 1)" onmouseup="sendInput('CROSS', 0)">✕</div>
+            <div class="v-btn btn-triangle" ontouchstart="pressKey('TRIANGLE', true)" ontouchend="pressKey('TRIANGLE', false)" onmousedown="pressKey('TRIANGLE', true)" onmouseup="pressKey('TRIANGLE', false)">△</div>
+            <div class="v-btn btn-square" ontouchstart="pressKey('SQUARE', true)" ontouchend="pressKey('SQUARE', false)" onmousedown="pressKey('SQUARE', true)" onmouseup="pressKey('SQUARE', false)">□</div>
+            <div class="v-btn btn-circle" ontouchstart="pressKey('CIRCLE', true)" ontouchend="pressKey('CIRCLE', false)" onmousedown="pressKey('CIRCLE', true)" onmouseup="pressKey('CIRCLE', false)">○</div>
+            <div class="v-btn btn-cross" ontouchstart="pressKey('CROSS', true)" ontouchend="pressKey('CROSS', false)" onmousedown="pressKey('CROSS', true)" onmouseup="pressKey('CROSS', false)">✕</div>
           </div>
 
         </div>
@@ -343,9 +347,8 @@
   </div>
 
   <script>
-    let masterCoreActive = false;
-    let rawBiosBuffer = null;
-    let rawRomBuffer = null;
+    let biosBlobUrl = null;
+    let romBlobUrl = null;
 
     document.addEventListener('keydown', e => {
       if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') || (e.ctrlKey && e.key === 'u')) {
@@ -371,19 +374,27 @@
       }
     }
 
-    function applyPerformance(mode) {
-      const canvas = document.getElementById('canvas');
-      if (mode === 'low') { canvas.width = 320; canvas.height = 240; }
-      else if (mode === 'medium') { canvas.width = 640; canvas.height = 480; }
-      else if (mode === 'high') { canvas.width = 1280; canvas.height = 960; }
+    // Pemetaan tombol virtual ke event keyboard peramban untuk diumpankan ke Core Engine
+    function pressKey(btn, isDown) {
+      let keyCode;
+      switch(btn) {
+        case 'CROSS': keyCode = 'KeyX'; break;
+        case 'SQUARE': keyCode = 'KeyZ'; break;
+        case 'TRIANGLE': keyCode = 'KeyA'; break;
+        case 'CIRCLE': keyCode = 'KeyS'; break;
+        case 'L1': keyCode = 'KeyQ'; break;
+        case 'L2': keyCode = 'KeyW'; break;
+        case 'R1': keyCode = 'KeyE'; break;
+        case 'R2': keyCode = 'KeyR'; break;
+        case 'SELECT': keyCode = 'ShiftLeft'; break;
+        case 'START': keyCode = 'Enter'; break;
+        default: return;
+      }
+      const eventType = isDown ? 'keydown' : 'keyup';
+      window.dispatchEvent(new KeyboardEvent(eventType, { code: keyCode, bubbles: true }));
     }
 
-    function sendInput(btn, state) {
-      if (!masterCoreActive) return;
-      console.log(`[K-Labs Hardware Bus] Input ${btn}: ${state ? 'PRESSED' : 'RELEASED'}`);
-    }
-
-    // INTERAKTIVITAS ANALOG STICK (TOUCH & MOUSE SUPPORT)
+    // Interaktivitas Analog Stick Tuas Melingkar
     const analogBase = document.getElementById('analogBase');
     const analogStick = document.getElementById('analogStick');
     let isDragging = false;
@@ -414,61 +425,44 @@
     window.addEventListener('mousemove', e => { if (!isDragging) return; handleAnalogMove(e.clientX, e.clientY); });
     window.addEventListener('mouseup', () => { if (!isDragging) return; isDragging = false; analogStick.style.transform = `translate(0px, 0px)`; });
 
+    // Konversi File Lokal ke Blob URL agar bisa dibaca oleh Core Engine
     document.getElementById('biosFile').addEventListener('change', e => {
       const f = e.target.files[0];
-      if (f) {
-        const r = new FileReader();
-        r.onload = ev => { rawBiosBuffer = ev.target.result; };
-        r.readAsArrayBuffer(f);
-      }
+      if (f) { biosBlobUrl = URL.createObjectURL(f); }
     });
 
     document.getElementById('romFile').addEventListener('change', e => {
       const f = e.target.files[0];
-      if (f) {
-        const r = new FileReader();
-        r.onload = ev => { rawRomBuffer = ev.target.result; };
-        r.readAsArrayBuffer(f);
-      }
+      if (f) { romBlobUrl = URL.createObjectURL(f); }
     });
 
-    // BOOT ENGINE 1-KLIK TANPA ALERT
+    // INISIALISASI MASTER CORE ENGINE (EMULATORJS) 1-KLIK BOOT
     function bootMasterEngine() {
-      if (!rawBiosBuffer) {
-        alert("Peringatan: Silakan pilih file BIOS PS1 (.bin) terlebih dahulu!");
+      if (!biosBlobUrl) {
+        alert("Harap pilih file BIOS PS1 (.bin) terlebih dahulu!");
         return;
       }
-      if (!rawRomBuffer) {
-        alert("Peringatan: Silakan pilih file Game (.bin/.iso) terlebih dahulu!");
+      if (!romBlobUrl) {
+        alert("Harap pilih file Game (.bin/.iso) terlebih dahulu!");
         return;
       }
 
       document.getElementById('placeholder-text').style.display = 'none';
-      masterCoreActive = true;
 
-      const canvas = document.getElementById('canvas');
-      const ctx = canvas.getContext('2d');
+      // Konfigurasi Global Core Engine PS1
+      window.EJS_player = '#game';
+      window.EJS_core = 'psx';
+      window.EJS_gameUrl = romBlobUrl;
+      window.EJS_biosUrl = biosBlobUrl;
+      window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
+      window.EJS_mouse = false;
+      window.EJS_multitouch = true;
+      window.EJS_color = '#00ffcc';
 
-      let frame = 0;
-      function masterLoop() {
-        if (!masterCoreActive) return;
-        
-        ctx.fillStyle = '#030712';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        ctx.fillStyle = '#00ffcc';
-        ctx.font = 'bold 16px monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText("K-LABS HIGH-PERFORMANCE WEB EMULATOR", canvas.width / 2, canvas.height / 2 - 25);
-        
-        ctx.fillStyle = '#94a3b8';
-        ctx.font = '12px monospace';
-        ctx.fillText("WebGL Accelerated | 60 FPS Locked", canvas.width / 2, canvas.height / 2 + 5);
-        ctx.fillText("DualShock Hardware Synchronized", canvas.width / 2, canvas.height / 2 + 30);
-
-        requestAnimationFrame(masterLoop);
-      }
-      masterLoop();
+      // Suntikkan Skrip Pemuat Core WebAssembly secara Dinamis
+      const script = document.createElement('script');
+      script.src = 'https://cdn.emulatorjs.org/stable/data/loader.js';
+      document.body.appendChild(script);
     }
   </script>
 </body>
