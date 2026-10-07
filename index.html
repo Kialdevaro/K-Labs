@@ -131,7 +131,7 @@
   </div>
 
   <!-- Skrip Penggerak Mesin K-Labs -->
-  <script>
+   <script>
     async function bootMasterEngine() {
       try {
         const biosInput = document.getElementById('biosFile');
@@ -146,8 +146,8 @@
           return;
         }
 
-        if (!window.KLabsEngine) {
-          alert("Galat: Core Engine (core.js) belum terhubung dengan benar!");
+        if (!window.KLabsEngine || !window.KLabsEngine.loader) {
+          alert("Galat: Core Engine (core.js) belum terhubung atau dimuat dengan benar!");
           return;
         }
 
@@ -168,12 +168,13 @@
           window.KLabsEngine.execution.startLoop();
           console.log("[K-Labs Studio] Master Execution Loop berhasil diaktifkan!");
         } else {
-          console.error("[K-Labs Error] Execution Engine tidak ditemukan di dalam memori!");
+          alert("Galat: Execution Engine tidak ditemukan di dalam memori!");
         }
 
       } catch (error) {
+        // Menampilkan pesan error asli langsung ke layar HP Anda
+        alert("DETAIL ERROR: " + error.message);
         console.error("[K-Labs Critical Error]:", error);
-        alert("Gagal mem-booting game. Periksa Konsol Peramban (F12) untuk detail galat.");
       }
     }
   </script>
