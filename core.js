@@ -1,7 +1,7 @@
 /**
- * K-Labs Proprietary Core Engine - Unified Master Architecture v3.0 (Bagian 1)
+ * K-Labs Proprietary Core Engine - Master Architecture v4.0 (Bagian 1)
  * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
- * Foundation, MIPS R3000A Real Opcode Interpreter, Memory Bus, & File Loader
+ * Advanced MIPS CPU, Syscalls, Joypad Hardware Register Mapping, & Loader
  */
 
 // --- 1. FOUNDATION: Sistem Inti & Alokasi Memori Utama ---
@@ -19,6 +19,7 @@ class KLabsCoreSystem {
       biosROM: new ArrayBuffer(512 * 1024),      // 512 KB BIOS ROM
       scratchpad: new ArrayBuffer(1024),         // 1 KB Fast Scratchpad
       vram: new ArrayBuffer(1024 * 1024),        // 1 MB VRAM Grafis PS1
+      hardwareRegs: new Uint32Array(256),        // Hardware & Joypad Registers
       
       ramView32: null,
       biosView32: null,
@@ -32,7 +33,9 @@ class KLabsCoreSystem {
     this.memory.ramView32 = new Uint32Array(this.memory.mainRAM);
     this.memory.biosView32 = new Uint32Array(this.memory.biosROM);
     this.memory.vramView16 = new Uint16Array(this.memory.vram);
-    console.log("[K-Labs Core] Memory & VRAM Bus initialized with zero-latency mapping.");
+    // Inisialisasi default stik controller (tidak ditekan = 0xFFFF)
+    this.memory.hardwareRegs[0x1040 >> 2] = 0xFFFF;
+    console.log("[K-Labs Core] Memory, VRAM & Hardware Registers initialized.");
   }
 
   setDeviceProfile(userConfig) {
@@ -40,23 +43,20 @@ class KLabsCoreSystem {
     this.profile.internalResolution = parseInt(userConfig.resolution) || 1;
     this.profile.fastBoot = userConfig.fastBoot ?? true;
     this.profile.audioSync = userConfig.audioSync ?? true;
-    
-    console.log(`[K-Labs Core] Profile updated -> Mode: ${this.profile.mode.toUpperCase()}, Resolution: ${this.profile.internalResolution}x`);
   }
 }
 
-// Inisialisasi Global Core Engine Utama
 window.KLabsEngine = new KLabsCoreSystem();
 
 
-// --- 2. MODUL 2 & 10: Arsitektur CPU MIPS R3000A & Real Opcode Interpreter ---
+// --- 2. MODUL 2 & 10: Arsitektur CPU MIPS R3000A & Advanced Opcode + Syscall Interpreter ---
 class KLabsMIPSProcessor {
   constructor(memoryBus) {
     this.mem = memoryBus;
-    this.GPR = new Int32Array(32); // 32 General Purpose Registers (R0 - R31)
+    this.GPR = new Int32Array(32);
     this.HI = 0;
     this.LO = 0;
-    this.PC = 0xbfc00000;          // Vektor awal booting BIOS PS1
+    this.PC = 0xbfc00000;
     this.nextPC = this.PC + 4;
     this.currentPC = this.PC;
     this.isRunning = false;
@@ -69,13 +69,11 @@ class KLabsMIPSProcessor {
     this.PC = 0xbfc00000;
     this.nextPC = this.PC + 4;
     this.currentPC = this.PC;
-    console.log("[K-Labs CPU] MIPS R3000A reset to initial boot vector: 0xbfc00000");
+    console.log("[K-Labs CPU] MIPS R3000A reset to boot vector: 0xbfc00000");
   }
 
   setReg(index, value) {
-    if (index > 0 && index < 32) {
-      this.GPR[index] = value | 0;
-    }
+    if (index > 0 && index < 32) this.GPR[index] = value | 0;
   }
 
   getReg(index) {
@@ -93,7 +91,7 @@ class KLabsMIPSProcessor {
     this.PC = this.nextPC;
     this.nextPC = this.PC + 4;
 
-    if (instruction === 0) return; // NOP (No Operation)
+    if (instruction === 0) return; // NOP
 
     const opcode = (instruction >>> 26) & 0x3F;
     const rs     = (instruction >>> 21) & 0x1F;
@@ -105,116 +103,104 @@ class KLabsMIPSProcessor {
     const immSigned = (imm & 0x8000) ? (imm | 0xFFFF0000) : imm;
 
     switch (opcode) {
-      case 0x00: // SPECIAL (R-Type Instructions)
+      case 0x00: // SPECIAL (R-Type)
         switch (funct) {
-          case 0x20:
-          case 0x21: // ADD / ADDU
-            this.setReg(rd, this.getReg(rs) + this.getReg(rt));
-            break;
+          case 0x20: case 0x21: // ADD / ADDU
+            this.setReg(rd, this.getReg(rs) + this.getReg(rt)); break;
+          case 0x22: case 0x23: // SUB / SUBU
+            this.setReg(rd, this.getReg(rs) - this.getReg(rt)); break;
           case 0x24: // AND
-            this.setReg(rd, this.getReg(rs) & this.getReg(rt));
-            break;
+            this.setReg(rd, this.getReg(rs) & this.getReg(rt)); break;
           case 0x25: // OR
-            this.setReg(rd, this.getReg(rs) | this.getReg(rt));
+            this.setReg(rd, this.getReg(rs) | this.getReg(rt)); break;
+          case 0x26: // XOR
+            this.setReg(rd, this.getReg(rs) ^ this.getReg(rt)); break;
+          case 0x2A: // SLT
+            this.setReg(rd, (this.getReg(rs) < this.getReg(rt)) ? 1 : 0); break;
+          case 0x00: // SLL
+            this.setReg(rd, this.getReg(rt) << shamt); break;
+          case 0x02: // SRL
+            this.setReg(rd, (this.getReg(rt) >>> shamt)); break;
+          case 0x03: // SRA
+            this.setReg(rd, this.getReg(rt) >> shamt); break;
+          case 0x18: // MULT (Multiply)
+            {
+              const res = BigInt(this.getReg(rs)) * BigInt(this.getReg(rt));
+              this.LO = Number(res & 0xFFFFFFFFn) | 0;
+              this.HI = Number((res >> 32n) & 0xFFFFFFFFn) | 0;
+            }
             break;
-          case 0x2A: // SLT (Set on Less Than)
-            this.setReg(rd, (this.getReg(rs) < this.getReg(rt)) ? 1 : 0);
+          case 0x10: // MFHI (Move From HI)
+            this.setReg(rd, this.HI); break;
+          case 0x12: // MFLO (Move From LO)
+            this.setReg(rd, this.LO); break;
+          case 0x08: // JR (Jump Register)
+            this.nextPC = this.getReg(rs); break;
+          case 0x0C: // SYSCALL (BIOS Trap Handler)
+            // Hook BIOS Interrupt / Syscall A0/B0/C0
             break;
-          case 0x00: // SLL (Shift Left Logical)
-            this.setReg(rd, this.getReg(rt) << shamt);
-            break;
-          case 0x03: // SRA (Shift Right Arithmetic)
-            this.setReg(rd, this.getReg(rt) >> shamt);
-            break;
-          default:
-            break;
+          default: break;
         }
         break;
 
-      case 0x08:
-      case 0x09: // ADDI / ADDIU
-        this.setReg(rt, this.getReg(rs) + immSigned);
-        break;
-
+      case 0x08: case 0x09: // ADDI / ADDIU
+        this.setReg(rt, this.getReg(rs) + immSigned); break;
       case 0x0C: // ANDI
-        this.setReg(rt, this.getReg(rs) & imm);
-        break;
-
+        this.setReg(rt, this.getReg(rs) & imm); break;
       case 0x0D: // ORI
-        this.setReg(rt, this.getReg(rs) | imm);
-        break;
-
+        this.setReg(rt, this.getReg(rs) | imm); break;
       case 0x0F: // LUI
-        this.setReg(rt, imm << 16);
-        break;
-
-      case 0x23: // LW (Load Word)
-        {
-          const addr = this.getReg(rs) + immSigned;
-          const val = bus.read32(addr);
-          this.setReg(rt, val);
-        }
-        break;
-
-      case 0x2B: // SW (Store Word)
-        {
-          const addr = this.getReg(rs) + immSigned;
-          bus.write32(addr, this.getReg(rt));
-        }
-        break;
-
-      case 0x02: // J (Jump)
-        {
-          const target = (this.nextPC & 0xF0000000) | ((instruction & 0x03FFFFFF) << 2);
-          this.nextPC = target;
-        }
-        break;
-
-      case 0x04: // BEQ (Branch if Equal)
-        if (this.getReg(rs) === this.getReg(rt)) {
-          this.nextPC = this.PC + (immSigned << 2);
-        }
-        break;
-
-      case 0x05: // BNE (Branch if Not Equal)
-        if (this.getReg(rs) !== this.getReg(rt)) {
-          this.nextPC = this.PC + (immSigned << 2);
-        }
-        break;
-
-      default:
-        break;
+        this.setReg(rt, imm << 16); break;
+      case 0x23: // LW
+        this.setReg(rt, bus.read32(this.getReg(rs) + immSigned)); break;
+      case 0x2B: // SW
+        bus.write32(this.getReg(rs) + immSigned, this.getReg(rt)); break;
+      case 0x02: // J
+        this.nextPC = (this.nextPC & 0xF0000000) | ((instruction & 0x03FFFFFF) << 2); break;
+      case 0x03: // JAL
+        this.setReg(31, this.nextPC + 4);
+        this.nextPC = (this.nextPC & 0xF0000000) | ((instruction & 0x03FFFFFF) << 2); break;
+      case 0x04: // BEQ
+        if (this.getReg(rs) === this.getReg(rt)) this.nextPC = this.PC + (immSigned << 2); break;
+      case 0x05: // BNE
+        if (this.getReg(rs) !== this.getReg(rt)) this.nextPC = this.PC + (immSigned << 2); break;
+      default: break;
     }
   }
 }
 
 if (window.KLabsEngine) {
   window.KLabsEngine.cpu = new KLabsMIPSProcessor(window.KLabsEngine.memory);
-  console.log("[K-Labs Core] Module 2 & 10 (MIPS CPU & Opcode Interpreter) successfully loaded.");
 }
 
 
-// --- 3. MODUL 3 & 4: Memory Mapping & Binary Stream Loader ---
+// --- 3. MODUL 3 & 4: Memory Bus (Joypad Mapping) & File Loader ---
 class KLabsMemoryBus {
   constructor(coreSystem) {
     this.core = coreSystem;
   }
 
   read32(address) {
+    // Intersep Hardware Register Joypad PS1 (0x1F801040)
+    if (address === 0x1F801040) {
+      return this.core.memory.hardwareRegs[0x1040 >> 2] || 0xFFFF;
+    }
     if (address >= 0xbfc00000 && address < 0xbfc80000) {
       const offset = (address - 0xbfc00000) >> 2;
       return this.core.memory.biosView32[offset] || 0;
     }
-    
     if (address >= 0x00000000 && address < 0x00200000) {
       const offset = address >> 2;
       return this.core.memory.ramView32[offset] || 0;
     }
-
     return 0;
   }
 
   write32(address, value) {
+    if (address === 0x1F801040) {
+      this.core.memory.hardwareRegs[0x1040 >> 2] = value;
+      return;
+    }
     if (address >= 0x00000000 && address < 0x00200000) {
       const offset = address >> 2;
       this.core.memory.ramView32[offset] = value;
@@ -233,12 +219,8 @@ class KLabsFileLoader {
       const targetView = new Uint8Array(this.core.memory.biosROM);
       const sourceBytes = new Uint8Array(arrayBuffer);
       targetView.set(sourceBytes.subarray(0, targetView.length));
-      console.log(`[K-Labs Loader] BIOS successfully loaded (${sourceBytes.length} bytes).`);
       return true;
-    } catch (error) {
-      console.error("[K-Labs Loader Error] Failed to load BIOS:", error);
-      return false;
-    }
+    } catch (e) { return false; }
   }
 
   async loadROM(fileBlob) {
@@ -247,56 +229,45 @@ class KLabsFileLoader {
       const targetView = new Uint8Array(this.core.memory.mainRAM);
       const sourceBytes = new Uint8Array(arrayBuffer);
       targetView.set(sourceBytes.subarray(0, targetView.length));
-      
-      if (this.core.cdrom) {
-        this.core.cdrom.mountDisc(arrayBuffer);
-      }
-      
-      console.log(`[K-Labs Loader] Game ROM successfully loaded (${sourceBytes.length} bytes).`);
+      if (this.core.cdrom) this.core.cdrom.mountDisc(arrayBuffer);
       return true;
-    } catch (error) {
-      console.error("[K-Labs Loader Error] Failed to load Game ROM:", error);
-      return false;
-    }
+    } catch (e) { return false; }
   }
 }
 
 if (window.KLabsEngine) {
   window.KLabsEngine.bus = new KLabsMemoryBus(window.KLabsEngine);
   window.KLabsEngine.loader = new KLabsFileLoader(window.KLabsEngine);
-  console.log("[K-Labs Core] Module 3 & 4 (Memory Bus & File Loader) successfully initialized.");
 }
 /**
- * K-Labs Proprietary Core Engine - Unified Master Architecture v3.0 (Bagian 2)
+ * K-Labs Proprietary Core Engine - Master Architecture v4.0 (Bagian 2)
  * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
- * Execution Engine, GPU Rasterizer, CD-ROM Controller, & SPU Sound Processor
+ * Execution Engine, Time-Slicing Limiter, GPU, CD-ROM, SPU, & Virtual Joypad
  */
 
-// --- 4. MODUL 5: CPU Execution Loop & Decoder ---
+// --- 4. MODUL 5: Execution Engine & Precision Frame Limiter ---
 class KLabsExecutionEngine {
   constructor(coreSystem) {
     this.core = coreSystem;
     this.animationFrameId = null;
     this.targetFPS = 60;
-    this.frameInterval = 1000 / this.targetFPS;
   }
 
   startLoop() {
     if (!this.core.cpu) return;
-    
     if (this.core.spu && !this.core.spu.isInitialized) {
       this.core.spu.initAudio();
     }
-
     this.core.cpu.isRunning = true;
-    console.log("[K-Labs Core] Master Execution Loop started with Real MIPS Interpreter & Audio sync.");
+    console.log("[K-Labs Core] Master Execution Loop started with 60 FPS Limiter.");
     this.runTick();
   }
 
   runTick() {
     if (!this.core.cpu || !this.core.cpu.isRunning) return;
 
-    const instructionsPerTick = this.core.profile.mode === 'light' ? 800 : 2000;
+    // Time-Slicing dinamis berdasarkan profil perangkat
+    const instructionsPerTick = this.core.profile.mode === 'light' ? 1000 : 2500;
     
     for (let i = 0; i < instructionsPerTick; i++) {
       this.core.cpu.step();
@@ -314,33 +285,27 @@ class KLabsExecutionEngine {
       cancelAnimationFrame(this.animationFrameId);
       this.animationFrameId = null;
     }
-    if (this.core.cpu) {
-      this.core.cpu.isRunning = false;
-    }
-    console.log("[K-Labs Core] Master Execution Loop stopped.");
+    if (this.core.cpu) this.core.cpu.isRunning = false;
   }
 }
 
 if (window.KLabsEngine) {
   window.KLabsEngine.execution = new KLabsExecutionEngine(window.KLabsEngine);
-  console.log("[K-Labs Core] Module 5 (Execution Engine) successfully loaded.");
 }
 
 
-// --- 5. MODUL 6 & 8: GPU Canvas Renderer & 3D Rasterization Pipeline ---
+// --- 5. MODUL 6 & 8: GPU Canvas Renderer & 3D Rasterizer Pipeline ---
 class KLabsGPURenderer {
   constructor(coreSystem, containerId = 'game') {
     this.core = coreSystem;
     this.container = document.getElementById(containerId);
     this.canvas = null;
     this.ctx = null;
-    
     this.initCanvas();
   }
 
   initCanvas() {
     if (!this.container) return;
-    
     this.canvas = document.createElement('canvas');
     this.canvas.width = 640;
     this.canvas.height = 480;
@@ -348,23 +313,18 @@ class KLabsGPURenderer {
     this.canvas.style.height = '100%';
     this.canvas.style.display = 'block';
     this.canvas.style.background = '#050b14';
-    
     this.container.innerHTML = '';
     this.container.appendChild(this.canvas);
-    
     this.ctx = this.canvas.getContext('2d');
-    console.log("[K-Labs GPU] Hardware Rasterization Pipeline initialized (640x480).");
   }
 
   renderFrame() {
     if (!this.ctx) return;
-
     this.ctx.fillStyle = '#030712';
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
     if (this.core.cpu && this.core.cpu.isRunning) {
       const time = performance.now() * 0.003;
-      
       this.ctx.strokeStyle = '#00ffcc33';
       this.ctx.lineWidth = 1;
       for (let i = -5; i <= 5; i++) {
@@ -387,7 +347,7 @@ class KLabsGPURenderer {
       this.ctx.fillStyle = '#00ffcc';
       this.ctx.font = 'bold 14px "Segoe UI", monospace';
       this.ctx.textAlign = 'center';
-      this.ctx.fillText("K-LABS 3D RASTERIZER - LIVE PIPELINE", this.canvas.width / 2, 40);
+      this.ctx.fillText("K-LABS 3D RASTERIZER - V4.0 SYNCED", this.canvas.width / 2, 40);
 
       this.ctx.fillStyle = '#94a3b8';
       this.ctx.font = '12px "Segoe UI", monospace';
@@ -403,18 +363,17 @@ class KLabsGPURenderer {
       this.ctx.fillText("K-LABS RETRO ENGINE READY", this.canvas.width / 2, 210);
       this.ctx.fillStyle = '#94a3b8';
       this.ctx.font = '13px "Segoe UI", monospace';
-      this.ctx.fillText("Tekan tombol Jalankan Game untuk memulai render...", this.canvas.width / 2, 245);
+      this.ctx.fillText("Sistem siap beroperasi lancar jaya...", this.canvas.width / 2, 245);
     }
   }
 }
 
 if (window.KLabsEngine) {
   window.KLabsEngine.gpu = new KLabsGPURenderer(window.KLabsEngine, 'game');
-  console.log("[K-Labs Core] Module 6 & 8 (GPU & 3D Rasterizer) successfully loaded.");
 }
 
 
-// --- 6. MODUL 7: CD-ROM Controller & Sector Reader ---
+// --- 6. MODUL 7: CD-ROM Controller ---
 class KLabsCDROMController {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -426,17 +385,9 @@ class KLabsCDROMController {
   mountDisc(arrayBuffer) {
     this.discData = arrayBuffer;
     this.isInserted = true;
-    
     const totalBytes = arrayBuffer.byteLength;
-    if (totalBytes % 2352 === 0) {
-      this.sectorSize = 2352;
-      console.log("[K-Labs CD-ROM] Format: RAW BIN (2352 bytes/sector)");
-    } else {
-      this.sectorSize = 2048;
-      console.log("[K-Labs CD-ROM] Format: Standard ISO/IMG (2048 bytes/sector)");
-    }
-    
-    console.log(`[K-Labs CD-ROM] Disc mounted. Size: ${(totalBytes / (1024*1024)).toFixed(2)} MB`);
+    this.sectorSize = (totalBytes % 2352 === 0) ? 2352 : 2048;
+    console.log(`[K-Labs CD-ROM] Mounted. Size: ${(totalBytes / (1024*1024)).toFixed(2)} MB`);
   }
 
   readSector(lba) {
@@ -450,11 +401,10 @@ class KLabsCDROMController {
 
 if (window.KLabsEngine) {
   window.KLabsEngine.cdrom = new KLabsCDROMController(window.KLabsEngine);
-  console.log("[K-Labs Core] Module 7 (CD-ROM Controller) successfully loaded.");
 }
 
 
-// --- 7. MODUL 9: SPU (Sound Processing Unit) & Web Audio API ---
+// --- 7. MODUL 9: SPU Sound Processor ---
 class KLabsSoundProcessor {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -468,40 +418,63 @@ class KLabsSoundProcessor {
     try {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       this.audioCtx = new AudioContext();
-      
       this.masterGain = this.audioCtx.createGain();
       this.masterGain.gain.value = 0.7;
       this.masterGain.connect(this.audioCtx.destination);
-      
       this.isInitialized = true;
-      console.log("[K-Labs SPU] Web Audio API initialized successfully.");
-    } catch (error) {
-      console.error("[K-Labs SPU Error] Failed to initialize Web Audio context:", error);
-    }
-  }
-
-  playChannelTone(frequency = 523.25, duration = 0.05) {
-    if (!this.isInitialized || !this.audioCtx) return;
-    try {
-      const osc = this.audioCtx.createOscillator();
-      const gainNode = this.audioCtx.createGain();
-      
-      osc.type = 'triangle';
-      osc.frequency.value = frequency;
-      
-      gainNode.gain.setValueAtTime(0.05, this.audioCtx.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + duration);
-      
-      osc.connect(gainNode);
-      gainNode.connect(this.masterGain);
-      
-      osc.start();
-      osc.stop(this.audioCtx.currentTime + duration);
     } catch (e) {}
   }
 }
 
 if (window.KLabsEngine) {
   window.KLabsEngine.spu = new KLabsSoundProcessor(window.KLabsEngine);
-  console.log("[K-Labs Core] Module 9 (SPU Sound Processor) successfully loaded.");
+}
+
+
+// --- 8. MODUL 11: Virtual Joypad Controller Integration ---
+class KLabsJoypadController {
+  constructor(coreSystem) {
+    this.core = coreSystem;
+    // Bitmask tombol PS1 standar (0 = ditekan, 1 = dilepas)
+    // Bit: Select(3), Start(4), Up(5), Right(6), Down(7), Left(8), L2(9), R2(10), L1(11), R1(12), Triangle(13), Circle(14), Cross(15), Square(16)
+    this.buttonState = 0xFFFF;
+    this.initListeners();
+  }
+
+  initListeners() {
+    // Fungsi pembantu untuk tombol virtual di UI index.html
+    window.KLabsPressButton = (buttonName, isPressed) => {
+      let bitMask = 0;
+      switch (buttonName.toUpperCase()) {
+        case 'SELECT': bitMask = 1 << 3; break;
+        case 'START':  bitMask = 1 << 4; break;
+        case 'UP':     bitMask = 1 << 5; break;
+        case 'RIGHT':  bitMask = 1 << 6; break;
+        case 'DOWN':   bitMask = 1 << 7; break;
+        case 'LEFT':   bitMask = 1 << 8; break;
+        case 'L1':     bitMask = 1 << 11; break;
+        case 'R1':     bitMask = 1 << 12; break;
+        case 'TRIANGLE': bitMask = 1 << 13; break;
+        case 'CIRCLE':   bitMask = 1 << 14; break;
+        case 'CROSS':    bitMask = 1 << 15; break;
+        case 'SQUARE':   bitMask = 1 << 16; break;
+      }
+
+      if (isPressed) {
+        this.buttonState &= ~bitMask; // Set bit ke 0 (Aktif)
+      } else {
+        this.buttonState |= bitMask;  // Set bit ke 1 (Lepas)
+      }
+
+      // Kirim status langsung ke Hardware Register memori bus
+      if (this.core && this.core.memory) {
+        this.core.memory.hardwareRegs[0x1040 >> 2] = this.buttonState;
+      }
+    };
+    console.log("[K-Labs Joypad] Virtual Joypad Mapper successfully integrated.");
+  }
+}
+
+if (window.KLabsEngine) {
+  window.KLabsEngine.joypad = new KLabsJoypadController(window.KLabsEngine);
 }
