@@ -194,3 +194,79 @@ if (window.KLabsEngine) {
   window.KLabsEngine.loader = new KLabsFileLoader(window.KLabsEngine);
   console.log("[K-Labs Core] Module 4 (File Stream Loader) successfully initialized.");
 }
+/**
+ * K-Labs Proprietary Core Engine - Module 3 & 4: Memory Bus & Binary Stream Loader
+ * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
+ */
+
+// --- MODUL 3: Peta Memori & Bus Pembaca/Penulis ---
+class KLabsMemoryBus {
+  constructor(coreSystem) {
+    this.core = coreSystem;
+  }
+
+  read32(address) {
+    // Zona BIOS ROM (0xbfc00000 - 0xbfc80000)
+    if (address >= 0xbfc00000 && address < 0xbfc80000) {
+      const offset = (address - 0xbfc00000) >> 2;
+      return this.core.memory.biosView32[offset] || 0;
+    }
+    
+    // Zona Main RAM (0x00000000 - 0x00200000)
+    if (address >= 0x00000000 && address < 0x00200000) {
+      const offset = address >> 2;
+      return this.core.memory.ramView32[offset] || 0;
+    }
+
+    return 0;
+  }
+
+  write32(address, value) {
+    if (address >= 0x00000000 && address < 0x00200000) {
+      const offset = address >> 2;
+      this.core.memory.ramView32[offset] = value;
+    }
+  }
+}
+
+// --- MODUL 4: Pemuat Berkas BIOS & ROM ---
+class KLabsFileLoader {
+  constructor(coreSystem) {
+    this.core = coreSystem;
+  }
+
+  async loadBIOS(fileBlob) {
+    try {
+      const arrayBuffer = await fileBlob.arrayBuffer();
+      const targetView = new Uint8Array(this.core.memory.biosROM);
+      const sourceBytes = new Uint8Array(arrayBuffer);
+      targetView.set(sourceBytes.subarray(0, targetView.length));
+      console.log(`[K-Labs Loader] BIOS successfully loaded (${sourceBytes.length} bytes).`);
+      return true;
+    } catch (error) {
+      console.error("[K-Labs Loader Error] Failed to load BIOS:", error);
+      return false;
+    }
+  }
+
+  async loadROM(fileBlob) {
+    try {
+      const arrayBuffer = await fileBlob.arrayBuffer();
+      const targetView = new Uint8Array(this.core.memory.mainRAM);
+      const sourceBytes = new Uint8Array(arrayBuffer);
+      targetView.set(sourceBytes.subarray(0, targetView.length));
+      console.log(`[K-Labs Loader] Game ROM successfully loaded (${sourceBytes.length} bytes).`);
+      return true;
+    } catch (error) {
+      console.error("[K-Labs Loader Error] Failed to load Game ROM:", error);
+      return false;
+    }
+  }
+}
+
+// Integrasikan Modul 3 & 4 ke Sistem Global K-Labs
+if (window.KLabsEngine) {
+  window.KLabsEngine.bus = new KLabsMemoryBus(window.KLabsEngine);
+  window.KLabsEngine.loader = new KLabsFileLoader(window.KLabsEngine);
+  console.log("[K-Labs Core] Module 3 (Memory Bus) & Module 4 (File Loader) successfully initialized.");
+}
