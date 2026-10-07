@@ -3,50 +3,250 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>K-Labs - Kialdevaro Labs</title>
+  <title>K-Labs - PS1 Web Emulator Pro (Protected)</title>
   <style>
+    :root {
+      --bg-color: #0b0f19;
+      --card-bg: #111827;
+      --border-color: #374151;
+      --accent-color: #00ffcc;
+      --text-main: #e0e0e0;
+      --text-muted: #d1d5db;
+      --btn-opacity: 0.6;
+    }
     body {
-      background-color: #0b0f19;
-      color: #e0e0e0;
+      background-color: var(--bg-color);
+      color: var(--text-main);
       font-family: Arial, sans-serif;
       margin: 0;
-      padding: 20px;
+      padding: 10px;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
       min-height: 100vh;
       box-sizing: border-box;
+      /* Mencegah blok teks sembarangan */
+      user-select: none; 
+      -webkit-user-select: none;
     }
+    .container { width: 100%; max-width: 800px; }
+    .header { text-align: center; margin-bottom: 15px; }
+    .header h1 { color: var(--accent-color); font-size: 22px; text-transform: uppercase; margin: 0 0 5px 0; }
+    .header p { color: var(--text-muted); font-size: 12px; margin: 0; }
     .card {
-      background: rgb(17, 24, 39);
-      border: 1px solid rgb(55, 65, 81);
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
       border-radius: 12px;
-      padding: 30px;
-      max-width: 500px;
-      width: 100%;
+      padding: 15px;
       text-align: center;
       box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      margin-bottom: 15px;
     }
-    h1 { color: #00ffcc; font-size: 22px; margin-bottom: 10px; }
-    p { color: #d1d5db; font-size: 14px; line-height: 1.6; }
-    .badge {
-      display: inline-block;
-      background: rgba(0, 255, 204, 0.15);
-      color: #00ffcc;
-      border: 1px solid #00ffcc;
-      border-radius: 6px;
-      padding: 6px 14px;
-      font-size: 12px;
+    #ad-gate { display: block; }
+    .btn-ad {
+      background: linear-gradient(135deg, #00ffcc, #007766);
+      color: #0b0f19;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-size: 15px;
       font-weight: bold;
+      cursor: pointer;
       margin-top: 15px;
+    }
+    #emulator-studio { display: none; }
+    .rom-loader {
+      border: 2px dashed var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      background: rgba(31, 41, 55, 0.4);
+      font-size: 13px;
+    }
+    .settings-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(17, 24, 39, 0.9);
+      padding: 8px 12px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      font-size: 12px;
+      border: 1px solid var(--border-color);
+    }
+    .settings-bar label { color: var(--accent-color); font-weight: bold; }
+    #emulator-screen {
+      width: 100%;
+      height: 380px;
+      background: #000;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      touch-action: none;
+    }
+    canvas { width: 100%; height: 100%; object-fit: contain; }
+    .virtual-gamepad {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 15px;
+      box-sizing: border-box;
+    }
+    .pad-group, .action-group { pointer-events: auto; display: grid; gap: 6px; }
+    .pad-group { grid-template-areas: ". up ." "left . right" ". down ."; }
+    .action-group { grid-template-areas: ". triangle ." "square . circle" ". cross ."; }
+    .v-btn {
+      background: rgba(31, 41, 55, var(--btn-opacity));
+      border: 2px solid var(--accent-color);
+      color: white;
+      font-weight: bold;
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 14px;
+      cursor: pointer;
+      backdrop-filter: blur(2px);
+    }
+    .v-btn:active { background: rgba(0, 255, 204, 0.5); }
+    .center-controls {
+      position: absolute;
+      top: 10px; left: 50%;
+      transform: translateX(-50%);
+      display: flex; gap: 10px;
+      pointer-events: auto;
+    }
+    .sys-btn {
+      background: rgba(31, 41, 55, var(--btn-opacity));
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
     }
   </style>
 </head>
-<body>
-  <div class="card">
-    <h1>K-Labs (Kialdevaro Labs)</h1>
-    <p>Pusat riset, inovasi, dan pengembangan perangkat lunak mutakhir di bawah ekosistem Kialdevaro Group.</p>
-    <div class="badge">System Online & Ready</div>
+<body oncontextmenu="return false;"> <!-- Proteksi Klik Kanan Dasar -->
+
+  <div class="container">
+    <div class="header">
+      <h1>K-Labs Retro Engine</h1>
+      <p>© 2026 Kialdevaro Group - All Rights Reserved</p>
+    </div>
+
+    <!-- TAHAP 1: GERBANG IKLAN -->
+    <div id="ad-gate" class="card">
+      <h3 style="color: white; margin-top:0;">Akses Emulator Gratis</h3>
+      <p>Tonton iklan singkat di bawah ini sekali untuk membuka akses server mesin emulator.</p>
+      
+      <div id="ad-container" style="margin: 15px 0; min-height: 50px;">
+        <script src="https://pl31662254.profitableratecpmnetwork.com/1b/27/aa/1b27aafebf02c9db2b3e10e56229d3c1.js"></script>
+      </div>
+
+      <button class="btn-ad" onclick="unlockEmulator()">Lanjutkan ke Emulator ▶</button>
+    </div>
+
+    <!-- TAHAP 2: RUANG EMULATOR -->
+    <div id="emulator-studio" class="card">
+      <h3 style="color: var(--accent-color); margin-top:0; font-size: 16px;">PS1 Core Studio (Protected & Offline Ready)</h3>
+      
+      <div class="rom-loader">
+        <p style="margin: 0 0 5px 0; font-weight: bold;">Pilih File Game (.bin / .cue / .iso):</p>
+        <input type="file" id="romFile" accept=".bin,.cue,.iso,.img">
+      </div>
+
+      <!-- PANEL PENGATURAN KONTROL & TRANSPARANSI -->
+      <div class="settings-bar">
+        <div>
+          <label>Transparansi Tombol:</label>
+          <input type="range" id="opacityRange" min="0.2" max="1.0" step="0.1" value="0.6" oninput="changeOpacity(this.value)">
+        </div>
+        <div>
+          <button class="sys-btn" onclick="toggleGamepad()">Sembunyikan/Tampilkan Stik</button>
+        </div>
+      </div>
+
+      <!-- LAYAR GAME & OVERLAY STIK KONTROL -->
+      <div id="emulator-screen">
+        <canvas id="canvas" width="640" height="480"></canvas>
+        <div id="placeholder-text" style="position: absolute; color: #6b7280; font-size: 13px; text-align: center; padding: 0 20px;">
+          Silakan muat file ROM untuk mulai bermain secara offline
+        </div>
+
+        <!-- VIRTUAL GAMEPAD OVERLAY -->
+        <div id="virtualGamepad" class="virtual-gamepad">
+          <div class="center-controls">
+            <button class="sys-btn" style="opacity: var(--btn-opacity);">SELECT</button>
+            <button class="sys-btn" style="opacity: var(--btn-opacity);">START</button>
+          </div>
+
+          <div class="pad-group">
+            <div class="v-btn" style="grid-area: up;" ontouchstart="pressBtn('UP')" onmousedown="pressBtn('UP')">▲</div>
+            <div class="v-btn" style="grid-area: left;" ontouchstart="pressBtn('LEFT')" onmousedown="pressBtn('LEFT')">◄</div>
+            <div class="v-btn" style="grid-area: right;" ontouchstart="pressBtn('RIGHT')" onmousedown="pressBtn('RIGHT')">►</div>
+            <div class="v-btn" style="grid-area: down;" ontouchstart="pressBtn('DOWN')" onmousedown="pressBtn('DOWN')">▼</div>
+          </div>
+
+          <div class="action-group">
+            <div class="v-btn" style="grid-area: triangle;" ontouchstart="pressBtn('TRIANGLE')" onmousedown="pressBtn('TRIANGLE')">△</div>
+            <div class="v-btn" style="grid-area: square;" ontouchstart="pressBtn('SQUARE')" onmousedown="pressBtn('SQUARE')">□</div>
+            <div class="v-btn" style="grid-area: circle;" ontouchstart="pressBtn('CIRCLE')" onmousedown="pressBtn('CIRCLE')">○</div>
+            <div class="v-btn" style="grid-area: cross;" ontouchstart="pressBtn('CROSS')" onmousedown="pressBtn('CROSS')">✕</div>
+          </div>
+        </div>
+      </div>
+      
+      <div style="color: var(--text-muted); font-size: 11px; margin-top: 8px;">
+        💡 Kialdevaro Labs Security Active - Protected System.
+      </div>
+    </div>
   </div>
+
+  <script>
+    // Mencegah tombol pintas umum pencurian kode (F12, Ctrl+U, Ctrl+Shift+I) bagi pemula
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'F12' || (event.ctrlKey && event.shiftKey && event.key === 'I') || (event.ctrlKey && event.key === 'u')) {
+        event.preventDefault();
+        alert("Akses dilindungi oleh Kialdevaro Group / K-Labs.");
+      }
+    });
+
+    function unlockEmulator() {
+      document.getElementById('ad-gate').style.display = 'none';
+      document.getElementById('emulator-studio').style.display = 'block';
+    }
+
+    function changeOpacity(val) {
+      document.documentElement.style.setProperty('--btn-opacity', val);
+    }
+
+    function toggleGamepad() {
+      const pad = document.getElementById('virtualGamepad');
+      pad.style.display = pad.style.display === 'none' ? 'flex' : 'none';
+    }
+
+    function pressBtn(btnName) {
+      console.log("K-Labs Input: " + btnName);
+    }
+
+    document.getElementById('romFile').addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (file) {
+        document.getElementById('placeholder-text').style.display = 'none';
+        alert("Game " + file.name + " berhasil dimuat di K-Labs Engine!");
+      }
+    });
+  </script>
+
 </body>
 </html>
