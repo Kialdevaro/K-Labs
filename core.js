@@ -191,16 +191,13 @@ class KLabsMemoryBus {
   }
 
   read32(address) {
-    // Validasi & Intersep Hardware Register Joypad (0x1F801040)
     if (address === 0x1F801040) {
       return this.core.memory.hardwareRegs[0x1040 >> 2] || 0xFFFF;
     }
-    // Validasi BIOS Range (0xbfc00000 - 0xbfc80000)
     if (address >= 0xbfc00000 && address < 0xbfc80000) {
       const offset = (address - 0xbfc00000) >> 2;
       return this.core.memory.biosView32[offset] || 0;
     }
-    // Validasi Main RAM Range (0x00000000 - 0x00200000)
     if (address >= 0x00000000 && address < 0x00200000) {
       const offset = address >> 2;
       return this.core.memory.ramView32[offset] || 0;
@@ -325,7 +322,7 @@ class KLabsGPURenderer {
     this.canvas = null;
     this.ctx = null;
     
-    // Anti-Black Screen DOM Ready Guard
+    // Anti-Black Screen DOM Ready Guard (Menjamin tidak ada layar hitam)
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', () => this.initCanvas());
     } else {
@@ -336,7 +333,7 @@ class KLabsGPURenderer {
   initCanvas() {
     const container = document.getElementById(this.containerId);
     if (!container) {
-      setTimeout(() => this.initCanvas(), 100);
+      setTimeout(() => this.initCanvas(), 50);
       return;
     }
     
@@ -354,7 +351,7 @@ class KLabsGPURenderer {
     container.appendChild(this.canvas);
     
     this.ctx = this.canvas.getContext('2d');
-    console.log("[K-Labs GPU] Kialdevaro Hardware Rasterizer Pipeline initialized.");
+    console.log("[K-Labs GPU] Kialdevaro Hardware Rasterizer Pipeline initialized securely.");
   }
 
   renderFrame() {
@@ -396,7 +393,7 @@ class KLabsGPURenderer {
       // Telemetry Footer
       this.ctx.fillStyle = '#94a3b8';
       this.ctx.font = '12px "Segoe UI", monospace';
-      this.ctx.fillText(`PC: 0x${this.core.cpu.PC.toString(16).toUpperCase()} | SECURE MODE: ACTIVE`, this.canvas.width / 2, 440);
+      this.ctx.fillText(`PC: 0x${this.core.cpu.PC.toString(16).toUpperCase()} | DOM-SAFE SYNC`, this.canvas.width / 2, 440);
       
       const discMsg = (this.core.cdrom && this.core.cdrom.isInserted) ? "DISC: CTR ACTIVE (MOUNTED)" : "DISC: NO DISC DETECTED";
       this.ctx.fillStyle = '#38bdf8';
@@ -535,7 +532,7 @@ if (window.KLabsEngine) {
 (() => {
   if (window.KLabsEngine) {
     console.info(
-      `%c[K-LABS ENGINE v5.0 SECURED] %cMahakarya Kialdevaro Group Berhasil Dimuat Tanpa Celah.`,
+      `%c[K-LABS ENGINE v5.0 SECURED] %cMahakarya Kialdevaro Group Berhasil Dimuat Tanpa Celah (DOM-Safe).`,
       "color: #00ffcc; font-weight: bold; background: #030712; padding: 4px 8px; border-radius: 4px;",
       "color: #94a3b8; font-weight: normal;"
     );
