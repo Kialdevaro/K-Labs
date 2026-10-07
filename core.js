@@ -138,7 +138,7 @@ if (window.KLabsEngine) {
  * =====================================================================
  * K-LABS PROPRIETARY CORE ENGINE - MASTER ARCHITECTURE v5.0 (BAGIAN 2)
  * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
- * MIPS CPU R3000A, Execution Engine, GPU Renderer, & CD-ROM Controller
+ * MIPS CPU R3000A (Fixed Bus), Execution Engine, GPU, & CD-ROM
  * =====================================================================
  */
 
@@ -217,7 +217,7 @@ class KLabsMIPSProcessor {
           case 0x02: // SRL
             this.setReg(rd, (this.getReg(rt) >>> shamt)); break;
           case 0x03: // SRA
-            this.setReg(rd, this.getReg(rt) >> shamt); break;
+            this.setReg(rd, (this.getReg(rt) >> shamt)); break;
           case 0x18: // MULT
             {
               const res = BigInt(this.getReg(rs)) * BigInt(this.getReg(rt));
@@ -261,7 +261,7 @@ class KLabsMIPSProcessor {
   }
 }
 
-// Inisialisasi CPU terhubung langsung ke BUS yang aman (Solusi Galat bus.read32)
+// Inisialisasi CPU terhubung langsung ke BUS yang aman (Memperbaiki error bus.read32 is not a function)
 if (window.KLabsEngine && window.KLabsEngine.bus) {
   window.KLabsEngine.cpu = new KLabsMIPSProcessor(window.KLabsEngine.bus);
 }
