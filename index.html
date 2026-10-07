@@ -147,7 +147,6 @@
     }
     canvas { width: 100%; height: 100%; object-fit: contain; }
 
-    /* VIRTUAL GAMEPAD (LENGKAP DENGAN L1/L2 & R1/R2) */
     .virtual-gamepad {
       position: absolute;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -182,20 +181,17 @@
       position: absolute;
       box-shadow: 0 0 8px var(--accent-glow);
     }
-    /* Posisi D-Pad / Analog Kiri */
     .btn-up { top: 0; left: 44px; }
     .btn-left { top: 44px; left: 0; }
     .btn-right { top: 44px; left: 88px; }
     .btn-down { top: 88px; left: 44px; }
 
-    /* Tombol Aksi Kanan */
     .btn-triangle { top: 0; left: 44px; }
     .btn-square { top: 44px; left: 0; }
     .btn-circle { top: 44px; left: 88px; }
     .btn-cross { top: 88px; left: 44px; }
     .v-btn:active { background: rgba(0, 255, 204, 0.6); }
 
-    /* TOMBOL BAHU (L1, L2 di Kiri Atas & R1, R2 di Kanan Atas) */
     .shoulder-left, .shoulder-right {
       position: absolute;
       top: 10px;
@@ -219,7 +215,6 @@
       box-shadow: 0 0 8px var(--accent-glow);
     }
 
-    /* Tombol Tengah (Select, Start, Analog Mode) */
     .center-controls {
       position: absolute;
       top: 10px;
@@ -319,22 +314,22 @@
           Unggah BIOS & Game di atas, lalu klik "JALANKAN GAME"!
         </div>
 
-        <!-- LAYOUT GAMEPAD VIRTUAL LENGKAP -->
+        <!-- GAMEPAD VIRTUAL LENGKAP -->
         <div id="virtualGamepad" class="virtual-gamepad">
           
-          <!-- Tombol Bahu Kiri (L1, L2) -->
+          <!-- Tombol Bahu Kiri -->
           <div class="shoulder-left">
             <button class="shoulder-btn" ontouchstart="pressBtn('L1')" onmousedown="pressBtn('L1')">L1</button>
             <button class="shoulder-btn" ontouchstart="pressBtn('L2')" onmousedown="pressBtn('L2')">L2</button>
           </div>
 
-          <!-- Tombol Bahu Kanan (R1, R2) -->
+          <!-- Tombol Bahu Kanan -->
           <div class="shoulder-right">
             <button class="shoulder-btn" ontouchstart="pressBtn('R1')" onmousedown="pressBtn('R1')">R1</button>
             <button class="shoulder-btn" ontouchstart="pressBtn('R2')" onmousedown="pressBtn('R2')">R2</button>
           </div>
 
-          <!-- Kontrol Tengah (Select, Start, & Analog Mode Toggle) -->
+          <!-- Bagian Tengah -->
           <div class="center-controls">
             <button class="sys-btn" style="opacity: var(--btn-opacity);" ontouchstart="pressBtn('SELECT')" onmousedown="pressBtn('SELECT')">SELECT</button>
             <button class="sys-btn" id="analogToggleBtn" style="opacity: var(--btn-opacity);" onclick="toggleAnalogMode()">ANALOG: OFF</button>
@@ -343,10 +338,10 @@
 
           <!-- D-Pad / Analog Kiri -->
           <div class="pad-group">
-            <div class="v-btn btn-up" ontouchstart="pressBtn('UP')" onmousedown="pressBtn('UP')">▲</div>
-            <div class="v-btn btn-left" ontouchstart="pressBtn('LEFT')" onmousedown="pressBtn('LEFT')">◄</div>
-            <div class="v-btn btn-right" ontouchstart="pressBtn('RIGHT')" onmousedown="pressBtn('RIGHT')">►</div>
-            <div class="v-btn btn-down" ontouchstart="pressBtn('DOWN')" onmousedown="pressBtn('DOWN')">▼</div>
+            <div class="v-btn btn-up" id="btnUp" ontouchstart="pressBtn('UP')" onmousedown="pressBtn('UP')">▲</div>
+            <div class="v-btn btn-left" id="btnLeft" ontouchstart="pressBtn('LEFT')" onmousedown="pressBtn('LEFT')">◄</div>
+            <div class="v-btn btn-right" id="btnRight" ontouchstart="pressBtn('RIGHT')" onmousedown="pressBtn('RIGHT')">►</div>
+            <div class="v-btn btn-down" id="btnDown" ontouchstart="pressBtn('DOWN')" onmousedown="pressBtn('DOWN')">▼</div>
           </div>
 
           <!-- Tombol Aksi Kanan -->
@@ -361,7 +356,7 @@
       </div>
     </div>
   </div>
-  <script>
+    <script>
     let isAnalogActive = false;
 
     document.addEventListener('keydown', function(event) {
@@ -384,18 +379,29 @@
       pad.style.display = pad.style.display === 'none' ? 'flex' : 'none';
     }
 
-    // Fungsi Mengaktifkan / Menonaktifkan Mode Analog
+    // Fungsi Pengalih Mode Analog / D-Pad dengan Update Label Tombol
     function toggleAnalogMode() {
       isAnalogActive = !isAnalogActive;
       const btn = document.getElementById('analogToggleBtn');
+      const up = document.getElementById('btnUp');
+      const left = document.getElementById('btnLeft');
+      const right = document.getElementById('btnRight');
+      const down = document.getElementById('btnDown');
+
       if (isAnalogActive) {
         btn.innerText = "ANALOG: ON";
         btn.classList.add('active-analog');
-        alert("Mode Analog Aktif: D-Pad kini berfungsi sebagai Analog Stick.");
+        up.innerText = "L-U";
+        left.innerText = "L-L";
+        right.innerText = "L-R";
+        down.innerText = "L-D";
       } else {
         btn.innerText = "ANALOG: OFF";
         btn.classList.remove('active-analog');
-        alert("Mode Analog Nonaktif: Kembali ke D-Pad standar.");
+        up.innerText = "▲";
+        left.innerText = "◄";
+        right.innerText = "►";
+        down.innerText = "▼";
       }
     }
 
@@ -461,7 +467,7 @@
       }
 
       document.getElementById('placeholder-text').style.display = 'none';
-      alert("Mesin K-Labs DualShock berhasil boot! Memuat BIOS & Game. Selamat bermain!");
+      alert("Mesin K-Labs DualShock Pro Berhasil Boot! BIOS & Game aktif.");
     }
   </script>
 </body>
