@@ -143,3 +143,54 @@ if (window.KLabsEngine && window.KLabsEngine.cpu) {
   window.KLabsEngine.bus = new KLabsMemoryBus(window.KLabsEngine);
   console.log("[K-Labs Core] Module 3 (Memory Bus Mapping) successfully initialized.");
 }
+/**
+ * K-Labs Proprietary Core Engine - Module 4: BIOS & ROM Stream Loader
+ * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
+ */
+
+class KLabsFileLoader {
+  constructor(coreSystem) {
+    this.core = coreSystem;
+  }
+
+  // Memuat data biner BIOS (.bin) langsung ke dalam ArrayBuffer BIOS ROM
+  async loadBIOS(fileBlob) {
+    try {
+      const arrayBuffer = await fileBlob.arrayBuffer();
+      const targetView = new Uint8Array(this.core.memory.biosROM);
+      
+      // Salin data biner BIOS ke memori inti
+      const sourceBytes = new Uint8Array(arrayBuffer);
+      targetView.set(sourceBytes.subarray(0, targetView.length));
+      
+      console.log(`[K-Labs Loader] BIOS successfully loaded into memory (${sourceBytes.length} bytes).`);
+      return true;
+    } catch (error) {
+      console.error("[K-Labs Loader Error] Failed to load BIOS binary:", error);
+      return false;
+    }
+  }
+
+  // Memuat data biner Game/ROM (.bin/.iso) ke Main RAM
+  async loadROM(fileBlob) {
+    try {
+      const arrayBuffer = await fileBlob.arrayBuffer();
+      const targetView = new Uint8Array(this.core.memory.mainRAM);
+      
+      const sourceBytes = new Uint8Array(arrayBuffer);
+      targetView.set(sourceBytes.subarray(0, targetView.length));
+      
+      console.log(`[K-Labs Loader] Game ROM successfully loaded into Main RAM (${sourceBytes.length} bytes).`);
+      return true;
+    } catch (error) {
+      console.error("[K-Labs Loader Error] Failed to load Game ROM:", error);
+      return false;
+    }
+  }
+}
+
+// Integrasikan File Loader ke sistem global K-Labs
+if (window.KLabsEngine) {
+  window.KLabsEngine.loader = new KLabsFileLoader(window.KLabsEngine);
+  console.log("[K-Labs Core] Module 4 (File Stream Loader) successfully initialized.");
+}
