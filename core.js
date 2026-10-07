@@ -2,7 +2,7 @@
  * =====================================================================
  * K-LABS PROPRIETARY CORE ENGINE - MASTER ARCHITECTURE v5.0 (BAGIAN 1)
  * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
- * Secured Enterprise Edition: Zero-Loophole Memory & Advanced MIPS CPU
+ * Secured Enterprise Edition: Zero-Loophole Memory & Memory Bus
  * =====================================================================
  */
 
@@ -60,7 +60,89 @@ Object.defineProperty(window, 'KLabsEngine', {
 });
 
 
-// --- 2. MODUL 2 & 10: Arsitektur CPU MIPS R3000A & Safe Opcode Interpreter ---
+// --- 2. MODUL 3 & 4: Secured Memory Bus & Stream Loader ---
+class KLabsMemoryBus {
+  constructor(coreSystem) {
+    this.core = coreSystem;
+  }
+
+  read32(address) {
+    if (address === 0x1F801040) {
+      return this.core.memory.hardwareRegs[0x1040 >> 2] || 0xFFFF;
+    }
+    if (address >= 0xbfc00000 && address < 0xbfc80000) {
+      const offset = (address - 0xbfc00000) >> 2;
+      return this.core.memory.biosView32[offset] || 0;
+    }
+    if (address >= 0x00000000 && address < 0x00200000) {
+      const offset = address >> 2;
+      return this.core.memory.ramView32[offset] || 0;
+    }
+    return 0;
+  }
+
+  write32(address, value) {
+    if (address === 0x1F801040) {
+      this.core.memory.hardwareRegs[0x1040 >> 2] = value;
+      return;
+    }
+    if (address >= 0x00000000 && address < 0x00200000) {
+      const offset = address >> 2;
+      this.core.memory.ramView32[offset] = value;
+    }
+  }
+}
+
+class KLabsFileLoader {
+  constructor(coreSystem) {
+    this.core = coreSystem;
+  }
+
+  async loadBIOS(fileBlob) {
+    try {
+      const arrayBuffer = await fileBlob.arrayBuffer();
+      const targetView = new Uint8Array(this.core.memory.biosROM);
+      const sourceBytes = new Uint8Array(arrayBuffer);
+      targetView.set(sourceBytes.subarray(0, targetView.length));
+      console.log("[K-Labs Loader] Secured BIOS loaded successfully.");
+      return true;
+    } catch (e) {
+      console.error("[K-Labs Loader Error] BIOS load failed:", e);
+      return false;
+    }
+  }
+
+  async loadROM(fileBlob) {
+    try {
+      const arrayBuffer = await fileBlob.arrayBuffer();
+      const targetView = new Uint8Array(this.core.memory.mainRAM);
+      const sourceBytes = new Uint8Array(arrayBuffer);
+      targetView.set(sourceBytes.subarray(0, targetView.length));
+      if (this.core.cdrom) {
+        this.core.cdrom.mountDisc(arrayBuffer);
+      }
+      console.log("[K-Labs Loader] Secured Game ROM loaded successfully.");
+      return true;
+    } catch (e) {
+      console.error("[K-Labs Loader Error] Game ROM load failed:", e);
+      return false;
+    }
+  }
+}
+
+if (window.KLabsEngine) {
+  window.KLabsEngine.bus = new KLabsMemoryBus(window.KLabsEngine);
+  window.KLabsEngine.loader = new KLabsFileLoader(window.KLabsEngine);
+}
+/**
+ * =====================================================================
+ * K-LABS PROPRIETARY CORE ENGINE - MASTER ARCHITECTURE v5.0 (BAGIAN 2)
+ * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
+ * MIPS CPU R3000A, Execution Engine, GPU Renderer, & CD-ROM Controller
+ * =====================================================================
+ */
+
+// --- 3. MODUL 2 & 10: Arsitektur CPU MIPS R3000A & Safe Opcode Interpreter ---
 class KLabsMIPSProcessor {
   constructor(memoryBus) {
     this.mem = memoryBus;
@@ -179,92 +261,11 @@ class KLabsMIPSProcessor {
   }
 }
 
-if (window.KLabsEngine) {
-  window.KLabsEngine.cpu = new KLabsMIPSProcessor(window.KLabsEngine.memory);
+// Inisialisasi CPU terhubung langsung ke BUS yang aman (Solusi Galat bus.read32)
+if (window.KLabsEngine && window.KLabsEngine.bus) {
+  window.KLabsEngine.cpu = new KLabsMIPSProcessor(window.KLabsEngine.bus);
 }
 
-
-// --- 3. MODUL 3 & 4: Secured Memory Bus & Stream Loader ---
-class KLabsMemoryBus {
-  constructor(coreSystem) {
-    this.core = coreSystem;
-  }
-
-  read32(address) {
-    if (address === 0x1F801040) {
-      return this.core.memory.hardwareRegs[0x1040 >> 2] || 0xFFFF;
-    }
-    if (address >= 0xbfc00000 && address < 0xbfc80000) {
-      const offset = (address - 0xbfc00000) >> 2;
-      return this.core.memory.biosView32[offset] || 0;
-    }
-    if (address >= 0x00000000 && address < 0x00200000) {
-      const offset = address >> 2;
-      return this.core.memory.ramView32[offset] || 0;
-    }
-    return 0;
-  }
-
-  write32(address, value) {
-    if (address === 0x1F801040) {
-      this.core.memory.hardwareRegs[0x1040 >> 2] = value;
-      return;
-    }
-    if (address >= 0x00000000 && address < 0x00200000) {
-      const offset = address >> 2;
-      this.core.memory.ramView32[offset] = value;
-    }
-  }
-}
-
-class KLabsFileLoader {
-  constructor(coreSystem) {
-    this.core = coreSystem;
-  }
-
-  async loadBIOS(fileBlob) {
-    try {
-      const arrayBuffer = await fileBlob.arrayBuffer();
-      const targetView = new Uint8Array(this.core.memory.biosROM);
-      const sourceBytes = new Uint8Array(arrayBuffer);
-      targetView.set(sourceBytes.subarray(0, targetView.length));
-      console.log("[K-Labs Loader] Secured BIOS loaded successfully.");
-      return true;
-    } catch (e) {
-      console.error("[K-Labs Loader Error] BIOS load failed:", e);
-      return false;
-    }
-  }
-
-  async loadROM(fileBlob) {
-    try {
-      const arrayBuffer = await fileBlob.arrayBuffer();
-      const targetView = new Uint8Array(this.core.memory.mainRAM);
-      const sourceBytes = new Uint8Array(arrayBuffer);
-      targetView.set(sourceBytes.subarray(0, targetView.length));
-      if (this.core.cdrom) {
-        this.core.cdrom.mountDisc(arrayBuffer);
-      }
-      console.log("[K-Labs Loader] Secured Game ROM loaded successfully.");
-      return true;
-    } catch (e) {
-      console.error("[K-Labs Loader Error] Game ROM load failed:", e);
-      return false;
-    }
-  }
-}
-
-if (window.KLabsEngine) {
-  window.KLabsEngine.bus = new KLabsMemoryBus(window.KLabsEngine);
-  window.KLabsEngine.loader = new KLabsFileLoader(window.KLabsEngine);
-}
-/**
- * =====================================================================
- * K-LABS PROPRIETARY CORE ENGINE - MASTER ARCHITECTURE v5.0 (BAGIAN 2)
- * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
- * Secured Execution Engine, CD-ROM Controller, & DOM-Safe GPU Rasterizer
- * =====================================================================
- */
 
 // --- 4. MODUL 5: Execution Engine & Precision Frame Limiter ---
 class KLabsExecutionEngine {
@@ -280,7 +281,7 @@ class KLabsExecutionEngine {
       this.core.spu.initAudio();
     }
     this.core.cpu.isRunning = true;
-    console.log("[K-Labs Core] Master Execution Loop started with Kialdevaro Sync Engine.");
+    console.log("[K-Labs Core] Master Execution Loop started.");
     this.runTick();
   }
 
@@ -322,7 +323,6 @@ class KLabsGPURenderer {
     this.canvas = null;
     this.ctx = null;
     
-    // Anti-Black Screen DOM Ready Guard (Menjamin tidak ada layar hitam)
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', () => this.initCanvas());
     } else {
@@ -350,10 +350,8 @@ class KLabsGPURenderer {
     container.innerHTML = '';
     container.appendChild(this.canvas);
     
-        this.ctx = this.canvas.getContext('2d');
-    console.log("[K-Labs GPU] Kialdevaro Hardware Rasterizer Pipeline initialized securely.");
-
-    // Tambahkan baris ini di sini:
+    this.ctx = this.canvas.getContext('2d');
+    console.log("[K-Labs GPU] Rasterizer Pipeline initialized securely.");
     this.renderFrame();
   }
 
@@ -366,7 +364,6 @@ class KLabsGPURenderer {
     if (this.core.cpu && this.core.cpu.isRunning) {
       const time = performance.now() * 0.003;
       
-      // Retro Grid Perspective
       this.ctx.strokeStyle = '#00ffcc22';
       this.ctx.lineWidth = 1;
       for (let i = -5; i <= 5; i++) {
@@ -376,7 +373,6 @@ class KLabsGPURenderer {
         this.ctx.stroke();
       }
 
-      // Branded 3D Wireframe Box
       this.ctx.save();
       this.ctx.translate(320, 200);
       this.ctx.rotate(time);
@@ -387,13 +383,11 @@ class KLabsGPURenderer {
       this.ctx.strokeRect(-50, -50, 100, 100);
       this.ctx.restore();
 
-      // Branding Header
       this.ctx.fillStyle = '#00ffcc';
       this.ctx.font = 'bold 13px "Segoe UI", monospace';
       this.ctx.textAlign = 'center';
       this.ctx.fillText("K-LABS RASTERIZER // KIALDEVARO GROUP", this.canvas.width / 2, 35);
 
-      // Telemetry Footer
       this.ctx.fillStyle = '#94a3b8';
       this.ctx.font = '12px "Segoe UI", monospace';
       this.ctx.fillText(`PC: 0x${this.core.cpu.PC.toString(16).toUpperCase()} | DOM-SAFE SYNC`, this.canvas.width / 2, 440);
