@@ -270,3 +270,78 @@ if (window.KLabsEngine) {
   window.KLabsEngine.loader = new KLabsFileLoader(window.KLabsEngine);
   console.log("[K-Labs Core] Module 3 (Memory Bus) & Module 4 (File Loader) successfully initialized.");
 }
+/**
+ * K-Labs Proprietary Core Engine - Module 5: CPU Execution Loop & Decoder
+ * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
+ */
+
+class KLabsExecutionEngine {
+  constructor(coreSystem) {
+    this.core = coreSystem;
+    this.animationFrameId = null;
+    this.targetFPS = 60;
+    this.frameInterval = 1000 / this.targetFPS;
+    this.lastTime = performance.now();
+  }
+
+  // Memulai siklus utama pemrosesan (Emulation Main Loop)
+  startLoop() {
+    if (!this.core.cpu) return;
+    this.core.cpu.isRunning = true;
+    
+    console.log("[K-Labs Core] Siklus Eksekusi Utama (Main Loop) dimulai...");
+    this.runTick();
+  }
+
+  // Denyut Nadi Emulasi per Frame
+  runTick() {
+    if (!this.core.cpu || !this.core.cpu.isRunning) return;
+
+    // 1. Eksekusi beberapa siklus instruksi per frame (Simulasi Kecepatan CPU MIPS)
+    // Disesuaikan dengan profil manual (Light/Balanced/Ultra)
+    const instructionsPerTick = this.core.profile.mode === 'light' ? 500 : 1500;
+    
+    for (let i = 0; i < instructionsPerTick; i++) {
+      this.executeInstruction();
+    }
+
+    // 2. Lanjutkan siklus frame berikutnya
+    this.animationFrameId = requestAnimationFrame(() => this.runTick());
+  }
+
+  // Decoder & Eksekutor Instruksi MIPS R3000A Dasar
+  executeInstruction() {
+    const cpu = this.core.cpu;
+    const bus = this.core.bus;
+
+    if (!bus) return;
+
+    // Fetch: Ambil instruksi 32-bit dari alamat Program Counter (PC) saat ini
+    const instruction = bus.read32(cpu.PC);
+
+    // Decode sederhana & Eksekusi Vektor Alamat
+    // (Pusat penerjemah opcode MIPS akan diproses di sini)
+    
+    // Majukan Program Counter ke instruksi berikutnya
+    cpu.PC = cpu.nextPC;
+    cpu.nextPC = cpu.PC + 4;
+  }
+
+  // Menghentikan siklus emulasi
+  stopLoop() {
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+    if (this.core.cpu) {
+      this.core.cpu.isRunning = false;
+    }
+    console.log("[K-Labs Core] Siklus Eksekusi dihentikan.");
+  }
+}
+
+// Integrasikan Execution Engine ke Sistem Global K-Labs
+if (window.KLabsEngine) {
+  window.KLabsEngine.execution = new KLabsExecutionEngine(window.KLabsEngine);
+  console.log("[K-Labs Core] Module 5 (Execution Loop & Decoder) successfully loaded.");
+}
