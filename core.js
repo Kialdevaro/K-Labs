@@ -1,7 +1,7 @@
 /**
  * K-Labs Proprietary Core Engine - Unified Foundation & Modules v1.0
  * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
- * Sistem Penyetelan Manual Adaptif, Alokasi Memori, CPU, Bus, Loader, & Execution Loop
+ * Sistem Penyetelan Manual Adaptif, Alokasi Memori, CPU, Bus, Loader, Execution Loop, & GPU Renderer
  */
 
 // --- 1. FOUNDATION: Sistem Inti & Alokasi Memori ---
@@ -174,6 +174,11 @@ class KLabsExecutionEngine {
       this.executeInstruction();
     }
 
+    // Render frame grafis ke Canvas setiap detak tick
+    if (this.core.gpu) {
+      this.core.gpu.renderFrame();
+    }
+
     this.animationFrameId = requestAnimationFrame(() => this.runTick());
   }
 
@@ -202,4 +207,65 @@ class KLabsExecutionEngine {
 if (window.KLabsEngine) {
   window.KLabsEngine.execution = new KLabsExecutionEngine(window.KLabsEngine);
   console.log("[K-Labs Core] Module 5 (Execution Loop & Decoder) successfully loaded.");
+}
+
+
+// --- 5. MODUL 6: GPU & Canvas Renderer ---
+class KLabsGPURenderer {
+  constructor(coreSystem, containerId = 'game') {
+    this.core = coreSystem;
+    this.container = document.getElementById(containerId);
+    this.canvas = null;
+    this.ctx = null;
+    
+    this.initCanvas();
+  }
+
+  initCanvas() {
+    if (!this.container) return;
+    
+    this.canvas = document.createElement('canvas');
+    this.canvas.width = 640;
+    this.canvas.height = 480;
+    this.canvas.style.width = '100%';
+    this.canvas.style.height = '100%';
+    this.canvas.style.display = 'block';
+    this.canvas.style.background = '#000000';
+    
+    this.container.innerHTML = '';
+    this.container.appendChild(this.canvas);
+    
+    this.ctx = this.canvas.getContext('2d');
+    console.log("[K-Labs GPU] Canvas Renderer initialized successfully (640x480 Target).");
+  }
+
+  renderFrame() {
+    if (!this.ctx) return;
+
+    this.ctx.fillStyle = '#030712';
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    this.ctx.fillStyle = '#00ffcc';
+    this.ctx.font = 'bold 16px "Segoe UI", monospace';
+    this.ctx.textAlign = 'center';
+    
+    if (this.core.cpu && this.core.cpu.isRunning) {
+      this.ctx.fillText("K-LABS RETRO ENGINE - RUNNING", this.canvas.width / 2, 210);
+      
+      this.ctx.fillStyle = '#94a3b8';
+      this.ctx.font = '13px "Segoe UI", monospace';
+      this.ctx.fillText(`PC: 0x${this.core.cpu.PC.toString(16).toUpperCase()}`, this.canvas.width / 2, 245);
+      this.ctx.fillText(`Mode: ${this.core.profile.mode.toUpperCase()} | Resolution: ${this.core.profile.internalResolution}x`, this.canvas.width / 2, 270);
+    } else {
+      this.ctx.fillText("K-LABS SYSTEM ACTIVE", this.canvas.width / 2, 210);
+      this.ctx.fillStyle = '#94a3b8';
+      this.ctx.font = '13px "Segoe UI", monospace';
+      this.ctx.fillText("Menunggu eksekusi game...", this.canvas.width / 2, 245);
+    }
+  }
+}
+
+if (window.KLabsEngine) {
+  window.KLabsEngine.gpu = new KLabsGPURenderer(window.KLabsEngine, 'game');
+  console.log("[K-Labs Core] Module 6 (GPU Renderer) successfully loaded.");
 }
