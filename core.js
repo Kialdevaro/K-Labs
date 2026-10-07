@@ -523,7 +523,69 @@ class KLabsJoypadController {
 if (window.KLabsEngine) {
   window.KLabsEngine.joypad = new KLabsJoypadController(window.KLabsEngine);
 }
+// --- EKSPANSI ADVANCED: Keyboard & State Manager ---
+class KLabsAdvancedFeatures {
+  constructor(coreSystem) {
+    this.core = coreSystem;
+    this.initKeyboardListener();
+  }
 
+  initKeyboardListener() {
+    window.addEventListener('keydown', (e) => this.handleKey(e, true));
+    window.addEventListener('keyup', (e) => this.handleKey(e, false));
+    console.log("[K-Labs Advanced] Physical Keyboard & Gamepad API listener active.");
+  }
+
+  handleKey(e, isPressed) {
+    if (!window.KLabsPressButton) return;
+    switch (e.code) {
+      case 'ArrowUp': case 'KeyW': KLabsPressButton('UP', isPressed); break;
+      case 'ArrowDown': case 'KeyS': KLabsPressButton('DOWN', isPressed); break;
+      case 'ArrowLeft': case 'KeyA': KLabsPressButton('LEFT', isPressed); break;
+      case 'ArrowRight': case 'KeyD': KLabsPressButton('RIGHT', isPressed); break;
+      case 'KeyZ': case 'KeyJ': KLabsPressButton('CROSS', isPressed); break;
+      case 'KeyX': case 'KeyK': KLabsPressButton('CIRCLE', isPressed); break;
+      case 'KeyC': case 'KeyU': KLabsPressButton('SQUARE', isPressed); break;
+      case 'KeyV': case 'KeyI': KLabsPressButton('TRIANGLE', isPressed); break;
+      case 'Enter': KLabsPressButton('START', isPressed); break;
+      case 'ShiftRight': KLabsPressButton('SELECT', isPressed); break;
+    }
+  }
+
+  saveState() {
+    try {
+      const ramBase64 = btoa(String.fromCharCode.apply(null, new Uint8Array(this.core.memory.mainRAM)));
+      localStorage.setItem('klabs_savestate_v5', ramBase64);
+      alert("Progres Game (Save State) berhasil disimpan!");
+    } catch (err) {
+      console.error("Gagal menyimpan state:", err);
+    }
+  }
+
+  loadState() {
+    try {
+      const ramBase64 = localStorage.getItem('klabs_savestate_v5');
+      if (!ramBase64) {
+        alert("Belum ada data Save State yang tersimpan!");
+        return;
+      }
+      const binaryString = atob(ramBase64);
+      const len = binaryString.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      new Uint8Array(this.core.memory.mainRAM).set(bytes);
+      alert("Progres Game (Load State) berhasil dimuat kembali!");
+    } catch (err) {
+      console.error("Gagal memuat state:", err);
+    }
+  }
+}
+
+if (window.KLabsEngine) {
+  window.KLabsEngine.advanced = new KLabsAdvancedFeatures(window.KLabsEngine);
+}
 
 // --- 9. SECURITY SEAL: Proteksi Akhir & Validasi Sistem ---
 (() => {
