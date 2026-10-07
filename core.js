@@ -1,9 +1,10 @@
 /**
- * K-Labs Proprietary Core Engine - Foundation Module v1.0
+ * K-Labs Proprietary Core Engine - Unified Foundation & Modules v1.0
  * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
- * Sistem Penyetelan Manual Adaptif & Alokasi Memori Utama
+ * Sistem Penyetelan Manual Adaptif, Alokasi Memori, CPU, Bus, Loader, & Execution Loop
  */
 
+// --- 1. FOUNDATION: Sistem Inti & Alokasi Memori ---
 class KLabsCoreSystem {
   constructor() {
     this.profile = {
@@ -43,11 +44,9 @@ class KLabsCoreSystem {
 
 // Inisialisasi Global Core Engine Utama
 window.KLabsEngine = new KLabsCoreSystem();
-/**
- * K-Labs Proprietary Core Engine - Module 2: CPU MIPS R3000A Architecture
- * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
- */
 
+
+// --- 2. MODUL 2: Arsitektur CPU MIPS R3000A ---
 class KLabsMIPSProcessor {
   constructor(memoryBus) {
     this.mem = memoryBus;
@@ -74,16 +73,13 @@ class KLabsMIPSProcessor {
   }
 }
 
-// Integrasikan MIPS CPU ke dalam sistem global K-Labs
 if (window.KLabsEngine) {
   window.KLabsEngine.cpu = new KLabsMIPSProcessor(window.KLabsEngine.memory);
   console.log("[K-Labs Core] Module 2 (MIPS CPU) successfully loaded into engine.");
 }
-/**
- * K-Labs Proprietary Core Engine - Module 3 & 4: Memory Bus & Binary Stream Loader
- * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
- */
 
+
+// --- 3. MODUL 3 & 4: Memory Mapping & Binary Stream Loader ---
 class KLabsMemoryBus {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -145,17 +141,14 @@ class KLabsFileLoader {
   }
 }
 
-// Integrasikan Modul 3 & 4 ke Sistem Global K-Labs
 if (window.KLabsEngine) {
   window.KLabsEngine.bus = new KLabsMemoryBus(window.KLabsEngine);
   window.KLabsEngine.loader = new KLabsFileLoader(window.KLabsEngine);
   console.log("[K-Labs Core] Module 3 (Memory Bus) & Module 4 (File Loader) successfully initialized.");
 }
-/**
- * K-Labs Proprietary Core Engine - Module 5: CPU Execution Loop & Decoder
- * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
- */
 
+
+// --- 4. MODUL 5: CPU Execution Loop & Decoder ---
 class KLabsExecutionEngine {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -206,7 +199,6 @@ class KLabsExecutionEngine {
   }
 }
 
-// Integrasikan Execution Engine ke Sistem Global K-Labs
 if (window.KLabsEngine) {
   window.KLabsEngine.execution = new KLabsExecutionEngine(window.KLabsEngine);
   console.log("[K-Labs Core] Module 5 (Execution Loop & Decoder) successfully loaded.");
