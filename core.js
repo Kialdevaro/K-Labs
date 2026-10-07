@@ -1,7 +1,7 @@
 /**
- * K-Labs Proprietary Core Engine - Unified Master Architecture v2.0
+ * K-Labs Proprietary Core Engine - Unified Master Architecture v2.5 (Bagian 1)
  * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
- * Sistem Emulasi Mandiri: Core, CPU MIPS, Memory Bus, Loader, Execution Loop, GPU Rasterizer, & CD-ROM
+ * Foundation, MIPS CPU, Memory Bus, & File Loader
  */
 
 // --- 1. FOUNDATION: Sistem Inti & Alokasi Memori Utama ---
@@ -154,7 +154,11 @@ if (window.KLabsEngine) {
   window.KLabsEngine.loader = new KLabsFileLoader(window.KLabsEngine);
   console.log("[K-Labs Core] Module 3 & 4 (Memory Bus & File Loader) successfully initialized.");
 }
-
+/**
+ * K-Labs Proprietary Core Engine - Unified Master Architecture v2.5 (Bagian 2)
+ * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
+ * Execution Engine, GPU Rasterizer, CD-ROM Controller, & SPU Sound Processor
+ */
 
 // --- 4. MODUL 5: CPU Execution Loop & Decoder ---
 class KLabsExecutionEngine {
@@ -167,8 +171,14 @@ class KLabsExecutionEngine {
 
   startLoop() {
     if (!this.core.cpu) return;
+    
+    // Inisialisasi otomatis Web Audio API saat eksekusi dimulai
+    if (this.core.spu && !this.core.spu.isInitialized) {
+      this.core.spu.initAudio();
+    }
+
     this.core.cpu.isRunning = true;
-    console.log("[K-Labs Core] Master Execution Loop started.");
+    console.log("[K-Labs Core] Master Execution Loop started with Audio SPU sync.");
     this.runTick();
   }
 
@@ -246,19 +256,15 @@ class KLabsGPURenderer {
     console.log("[K-Labs GPU] Hardware Rasterization Pipeline initialized (640x480).");
   }
 
-  // Render Frame Utama dengan Kombinasi Telemetri & Simulasi Poligon 3D
   renderFrame() {
     if (!this.ctx) return;
 
-    // Latar belakang sinematik gelap khas K-Labs Pro
     this.ctx.fillStyle = '#030712';
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // Simulasi Poligon 3D Wireframe / Dinamis untuk Uji Coba Visual Game Aktif
     if (this.core.cpu && this.core.cpu.isRunning) {
       const time = performance.now() * 0.003;
       
-      // Render Grid Lantai Retro 3D Perspektif
       this.ctx.strokeStyle = '#00ffcc33';
       this.ctx.lineWidth = 1;
       for (let i = -5; i <= 5; i++) {
@@ -268,7 +274,6 @@ class KLabsGPURenderer {
         this.ctx.stroke();
       }
 
-      // Render Kotak Inti Poligon Dinamis (Simulasi Objek 3D Game)
       this.ctx.save();
       this.ctx.translate(320, 200);
       this.ctx.rotate(time);
@@ -279,7 +284,6 @@ class KLabsGPURenderer {
       this.ctx.strokeRect(-50, -50, 100, 100);
       this.ctx.restore();
 
-      // Header Telemetri Sistem Aktif
       this.ctx.fillStyle = '#00ffcc';
       this.ctx.font = 'bold 14px "Segoe UI", monospace';
       this.ctx.textAlign = 'center';
@@ -347,4 +351,57 @@ class KLabsCDROMController {
 if (window.KLabsEngine) {
   window.KLabsEngine.cdrom = new KLabsCDROMController(window.KLabsEngine);
   console.log("[K-Labs Core] Module 7 (CD-ROM Controller) successfully loaded.");
+}
+
+
+// --- 7. MODUL 9: SPU (Sound Processing Unit) & Web Audio API ---
+class KLabsSoundProcessor {
+  constructor(coreSystem) {
+    this.core = coreSystem;
+    this.audioCtx = null;
+    this.isInitialized = false;
+    this.masterGain = null;
+  }
+
+  initAudio() {
+    if (this.isInitialized) return;
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      this.audioCtx = new AudioContext();
+      
+      this.masterGain = this.audioCtx.createGain();
+      this.masterGain.gain.value = 0.7;
+      this.masterGain.connect(this.audioCtx.destination);
+      
+      this.isInitialized = true;
+      console.log("[K-Labs SPU] Web Audio API initialized successfully.");
+    } catch (error) {
+      console.error("[K-Labs SPU Error] Failed to initialize Web Audio context:", error);
+    }
+  }
+
+  playChannelTone(frequency = 523.25, duration = 0.05) {
+    if (!this.isInitialized || !this.audioCtx) return;
+    try {
+      const osc = this.audioCtx.createOscillator();
+      const gainNode = this.audioCtx.createGain();
+      
+      osc.type = 'triangle';
+      osc.frequency.value = frequency;
+      
+      gainNode.gain.setValueAtTime(0.05, this.audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + duration);
+      
+      osc.connect(gainNode);
+      gainNode.connect(this.masterGain);
+      
+      osc.start();
+      osc.stop(this.audioCtx.currentTime + duration);
+    } catch (e) {}
+  }
+}
+
+if (window.KLabsEngine) {
+  window.KLabsEngine.spu = new KLabsSoundProcessor(window.KLabsEngine);
+  console.log("[K-Labs Core] Module 9 (SPU Sound Processor) successfully loaded.");
 }
