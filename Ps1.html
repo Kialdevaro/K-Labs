@@ -405,30 +405,29 @@
       </div>
     </div>
   </div>
+    <script>
+    let biosBlobUrl = null;
+    let romBlobUrl = null;
+    let currentBiosUrl = null;
+    let currentRomUrl = null;
 
-  <script>
-let biosBlobUrl = null;
-let romBlobUrl = null;
-let currentBiosUrl = null;
-let currentRomUrl = null;
+    document.getElementById('biosFile').addEventListener('change', e => {
+      const f = e.target.files[0];
+      if (f) {
+        if (currentBiosUrl) URL.revokeObjectURL(currentBiosUrl);
+        currentBiosUrl = URL.createObjectURL(f);
+        biosBlobUrl = currentBiosUrl;
+      }
+    });
 
-document.getElementById('biosFile').addEventListener('change', e => {
-  const f = e.target.files[0];
-  if (f) {
-    if (currentBiosUrl) URL.revokeObjectURL(currentBiosUrl);
-    currentBiosUrl = URL.createObjectURL(f);
-    biosBlobUrl = currentBiosUrl;
-  }
-});
-
-document.getElementById('romFile').addEventListener('change', e => {
-  const f = e.target.files[0];
-  if (f) {
-    if (currentRomUrl) URL.revokeObjectURL(currentRomUrl);
-    currentRomUrl = URL.createObjectURL(f);
-    romBlobUrl = currentRomUrl;
-  }
-});
+    document.getElementById('romFile').addEventListener('change', e => {
+      const f = e.target.files[0];
+      if (f) {
+        if (currentRomUrl) URL.revokeObjectURL(currentRomUrl);
+        currentRomUrl = URL.createObjectURL(f);
+        romBlobUrl = currentRomUrl;
+      }
+    });
 
     document.addEventListener('keydown', e => {
       if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') || (e.ctrlKey && e.key === 'u')) {
@@ -497,8 +496,7 @@ document.getElementById('romFile').addEventListener('change', e => {
         document.exitFullscreen?.() || document.webkitExitFullscreen?.();
       }
     }
-
-    // Router Iframe yang meneruskan event tombol ke emulator secara langsung
+          // Router Iframe yang meneruskan event tombol ke emulator secara langsung
     function pressKey(btn, isDown) {
       const iframe = document.querySelector('#game iframe');
       if (!iframe || !iframe.contentWindow) return;
@@ -573,69 +571,59 @@ document.getElementById('romFile').addEventListener('change', e => {
       if (!rafId) rafId = requestAnimationFrame(updateStickPosition);
     });
 
-    document.getElementById('biosFile').addEventListener('change', e => {
-      const f = e.target.files[0];
-      if (f) { biosBlobUrl = URL.createObjectURL(f); }
-    });
+    // MASTER ENGINE BOOT DENGAN K-LABS NATIVE CORE INTEGRATION
+    async function bootMasterEngine() {
+      const biosInput = document.getElementById('biosFile');
+      const romInput = document.getElementById('romFile');
 
-    document.getElementById('romFile').addEventListener('change', e => {
-      const f = e.target.files[0];
-      if (f) { romBlobUrl = URL.createObjectURL(f); }
-    });
+      if (!biosInput.files[0]) {
+        alert("Harap pilih file BIOS PS1 (.bin) terlebih dahulu!");
+        return;
+      }
+      if (!romInput.files[0]) {
+        alert("Harap pilih file Game (.bin/.iso) terlebih dahulu!");
+        return;
+      }
 
-   // MASTER ENGINE BOOT DENGAN K-LABS NATIVE CORE INTEGRATION
-async function bootMasterEngine() {
-  const biosInput = document.getElementById('biosFile');
-  const romInput = document.getElementById('romFile');
+      document.getElementById('placeholder-text').style.display = 'none';
 
-  if (!biosInput.files[0]) {
-    alert("Harap pilih file BIOS PS1 (.bin) terlebih dahulu!");
-    return;
-  }
-  if (!romInput.files[0]) {
-    alert("Harap pilih file Game (.bin/.iso) terlebih dahulu!");
-    return;
-  }
+      const userRes = localStorage.getItem('klabs_res') || '1';
+      const userFastBoot = document.getElementById('setFastBoot') ? document.getElementById('setFastBoot').checked : true;
+      const userAudioSync = document.getElementById('setAudioSync') ? document.getElementById('setAudioSync').checked : true;
 
-  document.getElementById('placeholder-text').style.display = 'none';
+      if (window.KLabsEngine) {
+        window.KLabsEngine.setDeviceProfile({
+          mode: userRes > 1 ? 'balanced' : 'light',
+          resolution: userRes,
+          fastBoot: userFastBoot,
+          audioSync: userAudioSync
+        });
 
-  const userRes = localStorage.getItem('klabs_res') || '1';
-  const userFastBoot = document.getElementById('setFastBoot') ? document.getElementById('setFastBoot').checked : true;
-  const userAudioSync = document.getElementById('setAudioSync') ? document.getElementById('setAudioSync').checked : true;
-
-  if (window.KLabsEngine) {
-    window.KLabsEngine.setDeviceProfile({
-      mode: userRes > 1 ? 'balanced' : 'light',
-      resolution: userRes,
-      fastBoot: userFastBoot,
-      audioSync: userAudioSync
-    });
-
-    console.log("[K-Labs Studio] Memproses file biner ke memori inti mandiri...");
-    await window.KLabsEngine.loader.loadBIOS(biosInput.files[0]);
-    await window.KLabsEngine.loader.loadROM(romInput.files[0]);
+        console.log("[K-Labs Studio] Memproses file biner ke memori inti mandiri...");
+        await window.KLabsEngine.loader.loadBIOS(biosInput.files[0]);
+        await window.KLabsEngine.loader.loadROM(romInput.files[0]);
 
         if (window.KLabsEngine.cpu) {
-      window.KLabsEngine.cpu.reset();
-      window.KLabsEngine.cpu.isRunning = true;
-      
-      // Jalankan Siklus Eksekusi Inti Mandiri K-Labs
-      if (window.KLabsEngine.execution) {
-        window.KLabsEngine.execution.startLoop();
-      }
-      
-      console.log("[K-Labs Studio] CPU MIPS R3000A & Main Execution Loop diaktifkan!");
+          window.KLabsEngine.cpu.reset();
+          window.KLabsEngine.cpu.isRunning = true;
+          
+          // Jalankan Siklus Eksekusi Inti Mandiri K-Labs
+          if (window.KLabsEngine.execution) {
+            window.KLabsEngine.execution.startLoop();
+          }
+          
+          console.log("[K-Labs Studio] CPU MIPS R3000A & Main Execution Loop diaktifkan!");
         }
-    
-    alert("Mahakarya K-Labs: Mesin inti mandiri berhasil di-boot dan memori game telah dimuat!");
-  } else {
-    alert("Gagal memuat Core Engine. Pastikan file Core.js terhubung dengan benar.");
-  }
-}
-      </script>
+        
+        alert("Mahakarya K-Labs: Mesin inti mandiri berhasil di-boot dan memori game telah dimuat!");
+      } else {
+        alert("Gagal memuat Core Engine. Pastikan file Core.js terhubung dengan benar.");
+      }
+    }
+  </script>
 
-      <!-- Panggil Core Engine Mandiri K-Labs -->
-      <script src="Core.js"></script>
+  <!-- Panggil Core Engine Mandiri K-Labs -->
+  <script src="Core.js"></script>
 
-    </body>
-    </html>
+</body>
+</html>
