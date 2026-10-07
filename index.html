@@ -3,24 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>K-Labs - PS1 Web Emulator ULTRA PRO</title>
+  <title>K-Labs - PS1 Web Emulator Pro</title>
   <style>
     :root {
-      --bg-color: #060913;
-      --card-bg: #0f172a;
-      --border-color: #1e293b;
+      --bg-color: #030712;
+      --panel-bg: #0f172a;
+      --border-color: #334155;
       --accent-color: #00ffcc;
-      --accent-glow: rgba(0, 255, 204, 0.4);
-      --text-main: #f8fafc;
+      --accent-glow: rgba(0, 255, 204, 0.3);
+      --text-main: #f1f5f9;
       --text-muted: #94a3b8;
-      --btn-opacity: 0.5;
+      --btn-opacity: 0.6;
     }
     body {
       background-color: var(--bg-color);
       color: var(--text-main);
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
-      padding: 5px;
+      padding: 10px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -29,80 +29,102 @@
       user-select: none;
       -webkit-user-select: none;
     }
-    .container { width: 100%; max-width: 950px; }
-    .header { text-align: center; margin-bottom: 8px; }
-    .header h1 { color: var(--accent-color); font-size: 20px; text-transform: uppercase; margin: 0; text-shadow: 0 0 10px var(--accent-glow); }
-    .header p { color: var(--text-muted); font-size: 11px; margin: 0; }
-    .card {
-      background: var(--card-bg);
+    .app-container {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .header {
+      text-align: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 5px;
+    }
+    .header h1 {
+      color: var(--accent-color);
+      font-size: 20px;
+      text-transform: uppercase;
+      margin: 0;
+      letter-spacing: 1px;
+      text-shadow: 0 0 10px var(--accent-glow);
+    }
+    .header p { color: var(--text-muted); font-size: 11px; margin: 4px 0 0 0; }
+
+    #ad-gate {
+      background: var(--panel-bg);
       border: 1px solid var(--border-color);
       border-radius: 12px;
-      padding: 12px;
+      padding: 20px;
       text-align: center;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.7);
-      margin-bottom: 10px;
     }
-    #ad-gate { display: block; }
     .btn-ad {
       background: linear-gradient(135deg, #00ffcc, #007766);
-      color: #060913;
+      color: #030712;
       border: none;
       border-radius: 8px;
       padding: 12px 24px;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: bold;
       cursor: pointer;
-      margin-top: 10px;
+      margin-top: 15px;
       box-shadow: 0 0 15px var(--accent-glow);
-      transition: transform 0.1s;
-    }
-    .btn-ad:active { transform: scale(0.98); }
-    
-    #emulator-studio { display: none; }
-    .rom-loader {
-      border: 2px dashed var(--border-color);
-      border-radius: 8px;
-      padding: 8px;
-      margin-bottom: 8px;
-      background: rgba(15, 23, 42, 0.6);
-      font-size: 12px;
     }
 
-    /* ULTRA CONFIGURATION SUITE (PANEL SETINGAN SPEK DEWA) */
-    .ultra-settings {
-      background: rgba(15, 23, 42, 0.95);
-      padding: 10px;
-      border-radius: 8px;
-      margin-bottom: 8px;
-      font-size: 11px;
+    #emulator-studio { display: none; flex-direction: column; gap: 12px; }
+
+    .dashboard-panel {
+      background: var(--panel-bg);
       border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 12px 15px;
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      text-align: left;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      align-items: center;
     }
-    @media (max-width: 600px) {
-      .ultra-settings { grid-template-columns: 1fr; }
-    }
-    .setting-group {
+    .control-group {
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 4px;
     }
-    .setting-group label { color: var(--accent-color); font-weight: bold; font-size: 10px; text-transform: uppercase; }
-    .setting-input {
+    .control-group label {
+      color: var(--accent-color);
+      font-size: 11px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    .control-input, .control-select {
       background: #020617;
       color: white;
       border: 1px solid var(--border-color);
-      padding: 5px 8px;
-      border-radius: 5px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      outline: none;
+    }
+    .btn-action {
+      background: #1e293b;
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 7px 12px;
+      border-radius: 6px;
       font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-action:hover { background: #334155; }
+    .btn-fullscreen {
+      background: linear-gradient(135deg, #00ffcc, #009977);
+      color: #030712;
+      border: none;
     }
 
-    /* LAYAR EMULATOR ULTRA */
     #emulator-screen {
       width: 100%;
-      height: 350px;
+      height: 400px;
       background: #000;
       border-radius: 10px;
       border: 1px solid var(--border-color);
@@ -112,10 +134,10 @@
       position: relative;
       overflow: hidden;
       touch-action: none;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
     }
     canvas { width: 100%; height: 100%; object-fit: contain; }
 
-    /* VIRTUAL GAMEPAD TRANSPARAN */
     .virtual-gamepad {
       position: absolute;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -123,14 +145,14 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
-      padding: 10px;
+      padding: 15px;
       box-sizing: border-box;
     }
     .pad-group, .action-group {
       pointer-events: auto;
       display: grid;
-      width: 120px;
-      height: 120px;
+      width: 130px;
+      height: 130px;
       position: relative;
     }
     .v-btn {
@@ -139,120 +161,113 @@
       color: white;
       font-weight: bold;
       border-radius: 50%;
-      width: 42px;
-      height: 42px;
+      width: 44px;
+      height: 44px;
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 13px;
+      font-size: 14px;
       cursor: pointer;
       backdrop-filter: blur(4px);
       position: absolute;
       box-shadow: 0 0 8px var(--accent-glow);
     }
-    .btn-up { top: 0; left: 42px; }
-    .btn-left { top: 42px; left: 0; }
-    .btn-right { top: 42px; left: 84px; }
-    .btn-down { top: 84px; left: 42px; }
+    .btn-up { top: 0; left: 44px; }
+    .btn-left { top: 44px; left: 0; }
+    .btn-right { top: 44px; left: 88px; }
+    .btn-down { top: 88px; left: 44px; }
 
-    .btn-triangle { top: 0; left: 42px; }
-    .btn-square { top: 42px; left: 0; }
-    .btn-circle { top: 42px; left: 84px; }
-    .btn-cross { top: 84px; left: 42px; }
+    .btn-triangle { top: 0; left: 44px; }
+    .btn-square { top: 44px; left: 0; }
+    .btn-circle { top: 44px; left: 88px; }
+    .btn-cross { top: 88px; left: 44px; }
     .v-btn:active { background: rgba(0, 255, 204, 0.6); }
     
     .center-controls {
-      position: absolute; top: 8px; left: 50%;
-      transform: translateX(-50%); display: flex; gap: 8px; pointer-events: auto;
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      pointer-events: auto;
     }
     .sys-btn {
       background: rgba(15, 23, 42, var(--btn-opacity));
       border: 1px solid var(--border-color);
       color: var(--text-main);
-      padding: 4px 10px; border-radius: 5px; font-size: 10px; cursor: pointer;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
     }
 
-    @media (orientation: landscape) {
-      body { padding: 0; }
-      .header, .ultra-settings, .rom-loader, .footer-note { display: none; }
-      #emulator-screen { height: 100vh; width: 100vw; border: none; border-radius: 0; }
-      .v-btn { width: 50px; height: 50px; font-size: 16px; }
+    #emulator-screen:fullscreen {
+      width: 100vw;
+      height: 100vh;
+      border: none;
+      border-radius: 0;
+    }
+    #emulator-screen:-webkit-full-screen {
+      width: 100vw;
+      height: 100vh;
+      border: none;
+      border-radius: 0;
     }
   </style>
 </head>
 <body oncontextmenu="return false;">
 
-  <div class="container">
+  <div class="app-container">
     <div class="header">
-      <h1>K-Labs Ultra Engine</h1>
-      <p>© 2026 Kialdevaro Group - Ultimate Performance Suite</p>
+      <h1>K-Labs Retro Engine</h1>
+      <p>© 2026 Kialdevaro Group - Professional Core</p>
     </div>
 
     <!-- TAHAP 1: GERBANG IKLAN -->
-    <div id="ad-gate" class="card">
-      <h3 style="color: white; margin-top:0; font-size:15px;">Akses K-Labs Ultra Emulator</h3>
-      <p style="font-size: 12px; color: var(--text-muted);">Dukung pengembangan server berkecepatan tinggi dengan menonton iklan sponsor 1x.</p>
+    <div id="ad-gate">
+      <h3 style="color: white; margin-top:0; font-size:16px;">Akses K-Labs Emulator</h3>
+      <p style="font-size: 12px; color: var(--text-muted);">Tonton iklan sponsor sebentar untuk membuka mesin emulator berkecepatan tinggi.</p>
       
-      <div id="ad-container" style="margin: 10px 0; min-height: 50px;">
+      <div id="ad-container" style="margin: 15px 0; min-height: 50px;">
         <script src="https://pl31662254.profitableratecpmnetwork.com/1b/27/aa/1b27aafebf02c9db2b3e10e56229d3c1.js"></script>
       </div>
 
-      <button class="btn-ad" onclick="unlockEmulator()">Masuk ke Ultra Studio ▶</button>
+      <button class="btn-ad" onclick="unlockEmulator()">Masuk ke Emulator Studio ▶</button>
     </div>
 
-    <!-- TAHAP 2: STUDIO UTAMA & SETINGAN SPEK DEWA -->
-    <div id="emulator-studio" class="card">
-      <div class="rom-loader">
-        <span style="font-weight: bold; color: var(--accent-color);">Muat File Game (.bin / .cue / .iso):</span>
-        <input type="file" id="romFile" accept=".bin,.cue,.iso,.img" class="setting-input" style="margin-top: 4px; width: 100%; box-sizing: border-box;">
-      </div>
+    <!-- TAHAP 2: STUDIO UTAMA -->
+    <div id="emulator-studio">
+      <div class="dashboard-panel">
+        <div class="control-group">
+          <label>Pilih File Game (.bin / .iso):</label>
+          <input type="file" id="romFile" accept=".bin,.cue,.iso,.img" class="control-input">
+        </div>
 
-      <!-- PANEL KONTROL & GRAFIK ULTRA -->
-      <div class="ultra-settings">
-        <div class="setting-group">
-          <label>Resolusi Render (Internal Resolution):</label>
-          <select id="resScale" class="setting-input" onchange="applyUltraSettings()">
-            <option value="1">1x (Native PS1 Standard)</option>
-            <option value="2">2x (720p HD - Balanced)</option>
-            <option value="4" selected>4x (1080p Full HD - High Spec)</option>
-            <option value="8">8x (4K Ultra HD - PC/Sultan Only)</option>
+        <div class="control-group">
+          <label>Performa Grafik / Framerate:</label>
+          <select id="perfPreset" class="control-select" onchange="applyPerformance(this.value)">
+            <option value="low">Rendah / Anti-Lag (HP Kentang)</option>
+            <option value="medium" selected>Standar / Balanced (60 FPS)</option>
+            <option value="high">Ultra HD / 120 FPS (Spek Dewa)</option>
           </select>
         </div>
 
-        <div class="setting-group">
-          <label>Target Frame Rate (FPS):</label>
-          <select id="fpsTarget" class="setting-input" onchange="applyUltraSettings()">
-            <option value="60">60 FPS (Standar PS1)</option>
-            <option value="120" selected>120 FPS / High Refresh Rate</option>
-            <option value="0">Uncapped (Tanpa Batas / Max GPU)</option>
-          </select>
+        <div class="control-group">
+          <label>Transparansi Stik:</label>
+          <input type="range" class="control-input" min="0.2" max="1.0" step="0.1" value="0.6" oninput="changeOpacity(this.value)" style="padding: 2px;">
         </div>
 
-        <div class="setting-group">
-          <label>Filter Tekstur & Grafik:</label>
-          <select id="textureFilter" class="setting-input" onchange="applyUltraSettings()">
-            <option value="nearest">Nearest Neighbor (Retro Pixel Asli)</option>
-            <option value="bilinear" selected>Bilinear Filtering (Halus / Anti-Piksel)</option>
-            <option value="crt">CRT Scanline Shader (Efek TV Tabul Klasik)</option>
-          </select>
-        </div>
-
-        <div class="setting-group">
-          <label>Transparansi Stik Gamepad:</label>
-          <input type="range" class="setting-input" min="0.1" max="1.0" step="0.1" value="0.5" oninput="changeOpacity(this.value)">
-        </div>
-
-        <div class="setting-group" style="grid-column: span 2; flex-direction: row; justify-content: space-between; align-items: center;">
-          <label>Tampilan Stik Virtual:</label>
-          <button class="sys-btn" onclick="toggleGamepad()">Sembunyikan / Tampilkan Stik</button>
+        <div class="control-group" style="flex-direction: row; gap: 8px; justify-content: space-between; align-items: flex-end;">
+          <button class="btn-action" onclick="toggleGamepad()" style="flex: 1;">Sembunyikan Stik</button>
+          <button class="btn-action btn-fullscreen" onclick="toggleFullscreen()" style="flex: 1;">⛶ Fullscreen</button>
         </div>
       </div>
 
-      <!-- LAYAR EMULATOR & GAMEPAD -->
       <div id="emulator-screen">
-        <canvas id="canvas" width="1280" height="960"></canvas>
-        <div id="placeholder-text" style="position: absolute; color: var(--text-muted); font-size: 12px; text-align: center; padding: 0 15px;">
-          🚀 Siap Beraksi! Pilih ROM Anda & putar HP ke Landscape untuk Layar Penuh.
+        <canvas id="canvas" width="640" height="480"></canvas>
+        <div id="placeholder-text" style="position: absolute; color: var(--text-muted); font-size: 13px; text-align: center; padding: 0 20px;">
+          Pilih file ROM di atas, lalu tekan tombol Fullscreen untuk pengalaman maksimal!
         </div>
 
         <div id="virtualGamepad" class="virtual-gamepad">
@@ -276,13 +291,8 @@
           </div>
         </div>
       </div>
-      
-      <div class="footer-note" style="color: var(--text-muted); font-size: 10px; margin-top: 6px;">
-        💡 Kialdevaro Labs Ultra Engine - Dilengkapi Proteksi Sistem & High-End Rendering.
-      </div>
     </div>
   </div>
-
   <script>
     document.addEventListener('keydown', function(event) {
       if (event.key === 'F12' || (event.ctrlKey && event.shiftKey && event.key === 'I') || (event.ctrlKey && event.key === 'u')) {
@@ -292,7 +302,7 @@
 
     function unlockEmulator() {
       document.getElementById('ad-gate').style.display = 'none';
-      document.getElementById('emulator-studio').style.display = 'block';
+      document.getElementById('emulator-studio').style.display = 'flex';
     }
 
     function changeOpacity(val) {
@@ -304,42 +314,46 @@
       pad.style.display = pad.style.display === 'none' ? 'flex' : 'none';
     }
 
-    // Fungsi Pengaturan Grafis Spek Dewa (Resolusi, FPS, Shader)
-    function applyUltraSettings() {
-      const scale = document.getElementById('resScale').value;
-      const fps = document.getElementById('fpsTarget').value;
-      const filter = document.getElementById('textureFilter').value;
-      
-      const canvas = document.getElementById('canvas');
-      
-      // Mengatur resolusi internal kanvas sesuai pilihan spek
-      let baseW = 640, baseH = 480;
-      canvas.width = baseW * parseInt(scale);
-      canvas.height = baseH * parseInt(scale);
-
-      // Pengaturan filter tekstur CSS pada canvas
-      if (filter === 'nearest') {
-        canvas.style.imageRendering = 'pixelated';
+    function toggleFullscreen() {
+      const screenElem = document.getElementById('emulator-screen');
+      if (!document.fullscreenElement) {
+        if (screenElem.requestFullscreen) {
+          screenElem.requestFullscreen();
+        } else if (screenElem.webkitRequestFullscreen) {
+          screenElem.webkitRequestFullscreen();
+        }
       } else {
-        canvas.style.imageRendering = 'auto';
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
       }
+    }
 
-      console.log(`[K-Labs Ultra] Resolusi: ${canvas.width}x${canvas.height} | Target FPS: ${fps} | Filter: ${filter}`);
+    function applyPerformance(mode) {
+      const canvas = document.getElementById('canvas');
+      if (mode === 'low') {
+        canvas.width = 320; canvas.height = 240;
+      } else if (mode === 'medium') {
+        canvas.width = 640; canvas.height = 480;
+      } else if (mode === 'high') {
+        canvas.width = 1280; canvas.height = 960;
+      }
+      console.log("Performance mode: " + mode);
     }
 
     function pressBtn(btnName) {
-      console.log("K-Labs Ultra Input: " + btnName);
+      console.log("Input: " + btnName);
     }
 
     document.getElementById('romFile').addEventListener('change', function(event) {
       const file = event.target.files[0];
       if (file) {
         document.getElementById('placeholder-text').style.display = 'none';
-        applyUltraSettings();
-        alert("Game " + file.name + " berhasil dimuat dengan konfigurasi ULTRA! Selamat bermain.");
+        alert("Game " + file.name + " berhasil dimuat! Silakan tekan tombol Fullscreen.");
       }
     });
   </script>
-
 </body>
 </html>
