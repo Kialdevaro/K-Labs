@@ -1,7 +1,7 @@
 /**
  * K-Labs Proprietary Core Engine - Unified Foundation & Modules v1.0
  * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
- * Sistem Penyetelan Manual Adaptif, Alokasi Memori, CPU, Bus, Loader, Execution Loop, & GPU Renderer
+ * Sistem Penyetelan Manual Adaptif, Alokasi Memori, CPU, Bus, Loader, Execution Loop, GPU Renderer, & CD-ROM Controller
  */
 
 // --- 1. FOUNDATION: Sistem Inti & Alokasi Memori ---
@@ -132,6 +132,12 @@ class KLabsFileLoader {
       const targetView = new Uint8Array(this.core.memory.mainRAM);
       const sourceBytes = new Uint8Array(arrayBuffer);
       targetView.set(sourceBytes.subarray(0, targetView.length));
+      
+      // Otomatis mount file ROM ke CD-ROM Controller
+      if (this.core.cdrom) {
+        this.core.cdrom.mountDisc(arrayBuffer);
+      }
+      
       console.log(`[K-Labs Loader] Game ROM successfully loaded (${sourceBytes.length} bytes).`);
       return true;
     } catch (error) {
@@ -174,7 +180,6 @@ class KLabsExecutionEngine {
       this.executeInstruction();
     }
 
-    // Render frame grafis ke Canvas setiap detak tick
     if (this.core.gpu) {
       this.core.gpu.renderFrame();
     }
@@ -250,12 +255,17 @@ class KLabsGPURenderer {
     this.ctx.textAlign = 'center';
     
     if (this.core.cpu && this.core.cpu.isRunning) {
-      this.ctx.fillText("K-LABS RETRO ENGINE - RUNNING", this.canvas.width / 2, 210);
+      this.ctx.fillText("K-LABS RETRO ENGINE - RUNNING", this.canvas.width / 2, 190);
       
       this.ctx.fillStyle = '#94a3b8';
       this.ctx.font = '13px "Segoe UI", monospace';
-      this.ctx.fillText(`PC: 0x${this.core.cpu.PC.toString(16).toUpperCase()}`, this.canvas.width / 2, 245);
-      this.ctx.fillText(`Mode: ${this.core.profile.mode.toUpperCase()} | Resolution: ${this.core.profile.internalResolution}x`, this.canvas.width / 2, 270);
+      this.ctx.fillText(`PC: 0x${this.core.cpu.PC.toString(16).toUpperCase()}`, this.canvas.width / 2, 225);
+      this.ctx.fillText(`Mode: ${this.core.profile.mode.toUpperCase()} | Resolution: ${this.core.profile.internalResolution}x`, this.canvas.width / 2, 250);
+      
+      // Status CD-ROM / Disc Game
+      const discStatus = (this.core.cdrom && this.core.cdrom.isInserted) ? "DISC MOUNTED (CTR Active)" : "NO DISC";
+      this.ctx.fillStyle = '#38bdf8';
+      this.ctx.fillText(`Storage: ${discStatus}`, this.canvas.width / 2, 275);
     } else {
       this.ctx.fillText("K-LABS SYSTEM ACTIVE", this.canvas.width / 2, 210);
       this.ctx.fillStyle = '#94a3b8';
@@ -268,4 +278,49 @@ class KLabsGPURenderer {
 if (window.KLabsEngine) {
   window.KLabsEngine.gpu = new KLabsGPURenderer(window.KLabsEngine, 'game');
   console.log("[K-Labs Core] Module 6 (GPU Renderer) successfully loaded.");
+}
+
+
+// --- 6. MODUL 7: CD-ROM Controller & Sector Reader ---
+class KLabsCDROMController {
+  constructor(coreSystem) {
+    this.core = coreSystem;
+    this.discData = null;
+    this.sectorSize = 2048;
+    this.isInserted = false;
+  }
+
+  mountDisc(arrayBuffer) {
+    this.discData = arrayBuffer;
+    this.isInserted = true;
+    
+    const totalBytes = arrayBuffer.byteLength;
+    if (totalBytes % 2352 === 0) {
+      this.sectorSize = 2352;
+      console.log("[K-Labs CD-ROM] Format terdeteksi: RAW BIN (2352 bytes/sektor)");
+    } else {
+      this.sectorSize = 2048;
+      console.log("[K-Labs CD-ROM] Format terdeteksi: Standard ISO/IMG (2048 bytes/sektor)");
+    }
+    
+    console.log(`[K-Labs CD-ROM] Disc mounted successfully. Total size: ${(totalBytes / (1024*1024)).toFixed(2)} MB`);
+  }
+
+  readSector(lba) {
+    if (!this.isInserted || !this.discData) return null;
+    
+    const headerOffset = (this.sectorSize === 2352) ? 24 : 0;
+    const byteOffset = (lba * this.sectorSize) + headerOffset;
+    
+    if (byteOffset >= this.discData.byteLength) {
+      return null;
+    }
+    
+    return new Uint8Array(this.discData, byteOffset, 2048);
+  }
+}
+
+if (window.KLabsEngine) {
+  window.KLabsEngine.cdrom = new KLabsCDROMController(window.KLabsEngine);
+  console.log("[K-Labs Core] Module 7 (CD-ROM Controller) successfully loaded.");
 }
