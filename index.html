@@ -1,3 +1,7 @@
+<!-- ===================================================================== -->
+<!-- K-LABS RETRO ENGINE - INTERFACE ARCHITECTURE v5.0 (BAGIAN 1)         -->
+<!-- Copyright © 2026 Kialdevaro Group. All Rights Reserved.               -->
+<!-- ===================================================================== -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -81,7 +85,9 @@
       <div class="brand-title">K-LABS RETRO ENGINE</div>
       <div style="font-size: 11px; color: #94a3b8;">© 2026 Kialdevaro Group</div>
     </div>
-    
+<!-- ===================================================================== -->
+<!-- K-LABS RETRO ENGINE - INTERFACE ARCHITECTURE v5.0 (BAGIAN 2)         -->
+<!-- ===================================================================== -->
     <div class="control-panel">
       <div class="file-group">
         <span>1. FILE BIOS PS1 (.bin):</span>
@@ -93,10 +99,20 @@
       </div>
       <button class="btn-run" onclick="bootMasterEngine()">▶ JALANKAN GAME (1-KLIK)</button>
     </div>
-        <!-- Wadah Kanvas Grafis Utama (ID 'game' wajib ada untuk core.js) -->
+    
+    <!-- Wadah Kanvas Grafis Utama (ID 'game' wajib ada untuk core.js) -->
     <div id="game" style="width: 100%; aspect-ratio: 4/3; background: #030712; border-radius: 12px; border: 1px solid rgba(0,255,204,0.3); overflow: hidden; display: flex; align-items: center; justify-content: center;">
     </div>
 
+    <!-- Tombol Fitur Lanjutan Pro (Fullscreen, Save State, Load State) -->
+    <div style="display: flex; gap: 6px;">
+      <button onclick="document.getElementById('game').requestFullscreen()" style="flex:1; background:#1e293b; color:#00ffcc; border:1px solid #00ffcc44; border-radius:6px; padding:6px; font-size:11px; cursor:pointer;">⛶ FULLSCREEN</button>
+      <button onclick="window.KLabsEngine.advanced.saveState()" style="flex:1; background:#1e293b; color:#38bdf8; border:1px solid #38bdf844; border-radius:6px; padding:6px; font-size:11px; cursor:pointer;">💾 SAVE</button>
+      <button onclick="window.KLabsEngine.advanced.loadState()" style="flex:1; background:#1e293b; color:#38bdf8; border:1px solid #38bdf844; border-radius:6px; padding:6px; font-size:11px; cursor:pointer;">📂 LOAD</button>
+    </div>
+    <!-- ===================================================================== -->
+<!-- K-LABS RETRO ENGINE - INTERFACE ARCHITECTURE v5.0 (BAGIAN 3)         -->
+<!-- ===================================================================== -->
     <!-- Panel Tombol Bahu & Menu Stik Virtual -->
     <div style="background: rgba(15, 23, 42, 0.8); border-radius: 12px; padding: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(0,255,204,0.1);">
       <div style="display: flex; gap: 5px;">
@@ -112,7 +128,8 @@
         <button onmousedown="KLabsPressButton('R2', true)" onmouseup="KLabsPressButton('R2', false)" ontouchstart="KLabsPressButton('R2', true)" ontouchend="KLabsPressButton('R2', false)" style="padding: 6px 12px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 6px; font-size: 11px;">R2</button>
       </div>
     </div>
-        <!-- D-Pad & Action Buttons Bawah -->
+    
+    <!-- D-Pad & Action Buttons Bawah -->
     <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px 10px;">
       <div style="width: 85px; height: 85px; background: rgba(255,255,255,0.03); border-radius: 50%; border: 1px solid #00ffcc33; display: flex; align-items: center; justify-content: center; position: relative;">
         <div style="position: absolute; top: 2px; cursor: pointer; color: #00ffcc; font-size: 12px;" onmousedown="KLabsPressButton('UP', true)" onmouseup="KLabsPressButton('UP', false)">▲</div>
@@ -128,10 +145,13 @@
         <button onmousedown="KLabsPressButton('CIRCLE', true)" onmouseup="KLabsPressButton('CIRCLE', false)" style="height: 35px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 50%; font-size: 12px;">◯</button>
       </div>
     </div>
+    <!-- ===================================================================== -->
+<!-- K-LABS RETRO ENGINE - INTERFACE ARCHITECTURE v5.0 (BAGIAN 4)         -->
+<!-- ===================================================================== -->
   </div>
 
   <!-- Skrip Penggerak Mesin K-Labs -->
-   <script>
+  <script>
     async function bootMasterEngine() {
       try {
         const biosInput = document.getElementById('biosFile');
@@ -153,17 +173,14 @@
 
         console.log("[K-Labs Studio] Memproses file biner ke memori inti mandiri...");
         
-        // Memuat file BIOS dan ROM ke memori
         await window.KLabsEngine.loader.loadBIOS(biosInput.files[0]);
         await window.KLabsEngine.loader.loadROM(romInput.files[0]);
 
-        // Mengaktifkan status CPU
         if (window.KLabsEngine.cpu) {
           window.KLabsEngine.cpu.reset();
           window.KLabsEngine.cpu.isRunning = true;
         }
 
-        // Menjalankan Master Loop Eksekusi
         if (window.KLabsEngine.execution) {
           window.KLabsEngine.execution.startLoop();
           console.log("[K-Labs Studio] Master Execution Loop berhasil diaktifkan!");
@@ -172,7 +189,6 @@
         }
 
       } catch (error) {
-        // Menampilkan pesan error asli langsung ke layar HP Anda
         alert("DETAIL ERROR: " + error.message);
         console.error("[K-Labs Critical Error]:", error);
       }
