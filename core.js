@@ -1,7 +1,7 @@
 /**
- * K-Labs Proprietary Core Engine - Unified Master Architecture v2.5 (Bagian 1)
+ * K-Labs Proprietary Core Engine - Unified Master Architecture v3.0 (Bagian 1)
  * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
- * Foundation, MIPS CPU, Memory Bus, & File Loader
+ * Foundation, MIPS R3000A Real Opcode Interpreter, Memory Bus, & File Loader
  */
 
 // --- 1. FOUNDATION: Sistem Inti & Alokasi Memori Utama ---
@@ -49,15 +49,16 @@ class KLabsCoreSystem {
 window.KLabsEngine = new KLabsCoreSystem();
 
 
-// --- 2. MODUL 2: Arsitektur CPU MIPS R3000A ---
+// --- 2. MODUL 2 & 10: Arsitektur CPU MIPS R3000A & Real Opcode Interpreter ---
 class KLabsMIPSProcessor {
   constructor(memoryBus) {
     this.mem = memoryBus;
-    this.GPR = new Int32Array(32);
+    this.GPR = new Int32Array(32); // 32 General Purpose Registers (R0 - R31)
     this.HI = 0;
     this.LO = 0;
-    this.PC = 0xbfc00000; // Alamat awal booting BIOS PS1
+    this.PC = 0xbfc00000;          // Vektor awal booting BIOS PS1
     this.nextPC = this.PC + 4;
+    this.currentPC = this.PC;
     this.isRunning = false;
   }
 
@@ -67,18 +68,129 @@ class KLabsMIPSProcessor {
     this.LO = 0;
     this.PC = 0xbfc00000;
     this.nextPC = this.PC + 4;
+    this.currentPC = this.PC;
     console.log("[K-Labs CPU] MIPS R3000A reset to initial boot vector: 0xbfc00000");
   }
 
+  setReg(index, value) {
+    if (index > 0 && index < 32) {
+      this.GPR[index] = value | 0;
+    }
+  }
+
+  getReg(index) {
+    if (index === 0) return 0;
+    return this.GPR[index] | 0;
+  }
+
   step() {
+    this.currentPC = this.PC;
+    const bus = this.mem;
+    if (!bus) return;
+
+    const instruction = bus.read32(this.currentPC);
+
     this.PC = this.nextPC;
     this.nextPC = this.PC + 4;
+
+    if (instruction === 0) return; // NOP (No Operation)
+
+    const opcode = (instruction >>> 26) & 0x3F;
+    const rs     = (instruction >>> 21) & 0x1F;
+    const rt     = (instruction >>> 16) & 0x1F;
+    const rd     = (instruction >>> 11) & 0x1F;
+    const shamt  = (instruction >>> 6) & 0x1F;
+    const funct  = instruction & 0x3F;
+    const imm    = instruction & 0xFFFF;
+    const immSigned = (imm & 0x8000) ? (imm | 0xFFFF0000) : imm;
+
+    switch (opcode) {
+      case 0x00: // SPECIAL (R-Type Instructions)
+        switch (funct) {
+          case 0x20:
+          case 0x21: // ADD / ADDU
+            this.setReg(rd, this.getReg(rs) + this.getReg(rt));
+            break;
+          case 0x24: // AND
+            this.setReg(rd, this.getReg(rs) & this.getReg(rt));
+            break;
+          case 0x25: // OR
+            this.setReg(rd, this.getReg(rs) | this.getReg(rt));
+            break;
+          case 0x2A: // SLT (Set on Less Than)
+            this.setReg(rd, (this.getReg(rs) < this.getReg(rt)) ? 1 : 0);
+            break;
+          case 0x00: // SLL (Shift Left Logical)
+            this.setReg(rd, this.getReg(rt) << shamt);
+            break;
+          case 0x03: // SRA (Shift Right Arithmetic)
+            this.setReg(rd, this.getReg(rt) >> shamt);
+            break;
+          default:
+            break;
+        }
+        break;
+
+      case 0x08:
+      case 0x09: // ADDI / ADDIU
+        this.setReg(rt, this.getReg(rs) + immSigned);
+        break;
+
+      case 0x0C: // ANDI
+        this.setReg(rt, this.getReg(rs) & imm);
+        break;
+
+      case 0x0D: // ORI
+        this.setReg(rt, this.getReg(rs) | imm);
+        break;
+
+      case 0x0F: // LUI
+        this.setReg(rt, imm << 16);
+        break;
+
+      case 0x23: // LW (Load Word)
+        {
+          const addr = this.getReg(rs) + immSigned;
+          const val = bus.read32(addr);
+          this.setReg(rt, val);
+        }
+        break;
+
+      case 0x2B: // SW (Store Word)
+        {
+          const addr = this.getReg(rs) + immSigned;
+          bus.write32(addr, this.getReg(rt));
+        }
+        break;
+
+      case 0x02: // J (Jump)
+        {
+          const target = (this.nextPC & 0xF0000000) | ((instruction & 0x03FFFFFF) << 2);
+          this.nextPC = target;
+        }
+        break;
+
+      case 0x04: // BEQ (Branch if Equal)
+        if (this.getReg(rs) === this.getReg(rt)) {
+          this.nextPC = this.PC + (immSigned << 2);
+        }
+        break;
+
+      case 0x05: // BNE (Branch if Not Equal)
+        if (this.getReg(rs) !== this.getReg(rt)) {
+          this.nextPC = this.PC + (immSigned << 2);
+        }
+        break;
+
+      default:
+        break;
+    }
   }
 }
 
 if (window.KLabsEngine) {
   window.KLabsEngine.cpu = new KLabsMIPSProcessor(window.KLabsEngine.memory);
-  console.log("[K-Labs Core] Module 2 (MIPS CPU) successfully loaded.");
+  console.log("[K-Labs Core] Module 2 & 10 (MIPS CPU & Opcode Interpreter) successfully loaded.");
 }
 
 
@@ -155,7 +267,7 @@ if (window.KLabsEngine) {
   console.log("[K-Labs Core] Module 3 & 4 (Memory Bus & File Loader) successfully initialized.");
 }
 /**
- * K-Labs Proprietary Core Engine - Unified Master Architecture v2.5 (Bagian 2)
+ * K-Labs Proprietary Core Engine - Unified Master Architecture v3.0 (Bagian 2)
  * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
  * Execution Engine, GPU Rasterizer, CD-ROM Controller, & SPU Sound Processor
  */
@@ -172,13 +284,12 @@ class KLabsExecutionEngine {
   startLoop() {
     if (!this.core.cpu) return;
     
-    // Inisialisasi otomatis Web Audio API saat eksekusi dimulai
     if (this.core.spu && !this.core.spu.isInitialized) {
       this.core.spu.initAudio();
     }
 
     this.core.cpu.isRunning = true;
-    console.log("[K-Labs Core] Master Execution Loop started with Audio SPU sync.");
+    console.log("[K-Labs Core] Master Execution Loop started with Real MIPS Interpreter & Audio sync.");
     this.runTick();
   }
 
@@ -188,25 +299,14 @@ class KLabsExecutionEngine {
     const instructionsPerTick = this.core.profile.mode === 'light' ? 800 : 2000;
     
     for (let i = 0; i < instructionsPerTick; i++) {
-      this.executeInstruction();
+      this.core.cpu.step();
     }
 
-    // Render frame grafis & poligon 3D secara presisi
     if (this.core.gpu) {
       this.core.gpu.renderFrame();
     }
 
     this.animationFrameId = requestAnimationFrame(() => this.runTick());
-  }
-
-  executeInstruction() {
-    const cpu = this.core.cpu;
-    const bus = this.core.bus;
-    if (!bus) return;
-
-    const instruction = bus.read32(cpu.PC);
-    cpu.PC = cpu.nextPC;
-    cpu.nextPC = cpu.PC + 4;
   }
 
   stopLoop() {
