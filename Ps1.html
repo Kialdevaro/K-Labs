@@ -563,37 +563,49 @@
       if (f) { romBlobUrl = URL.createObjectURL(f); }
     });
 
-    // MASTER ENGINE BOOT DENGAN OPTIMALISASI ZERO-LAG
-    function bootMasterEngine() {
-      if (!biosBlobUrl) {
-        alert("Harap pilih file BIOS PS1 (.bin) terlebih dahulu!");
-        return;
-      }
-      if (!romBlobUrl) {
-        alert("Harap pilih file Game (.bin/.iso) terlebih dahulu!");
-        return;
-      }
+   // MASTER ENGINE BOOT DENGAN K-LABS NATIVE CORE INTEGRATION
+async function bootMasterEngine() {
+  const biosInput = document.getElementById('biosFile');
+  const romInput = document.getElementById('romFile');
 
-      document.getElementById('placeholder-text').style.display = 'none';
+  if (!biosInput.files[0]) {
+    alert("Harap pilih file BIOS PS1 (.bin) terlebih dahulu!");
+    return;
+  }
+  if (!romInput.files[0]) {
+    alert("Harap pilih file Game (.bin/.iso) terlebih dahulu!");
+    return;
+  }
 
-      const userRes = localStorage.getItem('klabs_res') || '1';
+  document.getElementById('placeholder-text').style.display = 'none';
 
-      window.EJS_player = '#game';
-      window.EJS_core = 'psx';
-      window.EJS_gameUrl = romBlobUrl;
-      window.EJS_biosUrl = biosBlobUrl;
-      window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
-      window.EJS_mouse = false;
-      window.EJS_multitouch = false;
-      window.EJS_color = '#00ffcc';
-      window.EJS_threads = false;
-      window.EJS_startOnLoad = true;
-      window.EJS_internalResolution = userRes;
+  const userRes = localStorage.getItem('klabs_res') || '1';
+  const userFastBoot = document.getElementById('setFastBoot') ? document.getElementById('setFastBoot').checked : true;
+  const userAudioSync = document.getElementById('setAudioSync') ? document.getElementById('setAudioSync').checked : true;
 
-                const script = document.createElement('script');
-          script.src = 'https://cdn.emulatorjs.org/stable/data/loader.js';
-          document.body.appendChild(script);
-        }
+  if (window.KLabsEngine) {
+    window.KLabsEngine.setDeviceProfile({
+      mode: userRes > 1 ? 'balanced' : 'light',
+      resolution: userRes,
+      fastBoot: userFastBoot,
+      audioSync: userAudioSync
+    });
+
+    console.log("[K-Labs Studio] Memproses file biner ke memori inti mandiri...");
+    await window.KLabsEngine.loader.loadBIOS(biosInput.files[0]);
+    await window.KLabsEngine.loader.loadROM(romInput.files[0]);
+
+    if (window.KLabsEngine.cpu) {
+      window.KLabsEngine.cpu.reset();
+      window.KLabsEngine.cpu.isRunning = true;
+      console.log("[K-Labs Studio] CPU MIPS R3000A diaktifkan pada alamat vektor: 0xbfc00000");
+    }
+
+    alert("Mahakarya K-Labs: Mesin inti mandiri berhasil di-boot dan memori game telah dimuat!");
+  } else {
+    alert("Gagal memuat Core Engine. Pastikan file Core.js terhubung dengan benar.");
+  }
+}
       </script>
 
       <!-- Panggil Core Engine Mandiri K-Labs -->
@@ -601,5 +613,3 @@
 
     </body>
     </html>
-
-
