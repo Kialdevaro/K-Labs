@@ -13,12 +13,12 @@
       --accent-glow: rgba(0, 255, 204, 0.4);
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
-      --btn-opacity: 0.55;
+      --btn-opacity: 0.6;
     }
     body {
       background-color: var(--bg-color);
       color: var(--text-main);
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-family: 'Segoe UI', system-ui, sans-serif;
       margin: 0;
       padding: 8px;
       display: flex;
@@ -43,11 +43,11 @@
     }
     .header h1 {
       color: var(--accent-color);
-      font-size: 22px;
+      font-size: 20px;
       text-transform: uppercase;
       margin: 0;
       letter-spacing: 2px;
-      text-shadow: 0 0 15px var(--accent-glow);
+      text-shadow: 0 0 12px var(--accent-glow);
     }
     .header p { color: var(--text-muted); font-size: 11px; margin: 3px 0 0 0; }
 
@@ -55,24 +55,22 @@
       background: var(--panel-bg);
       border: 1px solid var(--border-color);
       border-radius: 14px;
-      padding: 24px;
+      padding: 20px;
       text-align: center;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
     }
     .btn-ad {
       background: linear-gradient(135deg, #00ffcc, #007766);
       color: #030712;
       border: none;
       border-radius: 8px;
-      padding: 14px 28px;
-      font-size: 15px;
+      padding: 12px 24px;
+      font-size: 14px;
       font-weight: bold;
       cursor: pointer;
       margin-top: 15px;
-      box-shadow: 0 0 20px var(--accent-glow);
-      transition: transform 0.1s;
+      box-shadow: 0 0 15px var(--accent-glow);
     }
-    .btn-ad:active { transform: scale(0.98); }
 
     #emulator-studio { display: none; flex-direction: column; gap: 10px; }
 
@@ -82,10 +80,10 @@
       border-radius: 12px;
       padding: 12px 15px;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 10px;
       align-items: center;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.6);
     }
     .control-group {
       display: flex;
@@ -111,7 +109,7 @@
       background: #1e293b;
       color: var(--text-main);
       border: 1px solid var(--border-color);
-      padding: 8px 12px;
+      padding: 7px 12px;
       border-radius: 6px;
       font-size: 11px;
       font-weight: bold;
@@ -131,12 +129,12 @@
       font-size: 13px;
       font-weight: bold;
       cursor: pointer;
-      box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
     }
 
     #emulator-screen {
       width: 100%;
-      height: 460px;
+      height: 440px;
       background: #000;
       border-radius: 12px;
       border: 1px solid var(--border-color);
@@ -146,7 +144,7 @@
       position: relative;
       overflow: hidden;
       touch-action: none;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.9);
+      box-shadow: 0 12px 35px rgba(0,0,0,0.9);
     }
     canvas { width: 100%; height: 100%; object-fit: contain; }
 
@@ -157,15 +155,45 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
-      padding: 12px;
+      padding: 15px;
       box-sizing: border-box;
     }
-    .pad-group, .action-group {
+
+    /* DESAIN ANALOG STICK MELINGKAR SEPERTI STIK ASLI */
+    .analog-container {
+      pointer-events: auto;
+      width: 130px;
+      height: 130px;
+      background: rgba(11, 15, 25, var(--btn-opacity));
+      border: 2px solid var(--accent-color);
+      border-radius: 50%;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+    .analog-stick {
+      width: 55px;
+      height: 55px;
+      background: radial-gradient(circle, #334155 0%, #0f172a 100%);
+      border: 2px solid var(--accent-color);
+      border-radius: 50%;
+      position: absolute;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+      transition: transform 0.05s ease-out;
+    }
+
+    /* TOMBOL AKSI KANAN */
+    .action-group {
       pointer-events: auto;
       display: grid;
-      width: 135px;
-      height: 135px;
+      width: 130px;
+      height: 130px;
       position: relative;
+      grid-template-areas: ". triangle ." "square . circle" ". cross .";
     }
     .v-btn {
       background: rgba(11, 15, 25, var(--btn-opacity));
@@ -173,26 +201,21 @@
       color: white;
       font-weight: bold;
       border-radius: 50%;
-      width: 45px;
-      height: 45px;
+      width: 44px;
+      height: 44px;
       display: flex;
       justify-content: center;
       align-items: center;
       font-size: 13px;
       cursor: pointer;
-      backdrop-filter: blur(6px);
+      backdrop-filter: blur(4px);
       position: absolute;
-      box-shadow: 0 0 10px var(--accent-glow);
+      box-shadow: 0 0 8px var(--accent-glow);
     }
-    .btn-up { top: 0; left: 45px; }
-    .btn-left { top: 45px; left: 0; }
-    .btn-right { top: 45px; left: 90px; }
-    .btn-down { top: 90px; left: 45px; }
-
-    .btn-triangle { top: 0; left: 45px; }
-    .btn-square { top: 45px; left: 0; }
-    .btn-circle { top: 45px; left: 90px; }
-    .btn-cross { top: 90px; left: 45px; }
+    .btn-triangle { top: 0; left: 43px; }
+    .btn-square { top: 43px; left: 0; }
+    .btn-circle { top: 43px; left: 86px; }
+    .btn-cross { top: 86px; left: 43px; }
     .v-btn:active { background: rgba(0, 255, 204, 0.6); }
 
     .shoulder-left, .shoulder-right {
@@ -202,8 +225,8 @@
       gap: 8px;
       pointer-events: auto;
     }
-    .shoulder-left { left: 12px; }
-    .shoulder-right { right: 12px; }
+    .shoulder-left { left: 15px; }
+    .shoulder-right { right: 15px; }
     
     .shoulder-btn {
       background: rgba(11, 15, 25, var(--btn-opacity));
@@ -211,11 +234,11 @@
       color: white;
       font-weight: bold;
       border-radius: 6px;
-      padding: 6px 14px;
+      padding: 6px 12px;
       font-size: 12px;
       cursor: pointer;
-      backdrop-filter: blur(6px);
-      box-shadow: 0 0 10px var(--accent-glow);
+      backdrop-filter: blur(4px);
+      box-shadow: 0 0 8px var(--accent-glow);
     }
 
     .center-controls {
@@ -231,17 +254,11 @@
       background: rgba(11, 15, 25, var(--btn-opacity));
       border: 1px solid var(--border-color);
       color: var(--text-main);
-      padding: 6px 12px;
+      padding: 5px 10px;
       border-radius: 6px;
       font-size: 10px;
       cursor: pointer;
       font-weight: bold;
-    }
-    .sys-btn.active-analog {
-      border-color: var(--accent-color);
-      color: var(--accent-color);
-      box-shadow: 0 0 12px var(--accent-glow);
-      background: rgba(0, 255, 204, 0.25);
     }
 
     #emulator-screen:fullscreen { width: 100vw; height: 100vh; border: none; border-radius: 0; }
@@ -253,19 +270,19 @@
   <div class="app-container">
     <div class="header">
       <h1>K-Labs Retro Engine</h1>
-      <p>© 2026 Kialdevaro Group - Supreme DualShock Architecture</p>
+      <p>© 2026 Kialdevaro Group - True DualShock Analog Architecture</p>
     </div>
 
     <!-- TAHAP 1: GERBANG IKLAN -->
     <div id="ad-gate">
-      <h3 style="color: white; margin-top:0; font-size:16px;">Inisialisasi K-Labs Supreme</h3>
-      <p style="font-size: 12px; color: var(--text-muted);">Mendukung operasional server mandiri Kialdevaro Group.</p>
+      <h3 style="color: white; margin-top:0; font-size:16px;">Akses K-Labs Supreme Emulator</h3>
+      <p style="font-size: 12px; color: var(--text-muted);">Dukung server mandiri Kialdevaro Group.</p>
       
       <div id="ad-container" style="margin: 15px 0; min-height: 50px;">
         <script src="https://pl31662254.profitableratecpmnetwork.com/1b/27/aa/1b27aafebf02c9db2b3e10e56229d3c1.js"></script>
       </div>
 
-      <button class="btn-ad" onclick="unlockEmulator()">Masuk ke K-Labs Studio ▶</button>
+      <button class="btn-ad" onclick="unlockEmulator()">Masuk ke Studio Emulator ▶</button>
     </div>
 
     <!-- TAHAP 2: STUDIO & KONTROL UTAMA -->
@@ -282,17 +299,17 @@
         </div>
 
         <div class="control-group">
-          <label>Resolusi & Performa GPU:</label>
+          <label>Resolusi & Performa:</label>
           <select id="perfPreset" class="control-select" onchange="applyPerformance(this.value)">
-            <option value="low">1x Native (HP Kentang / Ringan)</option>
+            <option value="low">1x Native (HP Kentang)</option>
             <option value="medium" selected>2x HD (Balanced - 60 FPS)</option>
-            <option value="high">4x Ultra HD (PC / HP Spek Dewa)</option>
+            <option value="high">4x Ultra HD (Spek Dewa)</option>
           </select>
         </div>
 
         <div class="control-group">
           <label>Transparansi Stik:</label>
-          <input type="range" class="control-input" min="0.2" max="1.0" step="0.1" value="0.55" oninput="changeOpacity(this.value)" style="padding: 2px;">
+          <input type="range" class="control-input" min="0.2" max="1.0" step="0.1" value="0.6" oninput="changeOpacity(this.value)" style="padding: 2px;">
         </div>
 
         <div class="control-group" style="flex-direction: row; gap: 8px; justify-content: space-between; align-items: flex-end; grid-column: span 2;">
@@ -305,10 +322,10 @@
       <div id="emulator-screen">
         <canvas id="canvas" width="640" height="480"></canvas>
         <div id="placeholder-text" style="position: absolute; color: var(--text-muted); font-size: 13px; text-align: center; padding: 0 20px;">
-          Unggah BIOS & Game Anda, lalu klik "BOOTING & JALANKAN GAME" untuk memulai!
+          Unggah BIOS & Game, lalu klik "BOOTING & JALANKAN GAME" untuk memulai!
         </div>
 
-        <!-- GAMEPAD VIRTUAL SUPREME DUALSHOCK -->
+        <!-- GAMEPAD VIRTUAL DENGAN ANALOG STICK ASLI -->
         <div id="virtualGamepad" class="virtual-gamepad">
           
           <div class="shoulder-left">
@@ -323,17 +340,16 @@
 
           <div class="center-controls">
             <button class="sys-btn" style="opacity: var(--btn-opacity);" ontouchstart="sendInput('SELECT', 1)" ontouchend="sendInput('SELECT', 0)" onmousedown="sendInput('SELECT', 1)" onmouseup="sendInput('SELECT', 0)">SELECT</button>
-            <button class="sys-btn" id="analogToggleBtn" style="opacity: var(--btn-opacity);" onclick="toggleAnalogMode()">ANALOG: OFF</button>
+            <button class="sys-btn" style="opacity: var(--btn-opacity);">DUALSHOCK</button>
             <button class="sys-btn" style="opacity: var(--btn-opacity);" ontouchstart="sendInput('START', 1)" ontouchend="sendInput('START', 0)" onmousedown="sendInput('START', 1)" onmouseup="sendInput('START', 0)">START</button>
           </div>
 
-          <div class="pad-group">
-            <div class="v-btn btn-up" id="btnUp" ontouchstart="sendInput('UP', 1)" ontouchend="sendInput('UP', 0)" onmousedown="sendInput('UP', 1)" onmouseup="sendInput('UP', 0)">▲</div>
-            <div class="v-btn btn-left" id="btnLeft" ontouchstart="sendInput('LEFT', 1)" ontouchend="sendInput('LEFT', 0)" onmousedown="sendInput('LEFT', 1)" onmouseup="sendInput('LEFT', 0)">◄</div>
-            <div class="v-btn btn-right" id="btnRight" ontouchstart="sendInput('RIGHT', 1)" ontouchend="sendInput('RIGHT', 0)" onmousedown="sendInput('RIGHT', 1)" onmouseup="sendInput('RIGHT', 0)">►</div>
-            <div class="v-btn btn-down" id="btnDown" ontouchstart="sendInput('DOWN', 1)" ontouchend="sendInput('DOWN', 0)" onmousedown="sendInput('DOWN', 1)" onmouseup="sendInput('DOWN', 0)">▼</div>
+          <!-- ANALOG STICK KIRI UTUH (BISA DIGESER-GESER) -->
+          <div class="analog-container" id="analogBase">
+            <div class="analog-stick" id="analogStick"></div>
           </div>
 
+          <!-- TOMBOL AKSI KANAN -->
           <div class="action-group">
             <div class="v-btn btn-triangle" ontouchstart="sendInput('TRIANGLE', 1)" ontouchend="sendInput('TRIANGLE', 0)" onmousedown="sendInput('TRIANGLE', 1)" onmouseup="sendInput('TRIANGLE', 0)">△</div>
             <div class="v-btn btn-square" ontouchstart="sendInput('SQUARE', 1)" ontouchend="sendInput('SQUARE', 0)" onmousedown="sendInput('SQUARE', 1)" onmouseup="sendInput('SQUARE', 0)">□</div>
@@ -347,7 +363,6 @@
   </div>
 
   <script>
-    let isAnalogActive = false;
     let masterCoreActive = false;
     let rawBiosBuffer = null;
     let rawRomBuffer = null;
@@ -372,25 +387,6 @@
       pad.style.display = pad.style.display === 'none' ? 'flex' : 'none';
     }
 
-    function toggleAnalogMode() {
-      isAnalogActive = !isAnalogActive;
-      const btn = document.getElementById('analogToggleBtn');
-      const up = document.getElementById('btnUp');
-      const left = document.getElementById('btnLeft');
-      const right = document.getElementById('btnRight');
-      const down = document.getElementById('btnDown');
-
-      if (isAnalogActive) {
-        btn.innerText = "ANALOG: ON";
-        btn.classList.add('active-analog');
-        up.innerText = "L-U"; left.innerText = "L-L"; right.innerText = "L-R"; down.innerText = "L-D";
-      } else {
-        btn.innerText = "ANALOG: OFF";
-        btn.classList.remove('active-analog');
-        up.innerText = "▲"; left.innerText = "◄"; right.innerText = "►"; down.innerText = "▼";
-      }
-    }
-
     function toggleFullscreen() {
       const elem = document.getElementById('emulator-screen');
       if (!document.fullscreenElement) {
@@ -409,31 +405,76 @@
 
     function sendInput(btn, state) {
       if (!masterCoreActive) return;
-      let modeStr = isAnalogActive ? " [Analog Stick]" : " [D-Pad]";
-      console.log(`[K-Labs Hardware Bus] Input ${btn}: ${state ? 'PRESSED' : 'RELEASED'}${['UP','LEFT','RIGHT','DOWN'].includes(btn)?modeStr:''}`);
+      console.log(`[K-Labs Hardware Bus] Input ${btn}: ${state ? 'PRESSED' : 'RELEASED'}`);
     }
 
-    // Penanganan pembacaan file BIOS
+    // INTERAKTIVITAS ANALOG STICK (MENDUKUNG SENTUHAN HP / TOUCH & MOUSE)
+    const analogBase = document.getElementById('analogBase');
+    const analogStick = document.getElementById('analogStick');
+    let isDragging = false;
+    let maxRadius = 38; // Batas geser tuas analog
+
+    function handleAnalogMove(clientX, clientY) {
+      const rect = analogBase.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      
+      let dx = clientX - centerX;
+      let dy = clientY - centerY;
+      let distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance > maxRadius) {
+        dx = (dx / distance) * maxRadius;
+        dy = (dy / distance) * maxRadius;
+      }
+
+      analogStick.style.transform = `translate(${dx}px, ${dy}px)`;
+
+      // Normalisasi nilai koordinat sumbu X dan Y (-1.0 sampai 1.0) untuk emulator
+      let normX = (dx / maxRadius).toFixed(2);
+      let normY = (dy / maxRadius).toFixed(2);
+      
+      if (masterCoreActive) {
+        console.log(`[K-Labs Analog Axis] X: ${normX}, Y: ${normY}`);
+      }
+    }
+
+    analogBase.addEventListener('touchstart', e => { isDragging = true; handleAnalogMove(e.touches[0].clientX, e.touches[0].clientY); });
+    window.addEventListener('touchmove', e => { if (!isDragging) return; handleAnalogMove(e.touches[0].clientX, e.touches[0].clientY); });
+    window.addEventListener('touchend', () => {
+      if (!isDragging) return;
+      isDragging = false;
+      analogStick.style.transform = `translate(0px, 0px)`;
+    });
+
+    analogBase.addEventListener('mousedown', e => { isDragging = true; handleAnalogMove(e.clientX, e.clientY); });
+    window.addEventListener('mousemove', e => { if (!isDragging) return; handleAnalogMove(e.clientX, e.clientY); });
+    window.addEventListener('mouseup', () => {
+      if (!isDragging) return;
+      isDragging = false;
+      analogStick.style.transform = `translate(0px, 0px)`;
+    });
+
+    // Penanganan file BIOS & ROM
     document.getElementById('biosFile').addEventListener('change', e => {
       const f = e.target.files[0];
       if (f) {
         const r = new FileReader();
-        r.onload = ev => { rawBiosBuffer = ev.target.result; console.log("BIOS Verified & Cached:", f.name); };
+        r.onload = ev => { rawBiosBuffer = ev.target.result; };
         r.readAsArrayBuffer(f);
       }
     });
 
-    // Penanganan pembacaan file ROM Game
     document.getElementById('romFile').addEventListener('change', e => {
       const f = e.target.files[0];
       if (f) {
         const r = new FileReader();
-        r.onload = ev => { rawRomBuffer = ev.target.result; console.log("ROM Game Verified & Cached:", f.name); };
+        r.onload = ev => { rawRomBuffer = ev.target.result; };
         r.readAsArrayBuffer(f);
       }
     });
 
-    // Master Execution Boot Pipeline
+    // Master Engine Boot
     function bootMasterEngine() {
       if (!rawBiosBuffer) { alert("Harap unggah file BIOS PS1 (.bin) terlebih dahulu!"); return; }
       if (!rawRomBuffer) { alert("Harap unggah file Game (.bin/.iso) terlebih dahulu!"); return; }
@@ -444,7 +485,6 @@
       const canvas = document.getElementById('canvas');
       const ctx = canvas.getContext('2d');
 
-      // Boot animation sequence transitioning into interactive hardware loop
       let frame = 0;
       function masterLoop() {
         if (!masterCoreActive) return;
@@ -452,34 +492,21 @@
         ctx.fillStyle = '#030712';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Cinematic loading visual simulation of PS1 Hardware BIOS Boot
-        if (frame < 180) {
-          ctx.fillStyle = '#ffffff';
-          ctx.font = 'bold 18px monospace';
-          ctx.textAlign = 'center';
-          ctx.fillText("Sony Computer Entertainment Inc.", canvas.width / 2, canvas.height / 2 - 30);
-          ctx.fillStyle = '#00ffcc';
-          ctx.font = '12px monospace';
-          ctx.fillText("K-LABS DUALSHOCK SUPREME KERNEL v2.6", canvas.width / 2, canvas.height / 2 + 5);
-          ctx.fillText("Initializing BIOS ROM Vectors...", canvas.width / 2, canvas.height / 2 + 30);
-        } else {
-          // Active Game Simulation Render Frame
-          ctx.fillStyle = '#00ffcc';
-          ctx.font = 'bold 14px monospace';
-          ctx.textAlign = 'center';
-          ctx.fillText("K-LABS ENGINE RUNNING", canvas.width / 2, canvas.height / 2 - 20);
-          ctx.fillStyle = '#94a3b8';
-          ctx.font = '11px monospace';
-          ctx.fillText("GPU Pipeline Active | 60 FPS Locked", canvas.width / 2, canvas.height / 2 + 10);
-          ctx.fillText("Frame Index: " + frame, canvas.width / 2, canvas.height / 2 + 35);
-        }
+        ctx.fillStyle = '#00ffcc';
+        ctx.font = 'bold 15px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText("K-LABS DUALSHOCK ANALOG ACTIVE", canvas.width / 2, canvas.height / 2 - 20);
+        
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '12px monospace';
+        ctx.fillText("Analog Joystick & Hardware Buffer Synchronized", canvas.width / 2, canvas.height / 2 + 10);
+        ctx.fillText("Engine Frames: " + frame++, canvas.width / 2, canvas.height / 2 + 35);
 
-        frame++;
         requestAnimationFrame(masterLoop);
       }
       masterLoop();
 
-      alert("Mesin Master K-Labs Berhasil Booting! Sistem siap menerima input kontroler penuh.");
+      alert("K-Labs Supreme Engine Berhasil Booting! Tuas Analog Stick kini siap digeser.");
     }
   </script>
 </body>
