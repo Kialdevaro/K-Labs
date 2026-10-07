@@ -98,3 +98,48 @@ if (window.KLabsEngine) {
   window.KLabsEngine.cpu = new KLabsMIPSProcessor(window.KLabsEngine.memory);
   console.log("[K-Labs Core] Module 2 (MIPS CPU) successfully loaded into engine.");
       }
+/**
+ * K-Labs Proprietary Core Engine - Module 3: Memory Mapping & Bus Read/Write
+ * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
+ */
+
+class KLabsMemoryBus {
+  constructor(coreSystem) {
+    this.core = coreSystem;
+    
+    // Alamat Dasar Memori PS1 (Memory Map Ranges)
+    // - KUSEG / RAM: 0x00000000 - 0x001FFFFF (2MB)
+    // - BIOS ROM:    0xbfc00000 - 0xbfc7FFFF (512KB)
+  }
+
+  // Membaca data 32-bit (Word) dari alamat memori virtual
+  read32(address) {
+    // Zona BIOS ROM
+    if (address >= 0xbfc00000 && address < 0xbfc80000) {
+      const offset = (address - 0xbfc00000) >> 2;
+      return this.core.memory.biosView32[offset] || 0;
+    }
+    
+    // Zona Main RAM
+    if (address >= 0x00000000 && address < 0x00200000) {
+      const offset = address >> 2;
+      return this.core.memory.ramView32[offset] || 0;
+    }
+
+    return 0; // Alamat kosong / unmapped
+  }
+
+  // Menulis data 32-bit ke Main RAM
+  write32(address, value) {
+    if (address >= 0x00000000 && address < 0x00200000) {
+      const offset = address >> 2;
+      this.core.memory.ramView32[offset] = value;
+    }
+  }
+}
+
+// Integrasikan Bus Memori ke dalam MIPS CPU
+if (window.KLabsEngine && window.KLabsEngine.cpu) {
+  window.KLabsEngine.bus = new KLabsMemoryBus(window.KLabsEngine);
+  console.log("[K-Labs Core] Module 3 (Memory Bus Mapping) successfully initialized.");
+}
