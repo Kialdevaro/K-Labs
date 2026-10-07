@@ -345,3 +345,43 @@ if (window.KLabsEngine) {
   window.KLabsEngine.execution = new KLabsExecutionEngine(window.KLabsEngine);
   console.log("[K-Labs Core] Module 5 (Execution Loop & Decoder) successfully loaded.");
 }
+// Inisialisasi Utama Objek Global K-Labs Engine
+window.KLabsEngine = window.KLabsEngine || {
+  profile: { mode: 'light', resolution: 1, fastBoot: true, audioSync: true },
+  setDeviceProfile(p) {
+    Object.assign(this.profile, p);
+    console.log("[K-Labs Core] Profil perangkat diterapkan:", this.profile);
+  },
+  loader: {
+    async loadBIOS(file) {
+      console.log("[K-Labs Core] Memuat BIOS:", file.name);
+      // Logika pembacaan biner BIOS
+    },
+    async loadROM(file) {
+      console.log("[K-Labs Core] Memuat ROM Game:", file.name);
+      // Logika pembacaan biner ROM/ISO
+    }
+  },
+  cpu: {
+    isRunning: false,
+    PC: 0xbfc00000,
+    nextPC: 0xbfc00004,
+    reset() {
+      this.PC = 0xbfc00000;
+      this.nextPC = 0xbfc00004;
+      console.log("[K-Labs Core] CPU MIPS R3000A di-reset ke vektor awal.");
+    }
+  },
+  bus: {
+    read32(addr) {
+      // Simulasi pembacaan bus memori 32-bit
+      return 0x00000000;
+    }
+  }
+};
+
+// Integrasi Module 5: Execution Engine & Main Loop
+if (window.KLabsEngine && typeof KLabsExecutionEngine !== 'undefined') {
+  window.KLabsEngine.execution = new KLabsExecutionEngine(window.KLabsEngine);
+  console.log("[K-Labs Core] Module 5 (Execution Loop & Decoder) successfully loaded.");
+}
