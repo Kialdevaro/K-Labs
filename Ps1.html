@@ -407,8 +407,28 @@
   </div>
 
   <script>
-    let biosBlobUrl = null;
-    let romBlobUrl = null;
+let biosBlobUrl = null;
+let romBlobUrl = null;
+let currentBiosUrl = null;
+let currentRomUrl = null;
+
+document.getElementById('biosFile').addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (f) {
+    if (currentBiosUrl) URL.revokeObjectURL(currentBiosUrl);
+    currentBiosUrl = URL.createObjectURL(f);
+    biosBlobUrl = currentBiosUrl;
+  }
+});
+
+document.getElementById('romFile').addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (f) {
+    if (currentRomUrl) URL.revokeObjectURL(currentRomUrl);
+    currentRomUrl = URL.createObjectURL(f);
+    romBlobUrl = currentRomUrl;
+  }
+});
 
     document.addEventListener('keydown', e => {
       if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') || (e.ctrlKey && e.key === 'u')) {
