@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>K-Labs - PS1 Ultimate Web Emulator Engine</title>
+  <title>K-Labs - PS1 Supreme Zero-Lag Engine</title>
   <style>
     :root {
       --bg-color: #030712;
@@ -15,6 +15,7 @@
       --text-muted: #94a3b8;
       --btn-opacity: 0.6;
     }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
       background-color: var(--bg-color);
       color: var(--text-main);
@@ -25,9 +26,9 @@
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
-      box-sizing: border-box;
       user-select: none;
       -webkit-user-select: none;
+      overflow-x: hidden;
     }
     .app-container {
       width: 100%;
@@ -50,7 +51,6 @@
       text-shadow: 0 0 12px var(--accent-glow);
     }
     .header p { color: var(--text-muted); font-size: 11px; margin: 3px 0 0 0; }
-
     .dashboard-panel {
       background: var(--panel-bg);
       border: 1px solid var(--border-color);
@@ -120,7 +120,6 @@
       cursor: pointer;
       box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
     }
-
     #emulator-screen {
       width: 100%;
       height: 480px;
@@ -134,217 +133,81 @@
       overflow: hidden;
       touch-action: none;
       box-shadow: 0 15px 40px rgba(0,0,0,0.9);
+      transform: translateZ(0);
     }
-    
-    /* Wadah utama EmulatorJS */
-    #game { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 2; }
-
-    .virtual-gamepad {
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      pointer-events: none;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      padding: 15px;
-      box-sizing: border-box;
-      z-index: 100;
-    }
-    .analog-container {
-      pointer-events: auto;
-      width: 130px;
-      height: 130px;
-      background: rgba(11, 15, 25, var(--btn-opacity));
-      border: 2px solid var(--accent-color);
-      border-radius: 50%;
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      backdrop-filter: blur(4px);
-      box-shadow: 0 0 12px var(--accent-glow);
-    }
-    .analog-stick {
-      width: 55px;
-      height: 55px;
-      background: radial-gradient(circle, #334155 0%, #0f172a 100%);
-      border: 2px solid var(--accent-color);
-      border-radius: 50%;
-      position: absolute;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.6);
-      transition: transform 0.05s ease-out;
-    }
-    .action-group {
-      pointer-events: auto;
-      display: grid;
-      width: 130px;
-      height: 130px;
-      position: relative;
-    }
-    .v-btn {
-      background: rgba(11, 15, 25, var(--btn-opacity));
-      border: 2px solid var(--accent-color);
-      color: white;
-      font-weight: bold;
-      border-radius: 50%;
-      width: 44px;
-      height: 44px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 13px;
-      cursor: pointer;
-      backdrop-filter: blur(4px);
-      position: absolute;
-      box-shadow: 0 0 8px var(--accent-glow);
-    }
-    .btn-triangle { top: 0; left: 43px; }
-    .btn-square { top: 43px; left: 0; }
-    .btn-circle { top: 43px; left: 86px; }
-    .btn-cross { top: 86px; left: 43px; }
-    .v-btn:active { background: rgba(0, 255, 204, 0.6); }
-
-    .shoulder-left, .shoulder-right {
-      position: absolute;
-      top: 10px;
-      display: flex;
-      gap: 8px;
-      pointer-events: auto;
-    }
-    .shoulder-left { left: 15px; }
-    .shoulder-right { right: 15px; }
-    
-    .shoulder-btn {
-      background: rgba(11, 15, 25, var(--btn-opacity));
-      border: 2px solid var(--accent-color);
-      color: white;
-      font-weight: bold;
-      border-radius: 6px;
-      padding: 6px 12px;
-      font-size: 12px;
-      cursor: pointer;
-      backdrop-filter: blur(4px);
-      box-shadow: 0 0 8px var(--accent-glow);
-    }
-
-    .center-controls {
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 8px;
-      pointer-events: auto;
-    }
-    .sys-btn {
-      background: rgba(11, 15, 25, var(--btn-opacity));
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      padding: 5px 10px;
-      border-radius: 6px;
-      font-size: 10px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    #emulator-screen:fullscreen { width: 100vw; height: 100vh; border: none; border-radius: 0; }
-    #emulator-screen:-webkit-full-screen { width: 100vw; height: 100vh; border: none; border-radius: 0; }
+    #game { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
   </style>
 </head>
 <body oncontextmenu="return false;">
-
   <div class="app-container">
     <div class="header">
       <h1>K-Labs Retro Engine</h1>
-      <p>© 2026 Kialdevaro Group - Supreme WebAssembly Architecture</p>
+      <p>© 2026 Kialdevaro Group - Supreme Zero-Lag WebAssembly</p>
     </div>
-
     <div id="emulator-studio" style="display: flex; flex-direction: column; gap: 10px;">
       <div class="dashboard-panel">
-        
-        <!-- IKLAN ADSTERRA -->
         <div class="ad-banner-box">
           <script src="https://pl31662254.profitableratecpmnetwork.com/1b/27/aa/1b27aafebf02c9db2b3e10e56229d3c1.js"></script>
         </div>
-
         <div class="control-group">
           <label style="color: #ffaa00;">1. File BIOS PS1 (.bin):</label>
           <input type="file" id="biosFile" accept=".bin" class="control-input">
         </div>
-
         <div class="control-group">
           <label style="color: var(--accent-color);">2. File Game (.bin / .iso):</label>
           <input type="file" id="romFile" accept=".bin,.cue,.iso,.img" class="control-input">
         </div>
-
         <div class="control-group">
           <label>Resolusi & Performa GPU:</label>
           <select id="perfPreset" class="control-select">
-            <option value="low">1x Native (Ringan / HP Kentang)</option>
+            <option value="low">1x Native (Super Ringan / Anti-Lag)</option>
             <option value="medium" selected>2x HD (Balanced - 60 FPS)</option>
             <option value="high">4x Ultra HD (WebGL Accelerated)</option>
           </select>
         </div>
-
         <div class="control-group">
           <label>Transparansi Stik:</label>
           <input type="range" class="control-input" min="0.2" max="1.0" step="0.1" value="0.6" oninput="changeOpacity(this.value)" style="padding: 2px;">
         </div>
-
         <div class="control-group" style="flex-direction: row; gap: 8px; justify-content: space-between; align-items: flex-end; grid-column: span 2;">
           <button class="btn-action btn-play" onclick="bootMasterEngine()" style="flex: 2;">▶ JALANKAN GAME (1-KLIK)</button>
           <button class="btn-action" onclick="toggleGamepad()" style="flex: 1;">Sembunyikan Stik</button>
           <button class="btn-action btn-fullscreen" onclick="toggleFullscreen()" style="flex: 1;">⛶ Fullscreen</button>
         </div>
       </div>
-
       <div id="emulator-screen">
-        <!-- Wadah Murni untuk Core Emulator -->
         <div id="game"></div>
-        
-        <div id="placeholder-text" style="position: absolute; color: var(--text-muted); font-size: 13px; text-align: center; padding: 0 20px; z-index: 1;">
-          Pilih file BIOS & Game di atas, lalu klik "JALANKAN GAME (1-KLIK)"!
+        <div id="placeholder-text" style="position: absolute; color: var(--text-muted); font-size: 13px; text-align: center; padding: 0 20px; z-index: 5;">
+          Pilih BIOS & Game di atas, lalu klik "JALANKAN GAME (1-KLIK)"[span_2](start_span)[span_2](end_span)!
         </div>
-
-        <!-- GAMEPAD VIRTUAL SUPREME -->
-        <div id="virtualGamepad" class="virtual-gamepad">
-          
-          <div class="shoulder-left">
+        <div id="virtualGamepad" class="virtual-gamepad" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: flex; justify-content: space-between; align-items: flex-end; padding: 15px; box-sizing: border-box; z-index: 100;">
+          <div class="shoulder-left" style="position: absolute; top: 10px; left: 15px; display: flex; gap: 8px; pointer-events: auto;">
             <button class="shoulder-btn" ontouchstart="pressKey('L1', true)" ontouchend="pressKey('L1', false)" onmousedown="pressKey('L1', true)" onmouseup="pressKey('L1', false)">L1</button>
             <button class="shoulder-btn" ontouchstart="pressKey('L2', true)" ontouchend="pressKey('L2', false)" onmousedown="pressKey('L2', true)" onmouseup="pressKey('L2', false)">L2</button>
           </div>
-
-          <div class="shoulder-right">
+          <div class="shoulder-right" style="position: absolute; top: 10px; right: 15px; display: flex; gap: 8px; pointer-events: auto;">
             <button class="shoulder-btn" ontouchstart="pressKey('R1', true)" ontouchend="pressKey('R1', false)" onmousedown="pressKey('R1', true)" onmouseup="pressKey('R1', false)">R1</button>
             <button class="shoulder-btn" ontouchstart="pressKey('R2', true)" ontouchend="pressKey('R2', false)" onmousedown="pressKey('R2', true)" onmouseup="pressKey('R2', false)">R2</button>
           </div>
-
-          <div class="center-controls">
+          <div class="center-controls" style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; pointer-events: auto;">
             <button class="sys-btn" style="opacity: var(--btn-opacity);" ontouchstart="pressKey('SELECT', true)" ontouchend="pressKey('SELECT', false)" onmousedown="pressKey('SELECT', true)" onmouseup="pressKey('SELECT', false)">SELECT</button>
             <button class="sys-btn" style="opacity: var(--btn-opacity);">DUALSHOCK</button>
             <button class="sys-btn" style="opacity: var(--btn-opacity);" ontouchstart="pressKey('START', true)" ontouchend="pressKey('START', false)" onmousedown="pressKey('START', true)" onmouseup="pressKey('START', false)">START</button>
           </div>
-
-          <!-- ANALOG STICK MELINGKAR -->
-          <div class="analog-container" id="analogBase">
-            <div class="analog-stick" id="analogStick"></div>
+          <div class="analog-container" id="analogBase" style="pointer-events: auto; width: 130px; height: 130px; background: rgba(11, 15, 25, var(--btn-opacity)); border: 2px solid var(--accent-color); border-radius: 50%; position: relative; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(4px); box-shadow: 0 0 12px var(--accent-glow); touch-action: none;">
+            <div class="analog-stick" id="analogStick" style="width: 55px; height: 55px; background: radial-gradient(circle, #334155 0%, #0f172a 100%); border: 2px solid var(--accent-color); border-radius: 50%; position: absolute; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.6); will-change: transform;"></div>
           </div>
-
-          <!-- TOMBOL AKSI KANAN -->
-          <div class="action-group">
-            <div class="v-btn btn-triangle" ontouchstart="pressKey('TRIANGLE', true)" ontouchend="pressKey('TRIANGLE', false)" onmousedown="pressKey('TRIANGLE', true)" onmouseup="pressKey('TRIANGLE', false)">△</div>
-            <div class="v-btn btn-square" ontouchstart="pressKey('SQUARE', true)" ontouchend="pressKey('SQUARE', false)" onmousedown="pressKey('SQUARE', true)" onmouseup="pressKey('SQUARE', false)">□</div>
-            <div class="v-btn btn-circle" ontouchstart="pressKey('CIRCLE', true)" ontouchend="pressKey('CIRCLE', false)" onmousedown="pressKey('CIRCLE', true)" onmouseup="pressKey('CIRCLE', false)">○</div>
-            <div class="v-btn btn-cross" ontouchstart="pressKey('CROSS', true)" ontouchend="pressKey('CROSS', false)" onmousedown="pressKey('CROSS', true)" onmouseup="pressKey('CROSS', false)">✕</div>
+          <div class="action-group" style="pointer-events: auto; display: grid; width: 130px; height: 130px; position: relative;">
+            <div class="v-btn btn-triangle" style="top: 0; left: 43px; position: absolute;" ontouchstart="pressKey('TRIANGLE', true)" ontouchend="pressKey('TRIANGLE', false)" onmousedown="pressKey('TRIANGLE', true)" onmouseup="pressKey('TRIANGLE', false)">△</div>
+            <div class="v-btn btn-square" style="top: 43px; left: 0; position: absolute;" ontouchstart="pressKey('SQUARE', true)" ontouchend="pressKey('SQUARE', false)" onmousedown="pressKey('SQUARE', true)" onmouseup="pressKey('SQUARE', false)">□</div>
+            <div class="v-btn btn-circle" style="top: 43px; left: 86px; position: absolute;" ontouchstart="pressKey('CIRCLE', true)" ontouchend="pressKey('CIRCLE', false)" onmousedown="pressKey('CIRCLE', true)" onmouseup="pressKey('CIRCLE', false)">○</div>
+            <div class="v-btn btn-cross" style="top: 86px; left: 43px; position: absolute;" ontouchstart="pressKey('CROSS', true)" ontouchend="pressKey('CROSS', false)" onmousedown="pressKey('CROSS', true)" onmouseup="pressKey('CROSS', false)">✕</div>
           </div>
-
         </div>
       </div>
     </div>
   </div>
-
-  <script>
+    <script>
     let biosBlobUrl = null;
     let romBlobUrl = null;
 
@@ -391,11 +254,18 @@
       window.dispatchEvent(new KeyboardEvent(eventType, { code: keyCode, bubbles: true }));
     }
 
-    // Interaktivitas Analog Stick Tuas Melingkar
+    // Low-latency Analog Touch Handling dengan requestAnimationFrame
     const analogBase = document.getElementById('analogBase');
     const analogStick = document.getElementById('analogStick');
     let isDragging = false;
     let maxRadius = 38;
+    let currentX = 0, currentY = 0;
+    let rafId = null;
+
+    function updateStickPosition() {
+      analogStick.style.transform = `translate(${currentX}px, ${currentY}px)`;
+      rafId = null;
+    }
 
     function handleAnalogMove(clientX, clientY) {
       const rect = analogBase.getBoundingClientRect();
@@ -411,18 +281,33 @@
         dy = (dy / distance) * maxRadius;
       }
 
-      analogStick.style.transform = `translate(${dx}px, ${dy}px)`;
+      currentX = dx;
+      currentY = dy;
+
+      if (!rafId) {
+        rafId = requestAnimationFrame(updateStickPosition);
+      }
     }
 
-    analogBase.addEventListener('touchstart', e => { isDragging = true; handleAnalogMove(e.touches[0].clientX, e.touches[0].clientY); });
-    window.addEventListener('touchmove', e => { if (!isDragging) return; handleAnalogMove(e.touches[0].clientX, e.touches[0].clientY); });
-    window.addEventListener('touchend', () => { if (!isDragging) return; isDragging = false; analogStick.style.transform = `translate(0px, 0px)`; });
+    analogBase.addEventListener('touchstart', e => { isDragging = true; handleAnalogMove(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+    window.addEventListener('touchmove', e => { if (!isDragging) return; handleAnalogMove(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+    window.addEventListener('touchend', () => { 
+      if (!isDragging) return; 
+      isDragging = false; 
+      currentX = 0; currentY = 0;
+      if (!rafId) rafId = requestAnimationFrame(updateStickPosition);
+    });
 
     analogBase.addEventListener('mousedown', e => { isDragging = true; handleAnalogMove(e.clientX, e.clientY); });
     window.addEventListener('mousemove', e => { if (!isDragging) return; handleAnalogMove(e.clientX, e.clientY); });
-    window.addEventListener('mouseup', () => { if (!isDragging) return; isDragging = false; analogStick.style.transform = `translate(0px, 0px)`; });
+    window.addEventListener('mouseup', () => { 
+      if (!isDragging) return; 
+      isDragging = false; 
+      currentX = 0; currentY = 0;
+      if (!rafId) rafId = requestAnimationFrame(updateStickPosition);
+    });
 
-        document.getElementById('biosFile').addEventListener('change', e => {
+    document.getElementById('biosFile').addEventListener('change', e => {
       const f = e.target.files[0];
       if (f) { biosBlobUrl = URL.createObjectURL(f); }
     });
@@ -432,7 +317,7 @@
       if (f) { romBlobUrl = URL.createObjectURL(f); }
     });
 
-    // EKSEKUSI NYATA CORE ENGINE
+    // ULTIMATE ZERO-LAG BOOT ENGINE DENGAN MULTITHREADING
     function bootMasterEngine() {
       if (!biosBlobUrl) {
         alert("Harap pilih file BIOS PS1 (.bin) terlebih dahulu!");
@@ -445,7 +330,8 @@
 
       document.getElementById('placeholder-text').style.display = 'none';
 
-      // Parameter Resmi Core EmulatorJS
+      const perfPreset = document.getElementById('perfPreset').value;
+
       window.EJS_player = '#game';
       window.EJS_core = 'psx';
       window.EJS_gameUrl = romBlobUrl;
@@ -454,8 +340,19 @@
       window.EJS_mouse = false;
       window.EJS_multitouch = true;
       window.EJS_color = '#00ffcc';
+      
+      // OPTIMALISASI UTAMA: Mengaktifkan Multi-threading & Hardware Acceleration
+      window.EJS_threads = true;
+      window.EJS_startOnLoad = true;
 
-      // Muat Pemuat Engine WebAssembly
+      if (perfPreset === 'low') {
+        window.EJS_internalResolution = '1';
+      } else if (perfPreset === 'medium') {
+        window.EJS_internalResolution = '2';
+      } else {
+        window.EJS_internalResolution = '4';
+      }
+
       const script = document.createElement('script');
       script.src = 'https://cdn.emulatorjs.org/stable/data/loader.js';
       document.body.appendChild(script);
