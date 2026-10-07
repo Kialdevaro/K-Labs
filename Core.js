@@ -50,3 +50,51 @@ class KLabsCoreSystem {
 
 // Inisialisasi Global Core Engine
 window.KLabsEngine = new KLabsCoreSystem();
+/**
+ * K-Labs Proprietary Core Engine - Module 2: CPU MIPS R3000A Architecture
+ * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
+ */
+
+class KLabsMIPSProcessor {
+  constructor(memoryBus) {
+    this.mem = memoryBus;
+
+    // 1. Inisialisasi 32 General Purpose Registers (GPR) PS1
+    this.GPR = new Int32Array(32);
+    this.HI = 0;
+    this.LO = 0;
+
+    // 2. Program Counter (PC) & Alamat Eksekusi Berikutnya
+    this.PC = 0xbfc00000; // Alamat awal booting BIOS PS1
+    this.nextPC = this.PC + 4;
+
+    // 3. Status Eksekusi Inti
+    this.isRunning = false;
+  }
+
+  // Reset Register ke Pengaturan Pabrik (Cold Boot)
+  reset() {
+    this.GPR.fill(0);
+    this.HI = 0;
+    this.LO = 0;
+    this.PC = 0xbfc00000; // Standar alamat BIOS PS1
+    this.nextPC = this.PC + 4;
+    console.log("[K-Labs CPU] MIPS R3000A reset to initial boot vector: 0xbfc00000");
+  }
+
+  // Siklus Inti Pemrosesan (Fetch -> Decode -> Execute Loop)
+  step() {
+    // 1. Fetch: Ambil instruksi dari memori berdasarkan alamat PC
+    // (Akan dihubungkan ke bus memori BIOS/RAM)
+    
+    // 2. Decode & Execute (Simulasi Siklus)
+    this.PC = this.nextPC;
+    this.nextPC = this.PC + 4;
+  }
+}
+
+// Integrasikan ke dalam sistem global K-Labs
+if (window.KLabsEngine) {
+  window.KLabsEngine.cpu = new KLabsMIPSProcessor(window.KLabsEngine.memory);
+  console.log("[K-Labs Core] Module 2 (MIPS CPU) successfully loaded into engine.");
+      }
