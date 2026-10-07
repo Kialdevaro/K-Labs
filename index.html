@@ -2,566 +2,136 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>K-Labs - PS1 Branded Web Emulator Engine</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>K-Labs Retro Engine - Kialdevaro Group</title>
   <style>
-    :root {
-      --bg-color: #030712;
-      --panel-bg: rgba(11, 15, 25, 0.75);
-      --border-color: rgba(0, 255, 204, 0.25);
-      --accent-color: #00ffcc;
-      --accent-glow: rgba(0, 255, 204, 0.4);
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --btn-opacity: 0.6;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+      background: #030712; 
+      color: #f8fafc; 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      overflow-x: hidden; 
     }
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body {
-      background-color: var(--bg-color);
-      background-image: radial-gradient(circle at 50% 20%, #0f172a 0%, #030712 100%);
-      color: var(--text-main);
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      margin: 0;
-      padding: 8px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      user-select: none;
-      -webkit-user-select: none;
-      overflow-x: hidden;
+    .container { 
+      max-width: 800px; 
+      margin: 0 auto; 
+      padding: 10px; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 10px; 
     }
-    .app-container {
-      width: 100%;
-      max-width: 980px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+    .header-panel { 
+      background: rgba(15, 23, 42, 0.8); 
+      border: 1px solid rgba(0, 255, 204, 0.2); 
+      border-radius: 12px; 
+      padding: 12px; 
+      backdrop-filter: blur(10px); 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
     }
-    .header {
-      background: var(--panel-bg);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 10px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    .brand-title { 
+      font-size: 14px; 
+      font-weight: bold; 
+      color: #00ffcc; 
+      letter-spacing: 1px; 
     }
-    .header-branding {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    .control-panel { 
+      background: rgba(15, 23, 42, 0.9); 
+      border: 1px solid rgba(0, 255, 204, 0.2); 
+      border-radius: 12px; 
+      padding: 12px; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 8px; 
     }
-    .brand-badge {
-      width: 32px;
-      height: 32px;
-      background: linear-gradient(135deg, #ff3366, #00ffcc);
-      border-radius: 8px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-weight: bold;
-      color: #030712;
-      font-size: 14px;
-      box-shadow: 0 0 10px var(--accent-glow);
+    .file-group { 
+      display: flex; 
+      gap: 10px; 
+      align-items: center; 
+      justify-content: space-between; 
+      font-size: 12px; 
+      color: #94a3b8; 
     }
-    .header-title h1 {
-      color: var(--accent-color);
-      font-size: 16px;
-      text-transform: uppercase;
-      margin: 0;
-      letter-spacing: 1.5px;
-      text-shadow: 0 0 10px var(--accent-glow);
+    .file-group input[type="file"] { 
+      font-size: 11px; 
+      color: #00ffcc; 
     }
-    .header-title p { color: var(--text-muted); font-size: 9px; margin: 1px 0 0 0; }
-    
-    .dashboard-panel {
-      background: var(--panel-bg);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 14px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 12px;
-      align-items: center;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    .btn-run { 
+      background: linear-gradient(135deg, #00ffcc, #0088ff); 
+      color: #030712; 
+      border: none; 
+      font-weight: bold; 
+      padding: 10px 16px; 
+      border-radius: 8px; 
+      cursor: pointer; 
+      text-align: center; 
+      font-size: 13px; 
+      transition: 0.2s; 
     }
-    .ad-banner-box {
-      grid-column: 1 / -1;
-      background: rgba(2, 6, 23, 0.6);
-      border: 1px dashed var(--border-color);
-      border-radius: 8px;
-      padding: 10px;
-      text-align: center;
-      min-height: 50px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+    .btn-run:hover { 
+      opacity: 0.9; 
+      transform: scale(1.01); 
     }
-    .control-group {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .control-group label {
-      color: var(--accent-color);
-      font-size: 10px;
-      font-weight: bold;
-      text-transform: uppercase;
-    }
-    .control-input, .control-select {
-      background: rgba(2, 6, 23, 0.8);
-      color: white;
-      border: 1px solid var(--border-color);
-      padding: 7px 10px;
-      border-radius: 6px;
-      font-size: 12px;
-      outline: none;
-    }
-    .btn-action {
-      background: rgba(30, 41, 59, 0.8);
-      color: var(--text-main);
-      border: 1px solid var(--border-color);
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .btn-action:hover { background: rgba(51, 65, 85, 0.9); }
-    .btn-settings { background: rgba(15, 118, 110, 0.8); color: white; border: 1px solid var(--accent-color); box-shadow: 0 0 10px rgba(15, 118, 110, 0.4); }
-    .btn-fullscreen {
-      background: linear-gradient(135deg, #00ffcc, #009977);
-      color: #030712;
-      border: none;
-    }
-    .btn-play {
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: white;
-      border: none;
-      font-size: 13px;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
-    }
-
-    /* MODAL SETELAN TRANSPARAN (GLASSMORPHISM PRO THEME) */
-    #settingsModal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(3, 7, 18, 0.75);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-    }
-    .modal-content {
-      background: rgba(11, 15, 25, 0.85);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--accent-color);
-      border-radius: 16px;
-      width: 92%;
-      max-width: 480px;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      box-shadow: 0 0 35px var(--accent-glow);
-    }
-    .modal-header {
-      background: rgba(2, 6, 23, 0.7);
-      padding: 12px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--border-color);
-    }
-    .modal-header h3 { margin: 0; color: var(--accent-color); font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
-    .close-modal { background: none; border: none; color: var(--text-muted); font-size: 18px; cursor: pointer; }
-    
-    .modal-tabs {
-      display: flex;
-      background: rgba(2, 6, 23, 0.5);
-      border-bottom: 1px solid var(--border-color);
-      overflow-x: auto;
-    }
-    .tab-btn {
-      flex: 1;
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      padding: 10px 12px;
-      font-size: 11px;
-      font-weight: bold;
-      cursor: pointer;
-      text-transform: uppercase;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-    .tab-btn.active {
-      color: var(--accent-color);
-      border-bottom: 2px solid var(--accent-color);
-      background: rgba(0, 255, 204, 0.08);
-    }
-
-    .tab-pane {
-      display: none;
-      padding: 16px;
-      flex-direction: column;
-      gap: 12px;
-      max-height: 300px;
-      overflow-y: auto;
-    }
-    .tab-pane.active { display: flex; }
-    .setting-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(2, 6, 23, 0.6);
-      padding: 10px 12px;
-      border-radius: 8px;
-      border: 1px solid var(--border-color);
-    }
-    .setting-info { display: flex; flex-direction: column; gap: 2px; flex: 1; padding-right: 10px; }
-    .setting-title { font-size: 12px; font-weight: bold; color: var(--text-main); }
-    .setting-desc { font-size: 10px; color: var(--text-muted); }
-
-    .modal-footer {
-      padding: 12px 16px;
-      background: rgba(2, 6, 23, 0.7);
-      border-top: 1px solid var(--border-color);
-      display: flex;
-      justify-content: flex-end;
-    }
-
-    #emulator-screen {
-      width: 100%;
-      height: 480px;
-      background: #000;
-      border-radius: 12px;
-      border: 1px solid var(--border-color);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-      overflow: hidden;
-      touch-action: none;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.9);
-      transform: translateZ(0);
-    }
-    #game { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
   </style>
 </head>
-<body oncontextmenu="return false;">
-  <div class="app-container">
-    <div class="header">
-      <div class="header-branding">
-        <div class="brand-badge">K</div>
-        <div class="header-title">
-          <h1>K-Labs Retro Engine</h1>
-          <p>© 2026 Kialdevaro Group - Branded Architecture</p>
-        </div>
+<body>
+  <div class="container">
+    <div class="header-panel">
+      <div class="brand-title">K-LABS RETRO ENGINE</div>
+      <div style="font-size: 11px; color: #94a3b8;">© 2026 Kialdevaro Group</div>
+    </div>
+    
+    <div class="control-panel">
+      <div class="file-group">
+        <span>1. FILE BIOS PS1 (.bin):</span>
+        <input type="file" id="biosFile">
       </div>
-      <button class="btn-action btn-settings" onclick="toggleSettingsModal()">⚙ Setelan Pro</button>
+      <div class="file-group">
+        <span>2. FILE GAME ROM (.bin/.iso):</span>
+        <input type="file" id="romFile">
+      </div>
+      <button class="btn-run" onclick="bootMasterEngine()">▶ JALANKAN GAME (1-KLIK)</button>
+    </div>
+        <!-- Wadah Kanvas Grafis Utama (ID 'game' wajib ada untuk core.js) -->
+    <div id="game" style="width: 100%; aspect-ratio: 4/3; background: #030712; border-radius: 12px; border: 1px solid rgba(0,255,204,0.3); overflow: hidden; display: flex; align-items: center; justify-content: center;">
     </div>
 
-    <!-- MODAL SETELAN TRANSPARANS PRO -->
-    <div id="settingsModal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3>Setelan Emulator Pro (K-Labs)</h3>
-          <button class="close-modal" onclick="toggleSettingsModal()">✕</button>
-        </div>
-        
-        <div class="modal-tabs">
-          <button class="tab-btn active" onclick="switchTab(event, 'tabGraphics')">Graphics</button>
-          <button class="tab-btn" onclick="switchTab(event, 'tabSystem')">System</button>
-          <button class="tab-btn" onclick="switchTab(event, 'tabAudio')">Audio</button>
-          <button class="tab-btn" onclick="switchTab(event, 'tabInterface')">Interface</button>
-        </div>
-
-        <div id="tabGraphics" class="tab-pane active">
-          <div class="setting-row">
-            <div class="setting-info">
-              <span class="setting-title">Resolusi Internal</span>
-              <span class="setting-desc">Pilih 1x Native untuk performa anti-lag maksimal di HP.</span>
-            </div>
-            <select id="setResolution" class="control-select">
-              <option value="1" selected>1x Native (Super Ringan / Anti-Lag)</option>
-              <option value="2">2x HD (Standar Seimbang)</option>
-              <option value="4">4x Ultra HD (Khusus HP/PC Sultan)</option>
-            </select>
-          </div>
-          <div class="setting-row">
-            <div class="setting-info">
-              <span class="setting-title">GPU Renderer</span>
-              <span class="setting-desc">Akselerasi perangkat keras berbasis WebGL.</span>
-            </div>
-            <span style="color: var(--accent-color); font-size: 11px; font-weight: bold;">WebGL Accelerated</span>
-          </div>
-        </div>
-
-        <div id="tabSystem" class="tab-pane">
-          <div class="setting-row">
-            <div class="setting-info">
-              <span class="setting-title">Fast Boot</span>
-              <span class="setting-desc">Melewati animasi logo BIOS untuk masuk game lebih cepat.</span>
-            </div>
-            <input type="checkbox" id="setFastBoot" checked style="accent-color: var(--accent-color); width: 16px; height: 16px;">
-          </div>
-          <div class="setting-row">
-            <div class="setting-info">
-              <span class="setting-title">VSync</span>
-              <span class="setting-desc">Sinkronisasi frame untuk kestabilan visual.</span>
-            </div>
-            <input type="checkbox" id="setVSync" checked style="accent-color: var(--accent-color); width: 16px; height: 16px;">
-          </div>
-        </div>
-
-        <div id="tabAudio" class="tab-pane">
-          <div class="setting-row">
-            <div class="setting-info">
-              <span class="setting-title">Audio Sync</span>
-              <span class="setting-desc">Mencegah suara patah-patah pada perangkat seluler.</span>
-            </div>
-            <input type="checkbox" id="setAudioSync" checked style="accent-color: var(--accent-color); width: 16px; height: 16px;">
-          </div>
-        </div>
-
-        <div id="tabInterface" class="tab-pane">
-          <div class="setting-row">
-            <div class="setting-info">
-              <span class="setting-title">Transparansi Stik Virtual</span>
-              <span class="setting-desc">Atur tingkat kejelasan tombol sentuh di layar.</span>
-            </div>
-            <input type="range" class="control-input" min="0.2" max="1.0" step="0.1" value="0.6" id="setOpacity" oninput="changeOpacity(this.value)" style="width: 110px;">
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <button class="btn-action btn-play" onclick="saveUserSettings()">Simpan & Terapkan</button>
-        </div>
+    <!-- Panel Tombol Bahu & Menu Stik Virtual -->
+    <div style="background: rgba(15, 23, 42, 0.8); border-radius: 12px; padding: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(0,255,204,0.1);">
+      <div style="display: flex; gap: 5px;">
+        <button onmousedown="KLabsPressButton('L1', true)" onmouseup="KLabsPressButton('L1', false)" ontouchstart="KLabsPressButton('L1', true)" ontouchend="KLabsPressButton('L1', false)" style="padding: 6px 12px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 6px; font-size: 11px;">L1</button>
+        <button onmousedown="KLabsPressButton('L2', true)" onmouseup="KLabsPressButton('L2', false)" ontouchstart="KLabsPressButton('L2', true)" ontouchend="KLabsPressButton('L2', false)" style="padding: 6px 12px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 6px; font-size: 11px;">L2</button>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <button onmousedown="KLabsPressButton('SELECT', true)" onmouseup="KLabsPressButton('SELECT', false)" ontouchstart="KLabsPressButton('SELECT', true)" ontouchend="KLabsPressButton('SELECT', false)" style="padding: 4px 10px; background: #1e293b; color: #94a3b8; border: 1px solid #ffffff22; border-radius: 4px; font-size: 10px;">SELECT</button>
+        <button onmousedown="KLabsPressButton('START', true)" onmouseup="KLabsPressButton('START', false)" ontouchstart="KLabsPressButton('START', true)" ontouchend="KLabsPressButton('START', false)" style="padding: 4px 10px; background: #1e293b; color: #94a3b8; border: 1px solid #ffffff22; border-radius: 4px; font-size: 10px;">START</button>
+      </div>
+      <div style="display: flex; gap: 5px;">
+        <button onmousedown="KLabsPressButton('R1', true)" onmouseup="KLabsPressButton('R1', false)" ontouchstart="KLabsPressButton('R1', true)" ontouchend="KLabsPressButton('R1', false)" style="padding: 6px 12px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 6px; font-size: 11px;">R1</button>
+        <button onmousedown="KLabsPressButton('R2', true)" onmouseup="KLabsPressButton('R2', false)" ontouchstart="KLabsPressButton('R2', true)" ontouchend="KLabsPressButton('R2', false)" style="padding: 6px 12px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 6px; font-size: 11px;">R2</button>
       </div>
     </div>
-
-    <div id="emulator-studio" style="display: flex; flex-direction: column; gap: 10px;">
-      <div class="dashboard-panel">
-        <div class="ad-banner-box">
-          <script src="https://pl31662254.profitableratecpmnetwork.com/1b/27/aa/1b27aafebf02c9db2b3e10e56229d3c1.js"></script>
-        </div>
-        <div class="control-group">
-          <label style="color: #ffaa00;">1. File BIOS PS1 (.bin):</label>
-          <input type="file" id="biosFile" accept=".bin" class="control-input">
-        </div>
-        <div class="control-group">
-          <label style="color: var(--accent-color);">2. File Game (.bin / .iso):</label>
-          <input type="file" id="romFile" accept=".bin,.cue,.iso,.img" class="control-input">
-        </div>
-        <div class="control-group" style="flex-direction: row; gap: 8px; justify-content: space-between; align-items: flex-end; grid-column: span 2;">
-          <button class="btn-action btn-play" onclick="bootMasterEngine()" style="flex: 2;">▶ JALANKAN GAME (1-KLIK)</button>
-          <button class="btn-action" onclick="toggleGamepad()" style="flex: 1;">Sembunyikan Stik</button>
-          <button class="btn-action btn-fullscreen" onclick="toggleFullscreen()" style="flex: 1;">⛶ Fullscreen</button>
-        </div>
+        <!-- D-Pad & Action Buttons Bawah -->
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px 10px;">
+      <div style="width: 85px; height: 85px; background: rgba(255,255,255,0.03); border-radius: 50%; border: 1px solid #00ffcc33; display: flex; align-items: center; justify-content: center; position: relative;">
+        <div style="position: absolute; top: 2px; cursor: pointer; color: #00ffcc; font-size: 12px;" onmousedown="KLabsPressButton('UP', true)" onmouseup="KLabsPressButton('UP', false)">▲</div>
+        <div style="position: absolute; bottom: 2px; cursor: pointer; color: #00ffcc; font-size: 12px;" onmousedown="KLabsPressButton('DOWN', true)" onmouseup="KLabsPressButton('DOWN', false)">▼</div>
+        <div style="position: absolute; left: 4px; cursor: pointer; color: #00ffcc; font-size: 12px;" onmousedown="KLabsPressButton('LEFT', true)" onmouseup="KLabsPressButton('LEFT', false)">◀</div>
+        <div style="position: absolute; right: 4px; cursor: pointer; color: #00ffcc; font-size: 12px;" onmousedown="KLabsPressButton('RIGHT', true)" onmouseup="KLabsPressButton('RIGHT', false)">▶</div>
       </div>
       
-      <div id="emulator-screen">
-        <div id="game"></div>
-        <div id="placeholder-text" style="position: absolute; color: var(--text-muted); font-size: 13px; text-align: center; padding: 0 20px; z-index: 5;">
-          Atur Setelan Pro, unggah BIOS & Game, lalu klik Jalankan Game!
-        </div>
-        
-        <div id="virtualGamepad" class="virtual-gamepad" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: flex; justify-content: space-between; align-items: flex-end; padding: 15px; box-sizing: border-box; z-index: 100;">
-          <div class="shoulder-left" style="position: absolute; top: 10px; left: 15px; display: flex; gap: 8px; pointer-events: auto;">
-            <button class="shoulder-btn" ontouchstart="pressKey('L1', true)" ontouchend="pressKey('L1', false)" onmousedown="pressKey('L1', true)" onmouseup="pressKey('L1', false)">L1</button>
-            <button class="shoulder-btn" ontouchstart="pressKey('L2', true)" ontouchend="pressKey('L2', false)" onmousedown="pressKey('L2', true)" onmouseup="pressKey('L2', false)">L2</button>
-          </div>
-          <div class="shoulder-right" style="position: absolute; top: 10px; right: 15px; display: flex; gap: 8px; pointer-events: auto;">
-            <button class="shoulder-btn" ontouchstart="pressKey('R1', true)" ontouchend="pressKey('R1', false)" onmousedown="pressKey('R1', true)" onmouseup="pressKey('R1', false)">R1</button>
-            <button class="shoulder-btn" ontouchstart="pressKey('R2', true)" ontouchend="pressKey('R2', false)" onmousedown="pressKey('R2', true)" onmouseup="pressKey('R2', false)">R2</button>
-          </div>
-          <div class="center-controls" style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; pointer-events: auto;">
-            <button class="sys-btn" style="opacity: var(--btn-opacity);" ontouchstart="pressKey('SELECT', true)" ontouchend="pressKey('SELECT', false)" onmousedown="pressKey('SELECT', true)" onmouseup="pressKey('SELECT', false)">SELECT</button>
-            <button class="sys-btn" style="opacity: var(--btn-opacity);">K-LABS</button>
-            <button class="sys-btn" style="opacity: var(--btn-opacity);" ontouchstart="pressKey('START', true)" ontouchend="pressKey('START', false)" onmousedown="pressKey('START', true)" onmouseup="pressKey('START', false)">START</button>
-          </div>
-          <div class="analog-container" id="analogBase" style="pointer-events: auto; width: 130px; height: 130px; background: rgba(11, 15, 25, var(--btn-opacity)); border: 2px solid var(--accent-color); border-radius: 50%; position: relative; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(4px); box-shadow: 0 0 12px var(--accent-glow); touch-action: none;">
-            <div class="analog-stick" id="analogStick" style="width: 55px; height: 55px; background: radial-gradient(circle, #334155 0%, #0f172a 100%); border: 2px solid var(--accent-color); border-radius: 50%; position: absolute; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.6); will-change: transform;"></div>
-          </div>
-          <div class="action-group" style="pointer-events: auto; display: grid; width: 130px; height: 130px; position: relative;">
-            <div class="v-btn btn-triangle" style="top: 0; left: 43px; position: absolute;" ontouchstart="pressKey('TRIANGLE', true)" ontouchend="pressKey('TRIANGLE', false)" onmousedown="pressKey('TRIANGLE', true)" onmouseup="pressKey('TRIANGLE', false)">△</div>
-            <div class="v-btn btn-square" style="top: 43px; left: 0; position: absolute;" ontouchstart="pressKey('SQUARE', true)" ontouchend="pressKey('SQUARE', false)" onmousedown="pressKey('SQUARE', true)" onmouseup="pressKey('SQUARE', false)">□</div>
-            <div class="v-btn btn-circle" style="top: 43px; left: 86px; position: absolute;" ontouchstart="pressKey('CIRCLE', true)" ontouchend="pressKey('CIRCLE', false)" onmousedown="pressKey('CIRCLE', true)" onmouseup="pressKey('CIRCLE', false)">○</div>
-            <div class="v-btn btn-cross" style="top: 86px; left: 43px; position: absolute;" ontouchstart="pressKey('CROSS', true)" ontouchend="pressKey('CROSS', false)" onmousedown="pressKey('CROSS', true)" onmouseup="pressKey('CROSS', false)">✕</div>
-          </div>
-        </div>
+      <div style="display: grid; grid-template-columns: repeat(2, 35px); gap: 6px;">
+        <button onmousedown="KLabsPressButton('SQUARE', true)" onmouseup="KLabsPressButton('SQUARE', false)" style="height: 35px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 50%; font-size: 12px;">□</button>
+        <button onmousedown="KLabsPressButton('TRIANGLE', true)" onmouseup="KLabsPressButton('TRIANGLE', false)" style="height: 35px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 50%; font-size: 12px;">△</button>
+        <button onmousedown="KLabsPressButton('CROSS', true)" onmouseup="KLabsPressButton('CROSS', false)" style="height: 35px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 50%; font-size: 12px;">✕</button>
+        <button onmousedown="KLabsPressButton('CIRCLE', true)" onmouseup="KLabsPressButton('CIRCLE', false)" style="height: 35px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 50%; font-size: 12px;">◯</button>
       </div>
     </div>
   </div>
-    <script>
-    let biosBlobUrl = null;
-    let romBlobUrl = null;
-    let currentBiosUrl = null;
-    let currentRomUrl = null;
 
-    document.getElementById('biosFile').addEventListener('change', e => {
-      const f = e.target.files[0];
-      if (f) {
-        if (currentBiosUrl) URL.revokeObjectURL(currentBiosUrl);
-        currentBiosUrl = URL.createObjectURL(f);
-        biosBlobUrl = currentBiosUrl;
-      }
-    });
-
-    document.getElementById('romFile').addEventListener('change', e => {
-      const f = e.target.files[0];
-      if (f) {
-        if (currentRomUrl) URL.revokeObjectURL(currentRomUrl);
-        currentRomUrl = URL.createObjectURL(f);
-        romBlobUrl = currentRomUrl;
-      }
-    });
-
-    document.addEventListener('keydown', e => {
-      if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') || (e.ctrlKey && e.key === 'u')) {
-        e.preventDefault();
-      }
-    });
-
-    function switchTab(evt, tabName) {
-      const panes = document.getElementsByClassName('tab-pane');
-      for (let p of panes) p.classList.remove('active');
-
-      const btns = document.getElementsByClassName('tab-btn');
-      for (let b of btns) b.classList.remove('active');
-
-      document.getElementById(tabName).classList.add('active');
-      evt.currentTarget.classList.add('active');
-    }
-
-    function toggleSettingsModal() {
-      const modal = document.getElementById('settingsModal');
-      modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
-    }
-
-    function saveUserSettings() {
-      const res = document.getElementById('setResolution').value;
-      const fastBoot = document.getElementById('setFastBoot').checked;
-      const vsync = document.getElementById('setVSync').checked;
-      const audioSync = document.getElementById('setAudioSync').checked;
-      const opacity = document.getElementById('setOpacity').value;
-
-      localStorage.setItem('klabs_res', res);
-      localStorage.setItem('klabs_fastboot', fastBoot);
-      localStorage.setItem('klabs_vsync', vsync);
-      localStorage.setItem('klabs_audiosync', audioSync);
-      localStorage.setItem('klabs_opacity', opacity);
-
-      toggleSettingsModal();
-      alert("Setelan Pro berhasil disimpan & diterapkan!");
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-      const savedRes = localStorage.getItem('klabs_res');
-      const savedOpacity = localStorage.getItem('klabs_opacity');
-
-      if (savedRes) document.getElementById('setResolution').value = savedRes;
-      if (savedOpacity) {
-        document.getElementById('setOpacity').value = savedOpacity;
-        changeOpacity(savedOpacity);
-      }
-    });
-
-    function changeOpacity(val) {
-      document.documentElement.style.setProperty('--btn-opacity', val);
-    }
-
-    function toggleGamepad() {
-      const pad = document.getElementById('virtualGamepad');
-      pad.style.display = pad.style.display === 'none' ? 'flex' : 'none';
-    }
-
-    function toggleFullscreen() {
-      const elem = document.getElementById('emulator-screen');
-      if (!document.fullscreenElement) {
-        elem.requestFullscreen?.() || elem.webkitRequestFullscreen?.();
-      } else {
-        document.exitFullscreen?.() || document.webkitExitFullscreen?.();
-      }
-    }
-          // Router Iframe yang meneruskan event tombol ke emulator secara langsung
-    function pressKey(btn, isDown) {
-      const iframe = document.querySelector('#game iframe');
-      if (!iframe || !iframe.contentWindow) return;
-
-      let keyCode;
-      switch(btn) {
-        case 'CROSS': keyCode = 'KeyX'; break;
-        case 'SQUARE': keyCode = 'KeyZ'; break;
-        case 'TRIANGLE': keyCode = 'KeyA'; break;
-        case 'CIRCLE': keyCode = 'KeyS'; break;
-        case 'L1': keyCode = 'KeyQ'; break;
-        case 'L2': keyCode = 'KeyW'; break;
-        case 'R1': keyCode = 'KeyE'; break;
-        case 'R2': keyCode = 'KeyR'; break;
-        case 'SELECT': keyCode = 'ShiftLeft'; break;
-        case 'START': keyCode = 'Enter'; break;
-        default: return;
-      }
-      
-      const eventType = isDown ? 'keydown' : 'keyup';
-      iframe.contentWindow.dispatchEvent(new KeyboardEvent(eventType, { code: keyCode, bubbles: true, cancelable: true }));
-    }
-
-    // Touch & Mouse Analog Handling
-    const analogBase = document.getElementById('analogBase');
-    const analogStick = document.getElementById('analogStick');
-    let isDragging = false;
-    let maxRadius = 38;
-    let currentX = 0, currentY = 0;
-    let rafId = null;
-
-    function updateStickPosition() {
-      analogStick.style.transform = `translate(${currentX}px, ${currentY}px)`;
-      rafId = null;
-    }
-
-    function handleAnalogMove(clientX, clientY) {
-      const rect = analogBase.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      
-      let dx = clientX - centerX;
-      let dy = clientY - centerY;
-      let distance = Math.sqrt(dx * dx + dy * dy);
-
-      if (distance > maxRadius) {
-        dx = (dx / distance) * maxRadius;
-        dy = (dy / distance) * maxRadius;
-      }
-
-      currentX = dx;
-      currentY = dy;
-
-      if (!rafId) rafId = requestAnimationFrame(updateStickPosition);
-    }
-    analogBase.addEventListener('mousedown', e => { isDragging = true; handleAnalogMove(e.clientX, e.clientY); });
-    window.addEventListener('mousemove', e => { if (!isDragging) return; handleAnalogMove(e.clientX, e.clientY); });
-    window.addEventListener('mouseup', () => { 
-      if (!isDragging) return; 
-      isDragging = false; 
-      currentX = 0; currentY = 0;
-      if (!rafId) rafId = requestAnimationFrame(updateStickPosition);
-    });
-
-    // MASTER ENGINE BOOT DENGAN K-LABS NATIVE CORE INTEGRATION
+  <!-- Skrip Penggerak Mesin K-Labs -->
+  <script>
     async function bootMasterEngine() {
       const biosInput = document.getElementById('biosFile');
       const romInput = document.getElementById('romFile');
@@ -571,49 +141,29 @@
         return;
       }
       if (!romInput.files[0]) {
-        alert("Harap pilih file Game (.bin/.iso) terlebih dahulu!");
+        alert("Harap pilih file Game ROM (.bin/.iso) terlebih dahulu!");
         return;
       }
 
-      document.getElementById('placeholder-text').style.display = 'none';
+      console.log("[K-Labs Studio] Memproses file biner ke memori inti mandiri...");
+      await window.KLabsEngine.loader.loadBIOS(biosInput.files[0]);
+      await window.KLabsEngine.loader.loadROM(romInput.files[0]);
 
-      const userRes = localStorage.getItem('klabs_res') || '1';
-      const userFastBoot = document.getElementById('setFastBoot') ? document.getElementById('setFastBoot').checked : true;
-      const userAudioSync = document.getElementById('setAudioSync') ? document.getElementById('setAudioSync').checked : true;
-
-      if (window.KLabsEngine) {
-        window.KLabsEngine.setDeviceProfile({
-          mode: userRes > 1 ? 'balanced' : 'light',
-          resolution: userRes,
-          fastBoot: userFastBoot,
-          audioSync: userAudioSync
-        });
-
-        console.log("[K-Labs Studio] Memproses file biner ke memori inti mandiri...");
-        await window.KLabsEngine.loader.loadBIOS(biosInput.files[0]);
-        await window.KLabsEngine.loader.loadROM(romInput.files[0]);
-
-        if (window.KLabsEngine.cpu) {
-          window.KLabsEngine.cpu.reset();
-          window.KLabsEngine.cpu.isRunning = true;
-          
-          // Jalankan Siklus Eksekusi Inti Mandiri K-Labs
-          if (window.KLabsEngine.execution) {
-            window.KLabsEngine.execution.startLoop();
-          }
-          
-          console.log("[K-Labs Studio] CPU MIPS R3000A & Main Execution Loop diaktifkan!");
-        }
+      if (window.KLabsEngine.cpu) {
+        window.KLabsEngine.cpu.reset();
+        window.KLabsEngine.cpu.isRunning = true;
         
-        alert("Mahakarya K-Labs: Mesin inti mandiri berhasil di-boot dan memori game telah dimuat!");
-      } else {
-        alert("Gagal memuat Core Engine. Pastikan file Core.js terhubung dengan benar.");
+        if (window.KLabsEngine.execution) {
+          window.KLabsEngine.execution.startLoop();
+        }
       }
+
+      console.log("[K-Labs Studio] CPU MIPS R3000A & Main Execution Loop diaktifkan!");
+      alert("Mahakarya K-Labs: Mesin inti mandiri berhasil di-boot dan memori game telah dimuat!");
     }
   </script>
 
   <!-- Panggil Core Engine Mandiri K-Labs -->
   <script src="core.js"></script>
-
 </body>
 </html>
