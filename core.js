@@ -350,8 +350,11 @@ class KLabsGPURenderer {
     container.innerHTML = '';
     container.appendChild(this.canvas);
     
-    this.ctx = this.canvas.getContext('2d');
+        this.ctx = this.canvas.getContext('2d');
     console.log("[K-Labs GPU] Kialdevaro Hardware Rasterizer Pipeline initialized securely.");
+
+    // Tambahkan baris ini di sini:
+    this.renderFrame();
   }
 
   renderFrame() {
