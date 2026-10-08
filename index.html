@@ -1,5 +1,5 @@
 <!-- ===================================================================== -->
-<!-- K-LABS RETRO ENGINE - INTERFACE ARCHITECTURE v5.0 (BAGIAN 1)         -->
+<!-- K-LABS RETRO ENGINE - ULTRA INTERFACE ARCHITECTURE v5.0 (BAGIAN 1)   -->
 <!-- Copyright © 2026 Kialdevaro Group. All Rights Reserved.               -->
 <!-- ===================================================================== -->
 <!DOCTYPE html>
@@ -7,7 +7,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>K-Labs Retro Engine - Kialdevaro Group</title>
+  <title>K-Labs Retro Engine Ultra - Kialdevaro Group</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { 
@@ -15,39 +15,41 @@
       color: #f8fafc; 
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
       overflow-x: hidden; 
+      padding-bottom: 20px;
     }
     .container { 
-      max-width: 800px; 
+      max-width: 850px; 
       margin: 0 auto; 
-      padding: 10px; 
+      padding: 12px; 
       display: flex; 
       flex-direction: column; 
-      gap: 10px; 
+      gap: 12px; 
     }
     .header-panel { 
-      background: rgba(15, 23, 42, 0.8); 
-      border: 1px solid rgba(0, 255, 204, 0.2); 
-      border-radius: 12px; 
-      padding: 12px; 
-      backdrop-filter: blur(10px); 
+      background: rgba(15, 23, 42, 0.85); 
+      border: 1px solid rgba(0, 255, 204, 0.3); 
+      border-radius: 14px; 
+      padding: 14px; 
+      backdrop-filter: blur(12px); 
       display: flex; 
       justify-content: space-between; 
       align-items: center; 
+      box-shadow: 0 8px 32px rgba(0, 255, 204, 0.1);
     }
     .brand-title { 
-      font-size: 14px; 
+      font-size: 15px; 
       font-weight: bold; 
       color: #00ffcc; 
-      letter-spacing: 1px; 
+      letter-spacing: 1.5px; 
     }
     .control-panel { 
       background: rgba(15, 23, 42, 0.9); 
-      border: 1px solid rgba(0, 255, 204, 0.2); 
-      border-radius: 12px; 
-      padding: 12px; 
+      border: 1px solid rgba(0, 255, 204, 0.25); 
+      border-radius: 14px; 
+      padding: 14px; 
       display: flex; 
       flex-direction: column; 
-      gap: 8px; 
+      gap: 10px; 
     }
     .file-group { 
       display: flex; 
@@ -66,15 +68,16 @@
       color: #030712; 
       border: none; 
       font-weight: bold; 
-      padding: 10px 16px; 
-      border-radius: 8px; 
+      padding: 12px 18px; 
+      border-radius: 10px; 
       cursor: pointer; 
       text-align: center; 
-      font-size: 13px; 
+      font-size: 14px; 
       transition: 0.2s; 
+      box-shadow: 0 4px 20px rgba(0, 255, 204, 0.3);
     }
     .btn-run:hover { 
-      opacity: 0.9; 
+      opacity: 0.95; 
       transform: scale(1.01); 
     }
   </style>
@@ -82,12 +85,10 @@
 <body>
   <div class="container">
     <div class="header-panel">
-      <div class="brand-title">K-LABS RETRO ENGINE</div>
-      <div style="font-size: 11px; color: #94a3b8;">© 2026 Kialdevaro Group</div>
+      <div class="brand-title">K-LABS RETRO ENGINE // ULTRA v5.0</div>
+      <div style="font-size: 11px; color: #38bdf8; font-weight: 600;">© 2026 Kialdevaro Group</div>
     </div>
-<!-- ===================================================================== -->
-<!-- K-LABS RETRO ENGINE - INTERFACE ARCHITECTURE v5.0 (BAGIAN 2)         -->
-<!-- ===================================================================== -->
+
     <div class="control-panel">
       <div class="file-group">
         <span>1. FILE BIOS PS1 (.bin):</span>
@@ -97,60 +98,55 @@
         <span>2. FILE GAME ROM (.bin/.iso):</span>
         <input type="file" id="romFile">
       </div>
-      <button class="btn-run" onclick="bootMasterEngine()">▶ JALANKAN GAME (1-KLIK)</button>
+      <button class="btn-run" onclick="bootMasterEngine()">▶ JALANKAN ULTRA ENGINE (WEBGL2)</button>
     </div>
     
-    <!-- Wadah Kanvas Grafis Utama (ID 'game' wajib ada untuk core.js) -->
-    <div id="game" style="width: 100%; aspect-ratio: 4/3; background: #030712; border-radius: 12px; border: 1px solid rgba(0,255,204,0.3); overflow: hidden; display: flex; align-items: center; justify-content: center;">
+    <!-- Wadah Kanvas GPU WebGL2 Tingkat Dewa -->
+    <div id="game" style="width: 100%; aspect-ratio: 4/3; background: #030712; border-radius: 14px; border: 1px solid rgba(0,255,204,0.4); overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 30px rgba(0,255,204,0.05);">
     </div>
 
-    <!-- Tombol Fitur Lanjutan Pro (Fullscreen, Save State, Load State) -->
-    <div style="display: flex; gap: 6px;">
-      <button onclick="document.getElementById('game').requestFullscreen()" style="flex:1; background:#1e293b; color:#00ffcc; border:1px solid #00ffcc44; border-radius:6px; padding:6px; font-size:11px; cursor:pointer;">⛶ FULLSCREEN</button>
-      <button onclick="window.KLabsEngine.advanced.saveState()" style="flex:1; background:#1e293b; color:#38bdf8; border:1px solid #38bdf844; border-radius:6px; padding:6px; font-size:11px; cursor:pointer;">💾 SAVE</button>
-      <button onclick="window.KLabsEngine.advanced.loadState()" style="flex:1; background:#1e293b; color:#38bdf8; border:1px solid #38bdf844; border-radius:6px; padding:6px; font-size:11px; cursor:pointer;">📂 LOAD</button>
+    <!-- Tombol Fitur Pro (Fullscreen, Save/Load State) -->
+    <div style="display: flex; gap: 8px;">
+      <button onclick="document.getElementById('game').requestFullscreen()" style="flex:1; background:#1e293b; color:#00ffcc; border:1px solid #00ffcc44; border-radius:8px; padding:8px; font-size:11px; cursor:pointer; font-weight:bold;">⛶ FULLSCREEN</button>
+      <button onclick="window.KLabsEngine.advanced.saveState()" style="flex:1; background:#1e293b; color:#38bdf8; border:1px solid #38bdf844; border-radius:8px; padding:8px; font-size:11px; cursor:pointer; font-weight:bold;">💾 SAVE STATE</button>
+      <button onclick="window.KLabsEngine.advanced.loadState()" style="flex:1; background:#1e293b; color:#38bdf8; border:1px solid #38bdf844; border-radius:8px; padding:8px; font-size:11px; cursor:pointer; font-weight:bold;">📂 LOAD STATE</button>
     </div>
-    <!-- ===================================================================== -->
-<!-- K-LABS RETRO ENGINE - INTERFACE ARCHITECTURE v5.0 (BAGIAN 3)         -->
-<!-- ===================================================================== -->
-    <!-- Panel Tombol Bahu & Menu Stik Virtual -->
-    <div style="background: rgba(15, 23, 42, 0.8); border-radius: 12px; padding: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(0,255,204,0.1);">
-      <div style="display: flex; gap: 5px;">
-        <button onmousedown="KLabsPressButton('L1', true)" onmouseup="KLabsPressButton('L1', false)" ontouchstart="KLabsPressButton('L1', true)" ontouchend="KLabsPressButton('L1', false)" style="padding: 6px 12px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 6px; font-size: 11px;">L1</button>
-        <button onmousedown="KLabsPressButton('L2', true)" onmouseup="KLabsPressButton('L2', false)" ontouchstart="KLabsPressButton('L2', true)" ontouchend="KLabsPressButton('L2', false)" style="padding: 6px 12px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 6px; font-size: 11px;">L2</button>
+
+    <!-- Panel Tombol Bahu Stik Virtual -->
+    <div style="background: rgba(15, 23, 42, 0.85); border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(0,255,204,0.15);">
+      <div style="display: flex; gap: 6px;">
+        <button onmousedown="KLabsPressButton('L1', true)" onmouseup="KLabsPressButton('L1', false)" ontouchstart="KLabsPressButton('L1', true)" ontouchend="KLabsPressButton('L1', false)" style="padding: 8px 14px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 6px; font-size: 11px; font-weight:bold;">L1</button>
+        <button onmousedown="KLabsPressButton('L2', true)" onmouseup="KLabsPressButton('L2', false)" ontouchstart="KLabsPressButton('L2', true)" ontouchend="KLabsPressButton('L2', false)" style="padding: 8px 14px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 6px; font-size: 11px; font-weight:bold;">L2</button>
       </div>
-      <div style="display: flex; gap: 8px;">
-        <button onmousedown="KLabsPressButton('SELECT', true)" onmouseup="KLabsPressButton('SELECT', false)" ontouchstart="KLabsPressButton('SELECT', true)" ontouchend="KLabsPressButton('SELECT', false)" style="padding: 4px 10px; background: #1e293b; color: #94a3b8; border: 1px solid #ffffff22; border-radius: 4px; font-size: 10px;">SELECT</button>
-        <button onmousedown="KLabsPressButton('START', true)" onmouseup="KLabsPressButton('START', false)" ontouchstart="KLabsPressButton('START', true)" ontouchend="KLabsPressButton('START', false)" style="padding: 4px 10px; background: #1e293b; color: #94a3b8; border: 1px solid #ffffff22; border-radius: 4px; font-size: 10px;">START</button>
+      <div style="display: flex; gap: 10px;">
+        <button onmousedown="KLabsPressButton('SELECT', true)" onmouseup="KLabsPressButton('SELECT', false)" ontouchstart="KLabsPressButton('SELECT', true)" ontouchend="KLabsPressButton('SELECT', false)" style="padding: 6px 12px; background: #1e293b; color: #94a3b8; border: 1px solid #ffffff22; border-radius: 6px; font-size: 10px; font-weight:bold;">SELECT</button>
+        <button onmousedown="KLabsPressButton('START', true)" onmouseup="KLabsPressButton('START', false)" ontouchstart="KLabsPressButton('START', true)" ontouchend="KLabsPressButton('START', false)" style="padding: 6px 12px; background: #1e293b; color: #94a3b8; border: 1px solid #ffffff22; border-radius: 6px; font-size: 10px; font-weight:bold;">START</button>
       </div>
-      <div style="display: flex; gap: 5px;">
-        <button onmousedown="KLabsPressButton('R1', true)" onmouseup="KLabsPressButton('R1', false)" ontouchstart="KLabsPressButton('R1', true)" ontouchend="KLabsPressButton('R1', false)" style="padding: 6px 12px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 6px; font-size: 11px;">R1</button>
-        <button onmousedown="KLabsPressButton('R2', true)" onmouseup="KLabsPressButton('R2', false)" ontouchstart="KLabsPressButton('R2', true)" ontouchend="KLabsPressButton('R2', false)" style="padding: 6px 12px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 6px; font-size: 11px;">R2</button>
+      <div style="display: flex; gap: 6px;">
+        <button onmousedown="KLabsPressButton('R1', true)" onmouseup="KLabsPressButton('R1', false)" ontouchstart="KLabsPressButton('R1', true)" ontouchend="KLabsPressButton('R1', false)" style="padding: 8px 14px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 6px; font-size: 11px; font-weight:bold;">R1</button>
+        <button onmousedown="KLabsPressButton('R2', true)" onmouseup="KLabsPressButton('R2', false)" ontouchstart="KLabsPressButton('R2', true)" ontouchend="KLabsPressButton('R2', false)" style="padding: 8px 14px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 6px; font-size: 11px; font-weight:bold;">R2</button>
       </div>
     </div>
     
-    <!-- D-Pad & Action Buttons Bawah -->
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px 10px;">
-      <div style="width: 85px; height: 85px; background: rgba(255,255,255,0.03); border-radius: 50%; border: 1px solid #00ffcc33; display: flex; align-items: center; justify-content: center; position: relative;">
-        <div style="position: absolute; top: 2px; cursor: pointer; color: #00ffcc; font-size: 12px;" onmousedown="KLabsPressButton('UP', true)" onmouseup="KLabsPressButton('UP', false)">▲</div>
-        <div style="position: absolute; bottom: 2px; cursor: pointer; color: #00ffcc; font-size: 12px;" onmousedown="KLabsPressButton('DOWN', true)" onmouseup="KLabsPressButton('DOWN', false)">▼</div>
-        <div style="position: absolute; left: 4px; cursor: pointer; color: #00ffcc; font-size: 12px;" onmousedown="KLabsPressButton('LEFT', true)" onmouseup="KLabsPressButton('LEFT', false)">◀</div>
-        <div style="position: absolute; right: 4px; cursor: pointer; color: #00ffcc; font-size: 12px;" onmousedown="KLabsPressButton('RIGHT', true)" onmouseup="KLabsPressButton('RIGHT', false)">▶</div>
+    <!-- D-Pad & Tombol Aksi -->
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px 12px;">
+      <div style="width: 95px; height: 95px; background: rgba(255,255,255,0.02); border-radius: 50%; border: 1px solid #00ffcc33; display: flex; align-items: center; justify-content: center; position: relative;">
+        <div style="position: absolute; top: 4px; cursor: pointer; color: #00ffcc; font-size: 14px;" onmousedown="KLabsPressButton('UP', true)" onmouseup="KLabsPressButton('UP', false)">▲</div>
+        <div style="position: absolute; bottom: 4px; cursor: pointer; color: #00ffcc; font-size: 14px;" onmousedown="KLabsPressButton('DOWN', true)" onmouseup="KLabsPressButton('DOWN', false)">▼</div>
+        <div style="position: absolute; left: 6px; cursor: pointer; color: #00ffcc; font-size: 14px;" onmousedown="KLabsPressButton('LEFT', true)" onmouseup="KLabsPressButton('LEFT', false)">◀</div>
+        <div style="position: absolute; right: 6px; cursor: pointer; color: #00ffcc; font-size: 14px;" onmousedown="KLabsPressButton('RIGHT', true)" onmouseup="KLabsPressButton('RIGHT', false)">▶</div>
       </div>
       
-      <div style="display: grid; grid-template-columns: repeat(2, 35px); gap: 6px;">
-        <button onmousedown="KLabsPressButton('SQUARE', true)" onmouseup="KLabsPressButton('SQUARE', false)" style="height: 35px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 50%; font-size: 12px;">□</button>
-        <button onmousedown="KLabsPressButton('TRIANGLE', true)" onmouseup="KLabsPressButton('TRIANGLE', false)" style="height: 35px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 50%; font-size: 12px;">△</button>
-        <button onmousedown="KLabsPressButton('CROSS', true)" onmouseup="KLabsPressButton('CROSS', false)" style="height: 35px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 50%; font-size: 12px;">✕</button>
-        <button onmousedown="KLabsPressButton('CIRCLE', true)" onmouseup="KLabsPressButton('CIRCLE', false)" style="height: 35px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 50%; font-size: 12px;">◯</button>
+      <div style="display: grid; grid-template-columns: repeat(2, 40px); gap: 8px;">
+        <button onmousedown="KLabsPressButton('SQUARE', true)" onmouseup="KLabsPressButton('SQUARE', false)" style="height: 40px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 50%; font-size: 13px; font-weight:bold;">□</button>
+        <button onmousedown="KLabsPressButton('TRIANGLE', true)" onmouseup="KLabsPressButton('TRIANGLE', false)" style="height: 40px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 50%; font-size: 13px; font-weight:bold;">△</button>
+        <button onmousedown="KLabsPressButton('CROSS', true)" onmouseup="KLabsPressButton('CROSS', false)" style="height: 40px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 50%; font-size: 13px; font-weight:bold;">✕</button>
+        <button onmousedown="KLabsPressButton('CIRCLE', true)" onmouseup="KLabsPressButton('CIRCLE', false)" style="height: 40px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 50%; font-size: 13px; font-weight:bold;">◯</button>
       </div>
     </div>
-    <!-- ===================================================================== -->
-<!-- K-LABS RETRO ENGINE - INTERFACE ARCHITECTURE v5.0 (BAGIAN 4)         -->
-<!-- ===================================================================== -->
   </div>
 
-  <!-- Skrip Penggerak Mesin K-Labs -->
+  <!-- Skrip Eksekusi Engine -->
   <script>
     async function bootMasterEngine() {
       try {
@@ -167,11 +163,11 @@
         }
 
         if (!window.KLabsEngine || !window.KLabsEngine.loader) {
-          alert("Galat: Core Engine (core.js) belum terhubung atau dimuat dengan benar!");
+          alert("Galat: Core Engine (core.js) belum terhubung dengan benar!");
           return;
         }
 
-        console.log("[K-Labs Studio] Memproses file biner ke memori inti mandiri...");
+        console.log("[K-Labs Studio] Memproses file biner ke Ultra-Memory Bus...");
         
         await window.KLabsEngine.loader.loadBIOS(biosInput.files[0]);
         await window.KLabsEngine.loader.loadROM(romInput.files[0]);
@@ -183,9 +179,9 @@
 
         if (window.KLabsEngine.execution) {
           window.KLabsEngine.execution.startLoop();
-          console.log("[K-Labs Studio] Master Execution Loop berhasil diaktifkan!");
+          console.log("[K-Labs Studio] Master Ultra Execution Loop berhasil diaktifkan!");
         } else {
-          alert("Galat: Execution Engine tidak ditemukan di dalam memori!");
+          alert("Galat: Execution Engine tidak ditemukan!");
         }
 
       } catch (error) {
@@ -195,7 +191,7 @@
     }
   </script>
 
-  <!-- Panggil Core Engine Mandiri K-Labs -->
+  <!-- Panggil Skrip Inti -->
   <script src="core.js"></script>
 </body>
 </html>
