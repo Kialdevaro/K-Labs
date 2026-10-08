@@ -1,13 +1,14 @@
 /**
  * =====================================================================
- * K-LABS PROPRIETARY CORE ENGINE - MASTER ARCHITECTURE v5.0 (BAGIAN 1)
+ * K-LABS PROPRIETARY CORE ENGINE - MASTER ARCHITECTURE v5.0 (UNIFIED)
  * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
- * Secured Enterprise Edition: Zero-Loophole Memory & MIPS CPU Emulator
+ * Secured Enterprise Edition: Zero-Loophole Memory, MIPS CPU, & Ultra-GPU WebGL2
  * =====================================================================
  */
 
 'use strict';
 
+// --- 1. SISTEM INTI & KELAS UTAMA ---
 class KLabsCoreSystem {
   constructor() {
     this.brand = "Kialdevaro Group - K-Labs Retro Engine Ultra v5.0";
@@ -15,7 +16,7 @@ class KLabsCoreSystem {
     
     this.profile = {
       mode: 'ultra',          
-      internalResolution: 4,  // Native 4K/HD Upscaling Pipeline
+      internalResolution: 4,  
       fastBoot: true,
       audioSync: true
     };
@@ -24,7 +25,7 @@ class KLabsCoreSystem {
       mainRAM: new ArrayBuffer(2 * 1024 * 1024), 
       biosROM: new ArrayBuffer(512 * 1024),      
       scratchpad: new ArrayBuffer(1024),         
-      vram: new ArrayBuffer(4 * 1024 * 1024),    // 4 MB High-Capacity VRAM Buffer
+      vram: new ArrayBuffer(4 * 1024 * 1024),    
       hardwareRegs: new Uint32Array(256),        
       
       ramView32: null,
@@ -50,6 +51,7 @@ Object.defineProperty(window, 'KLabsEngine', {
   configurable: false
 });
 
+// --- 2. MEMORY BUS & FILE LOADER ---
 class KLabsMemoryBus {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -119,6 +121,7 @@ class KLabsFileLoader {
   }
 }
 
+// --- 3. MIPS CPU R3000A ---
 class KLabsMIPSProcessor {
   constructor(memoryBus) {
     this.mem = memoryBus;
@@ -159,7 +162,7 @@ class KLabsMIPSProcessor {
     this.PC = this.nextPC;
     this.nextPC = this.PC + 4;
 
-    if (instruction === 0) return; // NOP
+    if (instruction === 0) return;
 
     const opcode = (instruction >>> 26) & 0x3F;
     const rs     = (instruction >>> 21) & 0x1F;
@@ -210,11 +213,11 @@ class KLabsMIPSProcessor {
   }
 }
 
+// --- 4. CD-ROM & SPU ---
 class KLabsCDROMController {
   constructor(coreSystem) {
     this.core = coreSystem;
     this.discData = null;
-    this.sectorSize = 2048;
     this.isInserted = false;
   }
 
@@ -245,22 +248,7 @@ class KLabsSoundProcessor {
   }
 }
 
-if (window.KLabsEngine) {
-  window.KLabsEngine.bus = new KLabsMemoryBus(window.KLabsEngine);
-  window.KLabsEngine.loader = new KLabsFileLoader(window.KLabsEngine);
-  window.KLabsEngine.cpu = new KLabsMIPSProcessor(window.KLabsEngine.bus);
-  window.KLabsEngine.cdrom = new KLabsCDROMController(window.KLabsEngine);
-  window.KLabsEngine.spu = new KLabsSoundProcessor(window.KLabsEngine);
-}
-/**
- * =====================================================================
- * K-LABS PROPRIETARY CORE ENGINE - MASTER ARCHITECTURE v5.0 (BAGIAN 2)
- * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
- * Ultra-GPU WebGL2 Pipeline, Post-Processing, Joypad, & Advanced Features
- * =====================================================================
- */
-
-// --- K-LABS ULTRA-GPU RENDERER (Melampaui DuckStation & ePSXe) ---
+// --- 5. ULTRA-GPU RENDERER (WEBGL2) ---
 class KKlabsUltraGPURenderer {
   constructor(coreSystem, containerId = 'game') {
     this.core = coreSystem;
@@ -286,7 +274,7 @@ class KKlabsUltraGPURenderer {
     if (this.canvas) return;
 
     this.canvas = document.createElement('canvas');
-    this.canvas.width = 1920; // Native High-Resolution 1080p/4K Buffer
+    this.canvas.width = 1920;
     this.canvas.height = 1440;
     this.canvas.style.width = '100%';
     this.canvas.style.height = '100%';
@@ -302,15 +290,13 @@ class KKlabsUltraGPURenderer {
       return;
     }
 
-    console.log("[K-Labs Ultra-GPU] WebGL2 Pipeline & Sub-Pixel Precision aktif.");
+    console.log("[K-Labs Ultra-GPU] WebGL2 Pipeline aktif.");
     this.initShadersAndBuffers();
     this.renderFrame();
   }
 
   initShadersAndBuffers() {
     const gl = this.gl;
-    
-    // Vertex Shader dengan Perspektif Koreksi Mutlak (Menghilangkan Wobble Poligon PS1)
     const vsSource = `#version 300 es
       in vec2 aPosition;
       in vec2 aTexCoord;
@@ -321,7 +307,6 @@ class KKlabsUltraGPURenderer {
       }
     `;
 
-    // Fragment Shader tingkat dewa dengan Dynamic Bloom, Texture Upscaling, & Cinematic Grading
     const fsSource = `#version 300 es
       precision highp float;
       in vec2 vTexCoord;
@@ -331,22 +316,18 @@ class KKlabsUltraGPURenderer {
 
       void main() {
         vec2 uv = vTexCoord;
-        vec3 col = vec3(0.03, 0.07, 0.18); // Tema K-Labs Dark Cinematic
+        vec3 col = vec3(0.03, 0.07, 0.18);
 
         if (uIsRunning == 1) {
-          // Simulasi Efek Ray-Traced Glow & High-Res Upscaling Rasterizer
           float wave = sin(uv.x * 15.0 + uTime * 3.0) * cos(uv.y * 15.0 + uTime * 3.0);
           vec3 neonColor = vec3(0.0, 1.0, 0.8);
           col += neonColor * abs(wave) * 0.4;
           
-          // Grid presisi tinggi ala K-Labs Engine
           vec2 grid = fract(uv * 20.0);
           if (grid.x < 0.03 || grid.y < 0.03) {
             col += vec3(0.0, 0.4, 0.3) * 0.5;
           }
         }
-
-        // Cinematic Contrast Enhancement
         col = pow(col, vec3(0.95));
         fragColor = vec4(col, 1.0);
       }
@@ -367,7 +348,6 @@ class KKlabsUltraGPURenderer {
     gl.attachShader(this.program, fs);
     gl.linkProgram(this.program);
 
-    // Quad Geometry Buffer
     const quadVertices = new Float32Array([
       -1, -1,  0, 1,
        1, -1,  1, 1,
@@ -408,7 +388,7 @@ class KKlabsUltraGPURenderer {
   }
 }
 
-// --- EXECUTION ENGINE & FRAME LIMITER ---
+// --- 6. EXECUTION ENGINE & ADVANCED FEATURES ---
 class KLabsExecutionEngine {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -426,7 +406,7 @@ class KLabsExecutionEngine {
   runTick() {
     if (!this.core.cpu || !this.core.cpu.isRunning) return;
 
-    const instructionsPerTick = 5000; // Ultra-Speed Processing
+    const instructionsPerTick = 5000;
     for (let i = 0; i < instructionsPerTick; i++) {
       this.core.cpu.step();
     }
@@ -439,7 +419,6 @@ class KLabsExecutionEngine {
   }
 }
 
-// --- VIRTUAL JOYPAD & KEYBOARD MAPPER ---
 class KLabsJoypadController {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -478,7 +457,6 @@ class KLabsJoypadController {
   }
 }
 
-// --- ADVANCED FEATURES (Save/Load State & Keyboard) ---
 class KLabsAdvancedFeatures {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -537,15 +515,20 @@ class KLabsAdvancedFeatures {
   }
 }
 
-// Inisialisasi Modul Global Terkunci
+// --- 7. PENGIKATAN MODUL KE GLOBAL WINDOW ---
 if (window.KLabsEngine) {
+  window.KLabsEngine.bus = new KLabsMemoryBus(window.KLabsEngine);
+  window.KLabsEngine.loader = new KLabsFileLoader(window.KLabsEngine);
+  window.KLabsEngine.cpu = new KLabsMIPSProcessor(window.KLabsEngine.bus);
+  window.KLabsEngine.cdrom = new KLabsCDROMController(window.KLabsEngine);
+  window.KLabsEngine.spu = new KLabsSoundProcessor(window.KLabsEngine);
   window.KLabsEngine.gpu = new KKlabsUltraGPURenderer(window.KLabsEngine, 'game');
   window.KLabsEngine.execution = new KLabsExecutionEngine(window.KLabsEngine);
   window.KLabsEngine.joypad = new KLabsJoypadController(window.KLabsEngine);
   window.KLabsEngine.advanced = new KLabsAdvancedFeatures(window.KLabsEngine);
 
   console.info(
-    `%c[K-LABS ULTRA ENGINE v5.0 SECURED] %cMahakarya Kialdevaro Group (WebGL2 Ultra Pipeline) Berhasil Dimuat.`,
+    `%c[K-LABS ULTRA ENGINE v5.0 SECURED] %cMahakarya Kialdevaro Group Berhasil Dimuat.`,
     "color: #00ffcc; font-weight: bold; background: #030712; padding: 4px 8px; border-radius: 4px;",
     "color: #94a3b8; font-weight: normal;"
   );
