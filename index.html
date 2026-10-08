@@ -163,9 +163,9 @@
         }
 
         if (!window.KLabsEngine || !window.KLabsEngine.loader) {
-          alert("Galat: Core Engine (core.js) belum terhubung dengan benar!");
-          return;
-        }
+           alert("Galat: Core Engine (core.js) belum terhubung dengan benar!");
+           return;
+          }
 
         console.log("[K-Labs Studio] Memproses file biner ke Ultra-Memory Bus...");
         
@@ -191,7 +191,16 @@
     }
   </script>
 
-  <!-- Panggil Core Engine Mandiri K-Labs dengan Cache Buster -->
-<script src="core.js?v=2.0"></script>
+    <!-- Panggil Core Engine Mandiri K-Labs Otomatis -->
+  <script>
+    (function() {
+      const script = document.createElement('script');
+      const isGitHubPages = window.location.hostname.includes('github.io');
+      const basePath = isGitHubPages && !window.location.pathname.startsWith('/K-Labs/') ? '/K-Labs/' : '';
+      
+      script.src = basePath + 'core.js?v=' + Date.now();
+      document.body.appendChild(script);
+    })();
+  </script>
 </body>
 </html>
