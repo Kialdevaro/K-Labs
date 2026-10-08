@@ -1,9 +1,9 @@
 /**
  * =====================================================================
- * K-LABS PROPRIETARY CORE ENGINE - MASTER ARCHITECTURE v5.0 (ULTRA-MODERN)
+ * K-LABS PROPRIETARY CORE ENGINE - MASTER ARCHITECTURE v5.0 (TRIPLE-UPGRADE)
  * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
- * Secured Enterprise Edition: Zero-Loophole Memory, MIPS CPU, 
- * Ultra-GPU WebGL2 (Cinematic Aesthetics), & Unlimited FPS Engine
+ * Secured Enterprise Edition: CD-ROM Parser, Expanded MIPS/GTE, 
+ * Ultra-GPU WebGL2, Unlimited FPS, & Real-Time Cyberpunk HUD
  * =====================================================================
  */
 
@@ -20,19 +20,26 @@ class KLabsCoreSystem {
       internalResolution: 4,  // Native 4K Pipeline Simulation
       fastBoot: true,
       audioSync: true,
-      unlockedFPS: true       // Fitur Kontrol FPS Tak Terbatas Aktif Default
+      unlockedFPS: true       // Kontrol FPS Tak Terbatas Aktif
     };
 
     this.memory = {
-      mainRAM: new ArrayBuffer(2 * 1024 * 1024), 
-      biosROM: new ArrayBuffer(512 * 1024),      
-      scratchpad: new ArrayBuffer(1024),         
-      vram: new ArrayBuffer(4 * 1024 * 1024),    
-      hardwareRegs: new Uint32Array(256),        
+      mainRAM: new ArrayBuffer(2 * 1024 * 1024), // 2 MB Main RAM
+      biosROM: new ArrayBuffer(512 * 1024),      // 512 KB BIOS
+      scratchpad: new ArrayBuffer(1024),         // 1 KB Scratchpad
+      vram: new ArrayBuffer(4 * 1024 * 1024),    // 4 MB VRAM
+      hardwareRegs: new Uint32Array(256),        // Hardware Registers
       
       ramView32: null,
       biosView32: null,
       vramView16: null
+    };
+
+    this.stats = {
+      fps: 0,
+      frameCount: 0,
+      lastTime: performance.now(),
+      instructionsExecuted: 0
     };
 
     this.initSecuredMemoryBus();
@@ -58,7 +65,7 @@ Object.defineProperty(window, 'KLabsEngine', {
   configurable: false
 });
 
-// --- 2. MEMORY BUS & FILE LOADER ---
+// --- 2. MEMORY BUS ---
 class KLabsMemoryBus {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -91,6 +98,37 @@ class KLabsMemoryBus {
   }
 }
 
+// --- 3. STEP 1: ADVANCED CD-ROM SECTOR PARSER ---
+class KLabsCDROMController {
+  constructor(coreSystem) {
+    this.core = coreSystem;
+    this.discData = null;
+    this.sectorSize = 2048;
+    this.isInserted = false;
+    this.totalSectors = 0;
+  }
+
+  mountDisc(arrayBuffer) {
+    this.discData = arrayBuffer;
+    this.isInserted = true;
+    const totalBytes = arrayBuffer.byteLength;
+    this.sectorSize = (totalBytes % 2352 === 0) ? 2352 : 2048;
+    this.totalSectors = Math.floor(totalBytes / this.sectorSize);
+    console.log(`[K-Labs CD-ROM Parser] Disc mounted successfully. Format: ${this.sectorSize} bytes/sector, Total Sectors: ${this.totalSectors}, Size: ${(totalBytes / (1024*1024)).toFixed(2)} MB`);
+  }
+
+  readSector(lba) {
+    if (!this.isInserted || !this.discData) return null;
+    if (lba < 0 || lba >= this.totalSectors) return null;
+    
+    const headerOffset = (this.sectorSize === 2352) ? 24 : 0;
+    const byteOffset = (lba * this.sectorSize) + headerOffset;
+    
+    if (byteOffset + 2048 > this.discData.byteLength) return null;
+    return new Uint8Array(this.discData, byteOffset, 2048);
+  }
+}
+
 class KLabsFileLoader {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -119,7 +157,7 @@ class KLabsFileLoader {
       if (this.core.cdrom) {
         this.core.cdrom.mountDisc(arrayBuffer);
       }
-      console.log("[K-Labs Loader] Secured Game ROM loaded successfully.");
+      console.log("[K-Labs Loader] Secured Game ROM parsed and mounted successfully.");
       return true;
     } catch (e) {
       console.error("[K-Labs Loader Error] Game ROM load failed:", e);
@@ -128,7 +166,18 @@ class KLabsFileLoader {
   }
 }
 
-// --- 3. MIPS CPU R3000A ---
+// --- 4. STEP 2: EXPANDED MIPS CPU R3000A & GTE STUB ---
+class KLabsGeometryEngine {
+  constructor() {
+    this.matrix = new Float32Array(9); // GTE Matrix Transformation Stub
+    this.translation = new Float32Array(3);
+  }
+  reset() {
+    this.matrix.fill(0);
+    this.translation.fill(0);
+  }
+}
+
 class KLabsMIPSProcessor {
   constructor(memoryBus) {
     this.mem = memoryBus;
@@ -139,6 +188,7 @@ class KLabsMIPSProcessor {
     this.nextPC = this.PC + 4;
     this.currentPC = this.PC;
     this.isRunning = false;
+    this.gte = new KLabsGeometryEngine();
   }
 
   reset() {
@@ -148,7 +198,8 @@ class KLabsMIPSProcessor {
     this.PC = 0xbfc00000;
     this.nextPC = this.PC + 4;
     this.currentPC = this.PC;
-    console.log("[K-Labs CPU] MIPS R3000A securely reset to vector: 0xbfc00000");
+    this.gte.reset();
+    console.log("[K-Labs CPU] MIPS R3000A & GTE securely reset to boot vector: 0xbfc00000");
   }
 
   setReg(index, value) {
@@ -181,7 +232,7 @@ class KLabsMIPSProcessor {
     const immSigned = (imm & 0x8000) ? (imm | 0xFFFF0000) : imm;
 
     switch (opcode) {
-      case 0x00:
+      case 0x00: // SPECIAL
         switch (funct) {
           case 0x20: case 0x21: this.setReg(rd, this.getReg(rs) + this.getReg(rt)); break;
           case 0x22: case 0x23: this.setReg(rd, this.getReg(rs) - this.getReg(rt)); break;
@@ -216,25 +267,13 @@ class KLabsMIPSProcessor {
         break;
       case 0x04: if (this.getReg(rs) === this.getReg(rt)) this.nextPC = this.PC + (immSigned << 2); break;
       case 0x05: if (this.getReg(rs) !== this.getReg(rt)) this.nextPC = this.PC + (immSigned << 2); break;
+      case 0x12: // COP2 (GTE Command Hook Stub)
+        break;
     }
   }
 }
 
-// --- 4. CD-ROM & SPU ---
-class KLabsCDROMController {
-  constructor(coreSystem) {
-    this.core = coreSystem;
-    this.discData = null;
-    this.isInserted = false;
-  }
-
-  mountDisc(arrayBuffer) {
-    this.discData = arrayBuffer;
-    this.isInserted = true;
-    console.log(`[K-Labs CD-ROM] Ultra Disc Mounted. Size: ${(arrayBuffer.byteLength / (1024*1024)).toFixed(2)} MB`);
-  }
-}
-
+// --- 5. AUDIO SPU ---
 class KLabsSoundProcessor {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -255,7 +294,7 @@ class KLabsSoundProcessor {
   }
 }
 
-// --- 5. ULTRA-GPU RENDERER (WEBGL2 DENGAN ESTETIKA TINGKAT DEWA) ---
+// --- 6. ULTRA-GPU RENDERER (WEBGL2) ---
 class KKlabsUltraGPURenderer {
   constructor(coreSystem, containerId = 'game') {
     this.core = coreSystem;
@@ -297,15 +336,13 @@ class KKlabsUltraGPURenderer {
       return;
     }
 
-    console.log("[K-Labs Ultra-GPU] Next-Gen Cinematic Pipeline aktif.");
+    console.log("[K-Labs Ultra-GPU] Next-Gen Cinematic Pipeline active.");
     this.initShadersAndBuffers();
     this.renderFrame();
   }
 
   initShadersAndBuffers() {
     const gl = this.gl;
-    
-    // Vertex Shader Presisi Tinggi
     const vsSource = `#version 300 es
       in vec2 aPosition;
       in vec2 aTexCoord;
@@ -316,7 +353,6 @@ class KKlabsUltraGPURenderer {
       }
     `;
 
-    // Fragment Shader Estetika Tingkat Tinggi (Melebihi DuckStation & ePSXe)
     const fsSource = `#version 300 es
       precision highp float;
       in vec2 vTexCoord;
@@ -326,36 +362,27 @@ class KKlabsUltraGPURenderer {
 
       void main() {
         vec2 uv = vTexCoord;
-        
-        // Palet Warna Dasar K-Labs Dark Cinematic Deep Space
         vec3 col = mix(vec3(0.01, 0.03, 0.08), vec3(0.04, 0.10, 0.24), uv.y);
 
         if (uIsRunning == 1) {
-          // Efek Ray-Marched Grid dengan Dynamic Neon Pulse & Cybernetic Glow
           vec2 centeredUV = uv - 0.5;
           float dist = length(centeredUV);
-          
           float wave = sin(dist * 22.0 - uTime * 5.0) / (dist * 8.0 + 0.4);
           vec3 neonCyan = vec3(0.0, 1.0, 0.85) * 1.8; 
           vec3 deepViolet = vec3(0.55, 0.0, 1.0) * 1.0; 
-          
           col += mix(neonCyan, deepViolet, abs(wave)) * max(0.0, (1.0 - dist * 1.1));
           
-          // Sub-Pixel Grid Precision & Anti-Aliasing Halus
           vec2 grid = abs(fract(uv * 40.0 - 0.5) - 0.5) / fwidth(uv * 40.0);
           float line = min(grid.x, grid.y);
           col += vec3(0.0, 0.85, 0.65) * (1.0 - min(line, 1.0)) * 0.35;
         } else {
-          // Efek Idle Mahakarya: Holographic Scanlines & Cinematic Vignette
           float scanline = sin(uv.y * 700.0) * 0.035;
           col -= scanline;
           col *= 1.0 - 0.45 * length(uv - 0.5);
         }
 
-        // High-Dynamic Range (HDR) Tone Mapping & Kontras Sinematik Kialdevaro
         col = col / (col + vec3(1.0));
         col = pow(col, vec3(0.82)); 
-
         fragColor = vec4(col, 1.0);
       }
     `;
@@ -415,26 +442,84 @@ class KKlabsUltraGPURenderer {
   }
 }
 
-// --- 6. EXECUTION ENGINE & KONTROL FPS TAK TERBATAS (UNLOCKED FRAMERATE) ---
+// --- 7. STEP 3: REAL-TIME CYBERPUNK TELEMETRY HUD & EXECUTION ENGINE ---
 class KLabsExecutionEngine {
   constructor(coreSystem) {
     this.core = coreSystem;
     this.animationFrameId = null;
     this.timeoutId = null;
+    this.initTelemetryHUD();
+  }
+
+  initTelemetryHUD() {
+    if (document.getElementById('klabs-hud')) return;
+    
+    const hud = document.createElement('div');
+    hud.id = 'klabs-hud';
+    hud.style.cssText = `
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(3, 7, 18, 0.85);
+      border: 1px solid rgba(0, 255, 204, 0.4);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-family: 'Segoe UI', monospace;
+      font-size: 11px;
+      color: #00ffcc;
+      z-index: 99;
+      pointer-events: none;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 4px 20px rgba(0, 255, 204, 0.15);
+    `;
+    hud.innerHTML = `
+      <div style="font-weight:bold; letter-spacing:1px; margin-bottom:2px; color:#38bdf8;">K-LABS TELEMETRY HUD</div>
+      <div>FPS: <span id="hud-fps" style="color:#fff; font-weight:bold;">0</span></div>
+      <div>CPU PC: <span id="hud-pc" style="color:#fff;">0xbfc00000</span></div>
+      <div>DISC STATUS: <span id="hud-disc" style="color:#38bdf8;">IDLE</span></div>
+    `;
+    
+    setTimeout(() => {
+      const container = document.getElementById('game');
+      if (container) {
+        container.style.position = 'relative';
+        container.appendChild(hud);
+      }
+    }, 100);
+  }
+
+  updateHUD() {
+    const now = performance.now();
+    this.core.stats.frameCount++;
+    
+    if (now - this.core.stats.lastTime >= 1000) {
+      this.core.stats.fps = Math.round((this.core.stats.frameCount * 1000) / (now - this.core.stats.lastTime));
+      this.core.stats.frameCount = 0;
+      this.core.stats.lastTime = now;
+
+      const fpsEl = document.getElementById('hud-fps');
+      const pcEl = document.getElementById('hud-pc');
+      const discEl = document.getElementById('hud-disc');
+
+      if (fpsEl) fpsEl.textContent = this.core.stats.fps;
+      if (pcEl && this.core.cpu) pcEl.textContent = '0x' + this.core.cpu.PC.toString(16).toUpperCase();
+      if (discEl && this.core.cdrom) {
+        discEl.textContent = this.core.cdrom.isInserted ? `MOUNTED (${this.core.cdrom.totalSectors} SEC)` : 'NO DISC';
+      }
+    }
   }
 
   startLoop() {
     if (!this.core.cpu) return;
     if (this.core.spu) this.core.spu.initAudio();
     this.core.cpu.isRunning = true;
-    console.log("[K-Labs Core] Ultra Execution Loop started with Unlocked Framerate support.");
+    console.log("[K-Labs Core] Ultra Execution Loop started with Triple-Upgrade active.");
     this.runTick();
   }
 
   runTick() {
     if (!this.core.cpu || !this.core.cpu.isRunning) return;
 
-    // Proses instruksi CPU dalam jumlah besar per tick
     const instructionsPerTick = 8000; 
     for (let i = 0; i < instructionsPerTick; i++) {
       this.core.cpu.step();
@@ -444,12 +529,11 @@ class KLabsExecutionEngine {
       this.core.gpu.renderFrame();
     }
 
-    // --- KONTROL FPS TAK TERBATAS (UNLOCKED VS SYNC) ---
+    this.updateHUD();
+
     if (this.core.profile.unlockedFPS) {
-      // Menggunakan setTimeout(..., 0) / setImmediate untuk melewati batasan 60 FPS monitor
       this.timeoutId = setTimeout(() => this.runTick(), 0);
     } else {
-      // Mode Standar Sinkronisasi Monitor (60 FPS via requestAnimationFrame)
       this.animationFrameId = requestAnimationFrame(() => this.runTick());
     }
   }
@@ -467,7 +551,7 @@ class KLabsExecutionEngine {
   }
 }
 
-// --- 7. JOYPAD & FITUR LANJUTAN ---
+// --- 8. JOYPAD & ADVANCED FEATURES ---
 class KLabsJoypadController {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -564,7 +648,7 @@ class KLabsAdvancedFeatures {
   }
 }
 
-// --- 8. PENGIKATAN MODUL KE GLOBAL WINDOW ---
+// --- 9. PENGIKATAN MODUL KE GLOBAL WINDOW ---
 if (window.KLabsEngine) {
   window.KLabsEngine.bus = new KLabsMemoryBus(window.KLabsEngine);
   window.KLabsEngine.loader = new KLabsFileLoader(window.KLabsEngine);
@@ -577,7 +661,7 @@ if (window.KLabsEngine) {
   window.KLabsEngine.advanced = new KLabsAdvancedFeatures(window.KLabsEngine);
 
   console.info(
-    `%c[K-LABS ULTRA ENGINE v5.0 SECURED] %cMahakarya Kialdevaro Group Berhasil Dimuat (Unlimited FPS & Cinematic Visuals).`,
+    `%c[K-LABS ULTRA ENGINE v5.0 SECURED] %cMahakarya Kialdevaro Group Triple-Upgrade Berhasil Dimuat.`,
     "color: #00ffcc; font-weight: bold; background: #030712; padding: 4px 8px; border-radius: 4px;",
     "color: #94a3b8; font-weight: normal;"
   );
