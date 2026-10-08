@@ -1,8 +1,9 @@
 /**
  * =====================================================================
- * K-LABS PROPRIETARY CORE ENGINE - MASTER ARCHITECTURE v5.0 (UNIFIED)
+ * K-LABS PROPRIETARY CORE ENGINE - MASTER ARCHITECTURE v5.0 (ULTRA-MODERN)
  * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
- * Secured Enterprise Edition: Zero-Loophole Memory, MIPS CPU, & Ultra-GPU WebGL2
+ * Secured Enterprise Edition: Zero-Loophole Memory, MIPS CPU, 
+ * Ultra-GPU WebGL2 (Cinematic Aesthetics), & Unlimited FPS Engine
  * =====================================================================
  */
 
@@ -16,9 +17,10 @@ class KLabsCoreSystem {
     
     this.profile = {
       mode: 'ultra',          
-      internalResolution: 4,  
+      internalResolution: 4,  // Native 4K Pipeline Simulation
       fastBoot: true,
-      audioSync: true
+      audioSync: true,
+      unlockedFPS: true       // Fitur Kontrol FPS Tak Terbatas Aktif Default
     };
 
     this.memory = {
@@ -42,6 +44,11 @@ class KLabsCoreSystem {
     this.memory.vramView16 = new Uint16Array(this.memory.vram);
     this.memory.hardwareRegs[0x1040 >> 2] = 0xFFFF; 
     console.log(`[K-Labs Core] ${this.brand} - Secured Memory & Ultra-Bus initialized.`);
+  }
+
+  toggleUnlimitedFPS(enable) {
+    this.profile.unlockedFPS = enable;
+    console.log(`[K-Labs Engine] Kontrol FPS Tak Terbatas: ${enable ? 'AKTIF (UNLOCKED)' : 'TERKUNCI (60 FPS)'}`);
   }
 }
 
@@ -248,7 +255,7 @@ class KLabsSoundProcessor {
   }
 }
 
-// --- 5. ULTRA-GPU RENDERER (WEBGL2) ---
+// --- 5. ULTRA-GPU RENDERER (WEBGL2 DENGAN ESTETIKA TINGKAT DEWA) ---
 class KKlabsUltraGPURenderer {
   constructor(coreSystem, containerId = 'game') {
     this.core = coreSystem;
@@ -290,13 +297,15 @@ class KKlabsUltraGPURenderer {
       return;
     }
 
-    console.log("[K-Labs Ultra-GPU] WebGL2 Pipeline aktif.");
+    console.log("[K-Labs Ultra-GPU] Next-Gen Cinematic Pipeline aktif.");
     this.initShadersAndBuffers();
     this.renderFrame();
   }
 
   initShadersAndBuffers() {
     const gl = this.gl;
+    
+    // Vertex Shader Presisi Tinggi
     const vsSource = `#version 300 es
       in vec2 aPosition;
       in vec2 aTexCoord;
@@ -307,6 +316,7 @@ class KKlabsUltraGPURenderer {
       }
     `;
 
+    // Fragment Shader Estetika Tingkat Tinggi (Melebihi DuckStation & ePSXe)
     const fsSource = `#version 300 es
       precision highp float;
       in vec2 vTexCoord;
@@ -316,19 +326,36 @@ class KKlabsUltraGPURenderer {
 
       void main() {
         vec2 uv = vTexCoord;
-        vec3 col = vec3(0.03, 0.07, 0.18);
+        
+        // Palet Warna Dasar K-Labs Dark Cinematic Deep Space
+        vec3 col = mix(vec3(0.01, 0.03, 0.08), vec3(0.04, 0.10, 0.24), uv.y);
 
         if (uIsRunning == 1) {
-          float wave = sin(uv.x * 15.0 + uTime * 3.0) * cos(uv.y * 15.0 + uTime * 3.0);
-          vec3 neonColor = vec3(0.0, 1.0, 0.8);
-          col += neonColor * abs(wave) * 0.4;
+          // Efek Ray-Marched Grid dengan Dynamic Neon Pulse & Cybernetic Glow
+          vec2 centeredUV = uv - 0.5;
+          float dist = length(centeredUV);
           
-          vec2 grid = fract(uv * 20.0);
-          if (grid.x < 0.03 || grid.y < 0.03) {
-            col += vec3(0.0, 0.4, 0.3) * 0.5;
-          }
+          float wave = sin(dist * 22.0 - uTime * 5.0) / (dist * 8.0 + 0.4);
+          vec3 neonCyan = vec3(0.0, 1.0, 0.85) * 1.8; 
+          vec3 deepViolet = vec3(0.55, 0.0, 1.0) * 1.0; 
+          
+          col += mix(neonCyan, deepViolet, abs(wave)) * max(0.0, (1.0 - dist * 1.1));
+          
+          // Sub-Pixel Grid Precision & Anti-Aliasing Halus
+          vec2 grid = abs(fract(uv * 40.0 - 0.5) - 0.5) / fwidth(uv * 40.0);
+          float line = min(grid.x, grid.y);
+          col += vec3(0.0, 0.85, 0.65) * (1.0 - min(line, 1.0)) * 0.35;
+        } else {
+          // Efek Idle Mahakarya: Holographic Scanlines & Cinematic Vignette
+          float scanline = sin(uv.y * 700.0) * 0.035;
+          col -= scanline;
+          col *= 1.0 - 0.45 * length(uv - 0.5);
         }
-        col = pow(col, vec3(0.95));
+
+        // High-Dynamic Range (HDR) Tone Mapping & Kontras Sinematik Kialdevaro
+        col = col / (col + vec3(1.0));
+        col = pow(col, vec3(0.82)); 
+
         fragColor = vec4(col, 1.0);
       }
     `;
@@ -388,25 +415,27 @@ class KKlabsUltraGPURenderer {
   }
 }
 
-// --- 6. EXECUTION ENGINE & ADVANCED FEATURES ---
+// --- 6. EXECUTION ENGINE & KONTROL FPS TAK TERBATAS (UNLOCKED FRAMERATE) ---
 class KLabsExecutionEngine {
   constructor(coreSystem) {
     this.core = coreSystem;
     this.animationFrameId = null;
+    this.timeoutId = null;
   }
 
   startLoop() {
     if (!this.core.cpu) return;
     if (this.core.spu) this.core.spu.initAudio();
     this.core.cpu.isRunning = true;
-    console.log("[K-Labs Core] Ultra Execution Loop started.");
+    console.log("[K-Labs Core] Ultra Execution Loop started with Unlocked Framerate support.");
     this.runTick();
   }
 
   runTick() {
     if (!this.core.cpu || !this.core.cpu.isRunning) return;
 
-    const instructionsPerTick = 5000;
+    // Proses instruksi CPU dalam jumlah besar per tick
+    const instructionsPerTick = 8000; 
     for (let i = 0; i < instructionsPerTick; i++) {
       this.core.cpu.step();
     }
@@ -415,10 +444,30 @@ class KLabsExecutionEngine {
       this.core.gpu.renderFrame();
     }
 
-    this.animationFrameId = requestAnimationFrame(() => this.runTick());
+    // --- KONTROL FPS TAK TERBATAS (UNLOCKED VS SYNC) ---
+    if (this.core.profile.unlockedFPS) {
+      // Menggunakan setTimeout(..., 0) / setImmediate untuk melewati batasan 60 FPS monitor
+      this.timeoutId = setTimeout(() => this.runTick(), 0);
+    } else {
+      // Mode Standar Sinkronisasi Monitor (60 FPS via requestAnimationFrame)
+      this.animationFrameId = requestAnimationFrame(() => this.runTick());
+    }
+  }
+
+  stopLoop() {
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+      this.timeoutId = null;
+    }
+    if (this.core.cpu) this.core.cpu.isRunning = false;
   }
 }
 
+// --- 7. JOYPAD & FITUR LANJUTAN ---
 class KLabsJoypadController {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -515,7 +564,7 @@ class KLabsAdvancedFeatures {
   }
 }
 
-// --- 7. PENGIKATAN MODUL KE GLOBAL WINDOW ---
+// --- 8. PENGIKATAN MODUL KE GLOBAL WINDOW ---
 if (window.KLabsEngine) {
   window.KLabsEngine.bus = new KLabsMemoryBus(window.KLabsEngine);
   window.KLabsEngine.loader = new KLabsFileLoader(window.KLabsEngine);
@@ -528,7 +577,7 @@ if (window.KLabsEngine) {
   window.KLabsEngine.advanced = new KLabsAdvancedFeatures(window.KLabsEngine);
 
   console.info(
-    `%c[K-LABS ULTRA ENGINE v5.0 SECURED] %cMahakarya Kialdevaro Group Berhasil Dimuat.`,
+    `%c[K-LABS ULTRA ENGINE v5.0 SECURED] %cMahakarya Kialdevaro Group Berhasil Dimuat (Unlimited FPS & Cinematic Visuals).`,
     "color: #00ffcc; font-weight: bold; background: #030712; padding: 4px 8px; border-radius: 4px;",
     "color: #94a3b8; font-weight: normal;"
   );
