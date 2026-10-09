@@ -55,12 +55,6 @@ class KLabsCoreSystem {
   }
 }
 
-Object.defineProperty(window, 'KLabsEngine', {
-  value: new KLabsCoreSystem(),
-  writable: false,
-  configurable: false
-});
-
 class KLabsMemoryBus {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -539,14 +533,23 @@ class KLabsAdvancedFeatures {
   }
 }
 
-// Inisialisasi Mutlak Global
-window.KLabsEngine = new KLabsCoreSystem();
-window.KLabsEngine.bus = new KLabsMemoryBus(window.KLabsEngine);
-window.KLabsEngine.loader = new KLabsFileLoader(window.KLabsEngine);
-window.KLabsEngine.cpu = new KLabsMIPSProcessor(window.KLabsEngine.bus);
-window.KLabsEngine.cdrom = new KLabsCDROMController(window.KLabsEngine);
-window.KLabsEngine.spu = new KLabsSoundProcessor(window.KLabsEngine);
-window.KLabsEngine.gpu = new KKlabsUltraGPURenderer(window.KLabsEngine, 'game');
-window.KLabsEngine.execution = new KLabsExecutionEngine(window.KLabsEngine);
-window.KLabsEngine.joypad = new KLabsJoypadController(window.KLabsEngine);
-window.KLabsEngine.advanced = new KLabsAdvancedFeatures(window.KLabsEngine);
+// --- INISIALISASI & PENGIKATAN GLOBAL YANG BERSIH TANPA KONFLIK ---
+const masterEngineInstance = new KLabsCoreSystem();
+masterEngineInstance.bus = new KLabsMemoryBus(masterEngineInstance);
+masterEngineInstance.loader = new KLabsFileLoader(masterEngineInstance);
+masterEngineInstance.cpu = new KLabsMIPSProcessor(masterEngineInstance.bus);
+masterEngineInstance.cdrom = new KLabsCDROMController(masterEngineInstance);
+masterEngineInstance.spu = new KLabsSoundProcessor(masterEngineInstance);
+masterEngineInstance.gpu = new KKlabsUltraGPURenderer(masterEngineInstance, 'game');
+masterEngineInstance.execution = new KLabsExecutionEngine(masterEngineInstance);
+masterEngineInstance.joypad = new KLabsJoypadController(masterEngineInstance);
+masterEngineInstance.advanced = new KLabsAdvancedFeatures(masterEngineInstance);
+
+// Daftarkan ke window secara aman sekali di akhir
+Object.defineProperty(window, 'KLabsEngine', {
+  value: masterEngineInstance,
+  writable: false,
+  configurable: false
+});
+
+console.log("[K-Labs Engine] Inisialisasi Aerospace Grade Berhasil Sempurna!");
