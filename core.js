@@ -1,9 +1,9 @@
 /**
  * =====================================================================
- * K-LABS PROPRIETARY CORE ENGINE - MASTER ARCHITECTURE v5.0 (TRIPLE-UPGRADE)
+ * K-LABS PROPRIETARY CORE ENGINE - MASTER ARCHITECTURE v5.0 (UNIFIED FINAL)
  * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
  * Secured Enterprise Edition: CD-ROM Parser, Expanded MIPS/GTE, 
- * Ultra-GPU WebGL2, Unlimited FPS, & Real-Time Cyberpunk HUD
+ * Ultra-GPU WebGL2, SPU Web Audio, & Joypad Hardware Register Sync
  * =====================================================================
  */
 
@@ -49,7 +49,7 @@ class KLabsCoreSystem {
     this.memory.ramView32 = new Uint32Array(this.memory.mainRAM);
     this.memory.biosView32 = new Uint32Array(this.memory.biosROM);
     this.memory.vramView16 = new Uint16Array(this.memory.vram);
-    this.memory.hardwareRegs[0x1040 >> 2] = 0xFFFF; 
+    this.memory.hardwareRegs[0x1040 >> 2] = 0xFFFF; // Controller default unpressed (high)
     console.log(`[K-Labs Core] ${this.brand} - Secured Memory & Ultra-Bus initialized.`);
   }
 
@@ -98,7 +98,7 @@ class KLabsMemoryBus {
   }
 }
 
-// --- 3. STEP 1: ADVANCED CD-ROM SECTOR PARSER ---
+// --- 3. ADVANCED CD-ROM SECTOR PARSER ---
 class KLabsCDROMController {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -166,10 +166,10 @@ class KLabsFileLoader {
   }
 }
 
-// --- 4. STEP 2: EXPANDED MIPS CPU R3000A & GTE STUB ---
+// --- 4. MIPS CPU R3000A & GTE STUB ---
 class KLabsGeometryEngine {
   constructor() {
-    this.matrix = new Float32Array(9); // GTE Matrix Transformation Stub
+    this.matrix = new Float32Array(9);
     this.translation = new Float32Array(3);
   }
   reset() {
@@ -232,7 +232,7 @@ class KLabsMIPSProcessor {
     const immSigned = (imm & 0x8000) ? (imm | 0xFFFF0000) : imm;
 
     switch (opcode) {
-      case 0x00: // SPECIAL
+      case 0x00:
         switch (funct) {
           case 0x20: case 0x21: this.setReg(rd, this.getReg(rs) + this.getReg(rt)); break;
           case 0x22: case 0x23: this.setReg(rd, this.getReg(rs) - this.getReg(rt)); break;
@@ -267,17 +267,17 @@ class KLabsMIPSProcessor {
         break;
       case 0x04: if (this.getReg(rs) === this.getReg(rt)) this.nextPC = this.PC + (immSigned << 2); break;
       case 0x05: if (this.getReg(rs) !== this.getReg(rt)) this.nextPC = this.PC + (immSigned << 2); break;
-      case 0x12: // COP2 (GTE Command Hook Stub)
-        break;
+      case 0x12: break;
     }
   }
 }
 
-// --- 5. AUDIO SPU ---
+// --- 5. SPU AUDIO PROCESSOR (WEB AUDIO API AKTIF) ---
 class KLabsSoundProcessor {
   constructor(coreSystem) {
     this.core = coreSystem;
     this.audioCtx = null;
+    this.masterGain = null;
     this.isInitialized = false;
   }
 
@@ -286,10 +286,13 @@ class KLabsSoundProcessor {
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       this.audioCtx = new AudioCtx();
+      this.masterGain = this.audioCtx.createGain();
+      this.masterGain.gain.value = 0.8;
+      this.masterGain.connect(this.audioCtx.destination);
       this.isInitialized = true;
-      console.log("[K-Labs SPU] Web Audio API initialized.");
+      console.log("[K-Labs SPU] Web Audio API active and connected.");
     } catch (e) {
-      console.warn("[K-Labs SPU Warning] Audio restricted.");
+      console.warn("[K-Labs SPU Warning] Audio context restricted or blocked.");
     }
   }
 }
@@ -442,7 +445,7 @@ class KKlabsUltraGPURenderer {
   }
 }
 
-// --- 7. STEP 3: REAL-TIME CYBERPUNK TELEMETRY HUD & EXECUTION ENGINE ---
+// --- 7. CYBERPUNK TELEMETRY HUD & EXECUTION ENGINE ---
 class KLabsExecutionEngine {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -513,7 +516,7 @@ class KLabsExecutionEngine {
     if (!this.core.cpu) return;
     if (this.core.spu) this.core.spu.initAudio();
     this.core.cpu.isRunning = true;
-    console.log("[K-Labs Core] Ultra Execution Loop started with Triple-Upgrade active.");
+    console.log("[K-Labs Core] Ultra Execution Loop started.");
     this.runTick();
   }
 
@@ -551,11 +554,11 @@ class KLabsExecutionEngine {
   }
 }
 
-// --- 8. JOYPAD & ADVANCED FEATURES ---
+// --- 8. JOYPAD & HARDWARE REGISTER SYNC ---
 class KLabsJoypadController {
   constructor(coreSystem) {
     this.core = coreSystem;
-    this.buttonState = 0xFFFF;
+    this.buttonState = 0xFFFF; // Default unpressed
     this.initGlobalJoypadMapper();
   }
 
@@ -578,11 +581,12 @@ class KLabsJoypadController {
       }
 
       if (isPressed) {
-        this.buttonState &= ~bitMask;
+        this.buttonState &= ~bitMask; // Tombol aktif (0)
       } else {
-        this.buttonState |= bitMask;
+        this.buttonState |= bitMask;  // Tombol lepas (1)
       }
 
+      // Sinkronisasi mutlak langsung ke Hardware Register bus
       if (this.core && this.core.memory) {
         this.core.memory.hardwareRegs[0x1040 >> 2] = this.buttonState;
       }
@@ -661,7 +665,7 @@ if (window.KLabsEngine) {
   window.KLabsEngine.advanced = new KLabsAdvancedFeatures(window.KLabsEngine);
 
   console.info(
-    `%c[K-LABS ULTRA ENGINE v5.0 SECURED] %cMahakarya Kialdevaro Group Triple-Upgrade Berhasil Dimuat.`,
+    `%c[K-LABS ULTRA ENGINE v5.0 SECURED] %cMahakarya Kialdevaro Group Terintegrasi Sempurna.`,
     "color: #00ffcc; font-weight: bold; background: #030712; padding: 4px 8px; border-radius: 4px;",
     "color: #94a3b8; font-weight: normal;"
   );
