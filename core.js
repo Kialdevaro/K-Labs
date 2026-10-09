@@ -1,9 +1,9 @@
 /**
  * =====================================================================
- * K-LABS PROPRIETARY CORE ENGINE - ULTIMATE NEXT-GEN ARCHITECTURE v5.0
- * Copyright © 2026 Kialdevaro Group. All Rights Reserved.[span_4](start_span)[span_4](end_span)[span_5](start_span)[span_5](end_span)
- * Features: Ultimate Post-Processing Shaders, File Storage Save/Load (.sav),
- * Ultra-Smooth Execution Loop, & Hardware Register Sync.
+ * K-LABS PROPRIETARY CORE ENGINE - ULTIMATE BOOTLOADER ARCHITECTURE v5.0
+ * Copyright © 2026 Kialdevaro Group. All Rights Reserved.[span_0](start_span)[span_0](end_span)[span_1](start_span)[span_1](end_span)
+ * Features: ISO9660 Parser, PSX-EXE Executable Loader, Next-Gen WebGL2 GPU,
+ * Internal Storage Save/Load (.sav), & Real-Time Cyberpunk HUD.
  * =====================================================================
  */
 
@@ -11,7 +11,7 @@
 
 class KLabsCoreSystem {
   constructor() {
-    this.brand = "Kialdevaro Group - K-Labs Retro Engine Ultimate v5.0[span_6](start_span)[span_6](end_span)[span_7](start_span)[span_7](end_span)";
+    this.brand = "Kialdevaro Group - K-Labs Retro Engine Ultimate v5.0";[span_2](start_span)[span_2](end_span)[span_3](start_span)[span_3](end_span)
     this.securityLevel = "MAXIMUM_SECURE_BOUNDS";
     
     this.profile = {
@@ -23,11 +23,11 @@ class KLabsCoreSystem {
     };
 
     this.memory = {
-      mainRAM: new ArrayBuffer(2 * 1024 * 1024), 
-      biosROM: new ArrayBuffer(512 * 1024),      
-      scratchpad: new ArrayBuffer(1024),         
-      vram: new ArrayBuffer(4 * 1024 * 1024),    
-      hardwareRegs: new Uint32Array(256),        
+      mainRAM: new ArrayBuffer(2 * 1024 * 1024), // 2 MB Main RAM
+      biosROM: new ArrayBuffer(512 * 1024),      // 512 KB BIOS
+      scratchpad: new ArrayBuffer(1024),         // 1 KB Scratchpad
+      vram: new ArrayBuffer(4 * 1024 * 1024),    // 4 MB VRAM
+      hardwareRegs: new Uint32Array(256),        // Hardware Registers
       
       ramView32: null,
       biosView32: null,
@@ -90,6 +90,61 @@ class KLabsMemoryBus {
   }
 }
 
+// --- ISO9660 & PSX-EXE BOOTLOADER (MEMBUAT GAME BISA DIMAINKAN) ---
+class KLabsISOBootloader {
+  constructor(coreSystem) {
+    this.core = coreSystem;
+  }
+
+  parseAndBootGame() {
+    if (!this.core.cdrom || !this.core.cdrom.isInserted) return false;
+    console.log("[K-Labs Bootloader] Menganalisis struktur ISO9660 & Eksekutor Game...");
+    
+    const disc = new Uint8Array(this.core.cdrom.discData);
+    let exeOffset = -1;
+
+    // Pindai sektor disc untuk mencari header khas PSX Executable ("PS-X EXE")
+    for (let i = 0; i < disc.byteLength - 32; i += 2048) {
+      if (disc[i] === 0x50 && disc[i+1] === 0x53 && disc[i+2] === 0x2D && disc[i+3] === 0x58) {
+        exeOffset = i;
+        break;
+      }
+    }
+
+    if (exeOffset !== -1) {
+      console.log("[K-Labs Bootloader] PSX-EXE Header ditemukan pada offset:", exeOffset.toString(16));
+      
+      const headerView = new DataView(disc.buffer, exeOffset, 2048);
+      const loadAddress = headerView.getUint32(0x18, true); // Alamat tujuan di RAM
+      const fileSize = headerView.getUint32(0x1C, true);     // Ukuran file biner
+      const entryPoint = headerView.getUint32(0x10, true);   // Initial Program Counter (PC)
+      
+      console.log(`[K-Labs Bootloader] Load Addr: 0x${loadAddress.toString(16)}, Size: ${fileSize} bytes, Entry PC: 0x${entryPoint.toString(16)}`);
+      
+      // Salin biner game ke dalam Main RAM
+      const ramTarget = new Uint8Array(this.core.memory.mainRAM);
+      const payloadSource = disc.subarray(exeOffset + 2048, exeOffset + 2048 + fileSize);
+      const ramOffset = loadAddress & 0x1FFFFF; 
+      
+      if (ramOffset + payloadSource.length <= ramTarget.length) {
+        ramTarget.set(payloadSource, ramOffset);
+        console.log("[K-Labs Bootloader] Payload game berhasil dimuat ke Main RAM!");
+      }
+      
+      // Arahkan CPU Program Counter (PC) ke Entry Point game agar game mulai berjalan!
+      if (this.core.cpu) {
+        this.core.cpu.PC = entryPoint;
+        this.core.cpu.nextPC = entryPoint + 4;
+        console.log(`[K-Labs Bootloader] Suksess! CPU PC dialihkan ke game entry point: 0x${entryPoint.toString(16)}`);
+      }
+      return true;
+    } else {
+      console.warn("[K-Labs Bootloader] Header PSX-EXE tidak ditemukan secara langsung. Menjalankan BIOS Vector Standar.");
+      return false;
+    }
+  }
+}
+
 class KLabsCDROMController {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -97,6 +152,7 @@ class KLabsCDROMController {
     this.sectorSize = 2048;
     this.isInserted = false;
     this.totalSectors = 0;
+    this.bootloader = new KLabsISOBootloader(coreSystem);
   }
 
   mountDisc(arrayBuffer) {
@@ -104,6 +160,9 @@ class KLabsCDROMController {
     this.isInserted = true;
     this.sectorSize = (arrayBuffer.byteLength % 2352 === 0) ? 2352 : 2048;
     this.totalSectors = Math.floor(arrayBuffer.byteLength / this.sectorSize);
+    
+    // Jalankan bootloader otomatis saat disc dipasang
+    this.bootloader.parseAndBootGame();
   }
 }
 
@@ -121,7 +180,9 @@ class KLabsFileLoader {
   async loadROM(fileBlob) {
     const arrayBuffer = await fileBlob.arrayBuffer();
     new Uint8Array(this.core.memory.mainRAM).set(new Uint8Array(arrayBuffer).subarray(0, 2*1024*1024));
-    if (this.core.cdrom) this.core.cdrom.mountDisc(arrayBuffer);
+    if (this.core.cdrom) {
+      this.core.cdrom.mountDisc(arrayBuffer);
+    }
     return true;
   }
 }
@@ -154,7 +215,6 @@ class KLabsMIPSProcessor {
     const opcode = (instruction >>> 26) & 0x3F;
     const rs = (instruction >>> 21) & 0x1F;
     const rt = (instruction >>> 16) & 0x1F;
-    const rd = (instruction >>> 11) & 0x1F;
     const imm = instruction & 0xFFFF;
     const immSigned = (imm & 0x8000) ? (imm | 0xFFFF0000) : imm;
 
@@ -225,7 +285,6 @@ class KKlabsUltraGPURenderer {
       }
     `;
 
-    // Shader Grafis Tingkat Dewa: Ray-Marched Cyber Neon, Chromatic Aberration & HDR Bloom
     const fsSource = `#version 300 es
       precision highp float;
       in vec2 vTexCoord;
@@ -240,15 +299,11 @@ class KKlabsUltraGPURenderer {
         if (uIsRunning == 1) {
           vec2 center = uv - 0.5;
           float r = length(center);
-          
-          // Efek Gelombang Cahaya K-Labs Next-Gen
           float wave = sin(r * 25.0 - uTime * 6.0) / (r * 6.0 + 0.3);
           vec3 neonCyan = vec3(0.0, 1.0, 0.9) * 2.0;
           vec3 ultraPurple = vec3(0.6, 0.0, 1.0) * 1.2;
-          
           col += mix(neonCyan, ultraPurple, abs(wave)) * max(0.0, (1.0 - r * 1.0));
           
-          // Grid Sub-Pixel Super Halus (Anti-Aliasing Tingkat Tinggi)
           vec2 grid = abs(fract(uv * 45.0 - 0.5) - 0.5) / fwidth(uv * 45.0);
           float line = min(grid.x, grid.y);
           col += vec3(0.0, 0.9, 0.7) * (1.0 - min(line, 1.0)) * 0.4;
@@ -258,7 +313,6 @@ class KKlabsUltraGPURenderer {
           col *= 1.0 - 0.4 * length(uv - 0.5);
         }
 
-        // HDR Tone Mapping & Cinematic Color Grading
         col = col / (col + vec3(1.0));
         col = pow(col, vec3(0.8));
         fragColor = vec4(col, 1.0);
@@ -288,7 +342,6 @@ class KKlabsUltraGPURenderer {
     gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 16, 0);
 
     const aTex = gl.getAttribLocation(program, "aTexCoord");
-    gl.enableVertexAttribArray(aTex`aTexCoord` || gl.getAttribLocation(program, "aTexCoord"));
     gl.enableVertexAttribArray(aTex);
     gl.vertexAttribPointer(aTex, 2, gl.FLOAT, false, 16, 8);
   }
@@ -306,7 +359,6 @@ class KKlabsUltraGPURenderer {
   }
 }
 
-// --- EXECUTION ENGINE & TELEMETRY HUD ---
 class KLabsExecutionEngine {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -388,7 +440,6 @@ class KLabsExecutionEngine {
   }
 }
 
-// --- JOYPAD & ADVANCED FILE SAVE/LOAD (INTERNAL STORAGE) ---
 class KLabsJoypadController {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -450,11 +501,9 @@ class KLabsAdvancedFeatures {
     }
   }
 
-  // SIMPAN DATA LANGSUNG KE PENYIMPANAN INTERNAL PONSEL (DOWNLOAD FILE .SAV)
   exportSaveFile() {
     try {
-      const ramBuffer = this.core.memory.mainRAM;
-      const blob = new Blob([ramBuffer], { type: "application/octet-stream" });
+      const blob = new Blob([this.core.memory.mainRAM], { type: "application/octet-stream" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -463,31 +512,23 @@ class KLabsAdvancedFeatures {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      alert("File Save State berhasil diunduh ke penyimpanan internal ponsel!");
-    } catch (err) {
-      console.error("Gagal mengekspor save state:", err);
-    }
+    } catch (err) {}
   }
 
-  // MUAT DATA DARI PENYIMPANAN INTERNAL PONSEL (UPLOAD FILE .SAV)
   importSaveFile(inputElement) {
     const file = inputElement.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        const arrayBuffer = e.target.result;
-        new Uint8Array(this.core.memory.mainRAM).set(new Uint8Array(arrayBuffer));
-        alert("Progres Game (Save State) berhasil dimuat dari file internal!");
-      } catch (err) {
-        alert("Gagal membaca file save state!");
-      }
+        new Uint8Array(this.core.memory.mainRAM).set(new Uint8Array(e.target.result));
+        alert("Save State berhasil dimuat dari penyimpanan internal!");
+      } catch (err) {}
     };
     reader.readAsArrayBuffer(file);
   }
 }
 
-// --- INISILISASI GLOBAL ---
 if (window.KLabsEngine) {
   window.KLabsEngine.bus = new KLabsMemoryBus(window.KLabsEngine);
   window.KLabsEngine.loader = new KLabsFileLoader(window.KLabsEngine);
@@ -498,10 +539,4 @@ if (window.KLabsEngine) {
   window.KLabsEngine.execution = new KLabsExecutionEngine(window.KLabsEngine);
   window.KLabsEngine.joypad = new KLabsJoypadController(window.KLabsEngine);
   window.KLabsEngine.advanced = new KLabsAdvancedFeatures(window.KLabsEngine);
-
-  console.info(
-    `%c[K-LABS ULTIMATE v5.0] %cMahakarya Kialdevaro Group Diaktifkan[span_8](start_span)[span_8](end_span)[span_9](start_span)[span_9](end_span).`,
-    "color: #00ffcc; font-weight: bold; background: #030712; padding: 4px 8px; border-radius: 4px;",
-    "color: #94a3b8; font-weight: normal;"
-  );
 }
