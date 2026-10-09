@@ -1,5 +1,5 @@
 <!-- ===================================================================== -->
-<!-- K-LABS RETRO ENGINE - ULTRA INTERFACE ARCHITECTURE v5.0 (BAGIAN 1)   -->
+<!-- K-LABS RETRO ENGINE - ULTRA INTERFACE ARCHITECTURE v5.0 (FINAL)       -->
 <!-- Copyright © 2026 Kialdevaro Group. All Rights Reserved.               -->
 <!-- ===================================================================== -->
 <!DOCTYPE html>
@@ -101,15 +101,16 @@
       <button class="btn-run" onclick="bootMasterEngine()">▶ JALANKAN ULTRA ENGINE (WEBGL2)</button>
     </div>
     
-    <!-- Wadah Kanvas GPU WebGL2 Tingkat Dewa -->
+    <!-- Wadah Kanvas GPU WebGL2 -->
     <div id="game" style="width: 100%; aspect-ratio: 4/3; background: #030712; border-radius: 14px; border: 1px solid rgba(0,255,204,0.4); overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 30px rgba(0,255,204,0.05);">
     </div>
 
-    <!-- Tombol Fitur Pro (Fullscreen, Save/Load State) -->
+    <!-- Tombol Fitur Pro & Toggle FPS -->
     <div style="display: flex; gap: 8px;">
       <button onclick="document.getElementById('game').requestFullscreen()" style="flex:1; background:#1e293b; color:#00ffcc; border:1px solid #00ffcc44; border-radius:8px; padding:8px; font-size:11px; cursor:pointer; font-weight:bold;">⛶ FULLSCREEN</button>
-      <button onclick="window.KLabsEngine.advanced.saveState()" style="flex:1; background:#1e293b; color:#38bdf8; border:1px solid #38bdf844; border-radius:8px; padding:8px; font-size:11px; cursor:pointer; font-weight:bold;">💾 SAVE STATE</button>
-      <button onclick="window.KLabsEngine.advanced.loadState()" style="flex:1; background:#1e293b; color:#38bdf8; border:1px solid #38bdf844; border-radius:8px; padding:8px; font-size:11px; cursor:pointer; font-weight:bold;">📂 LOAD STATE</button>
+      <button id="btn-fps-toggle" onclick="toggleFPSMode(this)" style="flex:1; background:#1e293b; color:#38bdf8; border:1px solid #38bdf844; border-radius:8px; padding:8px; font-size:11px; cursor:pointer; font-weight:bold;">⚡ FPS: UNLOCKED</button>
+      <button onclick="window.KLabsEngine.advanced.saveState()" style="flex:1; background:#1e293b; color:#38bdf8; border:1px solid #38bdf844; border-radius:8px; padding:8px; font-size:11px; cursor:pointer; font-weight:bold;">💾 SAVE</button>
+      <button onclick="window.KLabsEngine.advanced.loadState()" style="flex:1; background:#1e293b; color:#38bdf8; border:1px solid #38bdf844; border-radius:8px; padding:8px; font-size:11px; cursor:pointer; font-weight:bold;">📂 LOAD</button>
     </div>
 
     <!-- Panel Tombol Bahu Stik Virtual -->
@@ -146,8 +147,18 @@
     </div>
   </div>
 
-  <!-- Skrip Eksekusi Engine -->
+  <!-- Skrip Kontrol UI & Eksekusi Engine -->
   <script>
+    function toggleFPSMode(btn) {
+      if (window.KLabsEngine) {
+        const currentState = window.KLabsEngine.profile.unlockedFPS;
+        const newState = !currentState;
+        window.KLabsEngine.toggleUnlimitedFPS(newState);
+        btn.textContent = newState ? "⚡ FPS: UNLOCKED" : "🔒 FPS: 60 LOCKED";
+        btn.style.color = newState ? "#38bdf8" : "#fACC15";
+      }
+    }
+
     async function bootMasterEngine() {
       try {
         const biosInput = document.getElementById('biosFile');
@@ -165,7 +176,7 @@
         if (!window.KLabsEngine || !window.KLabsEngine.loader) {
            alert("Galat: Core Engine (core.js) belum terhubung dengan benar!");
            return;
-          }
+        }
 
         console.log("[K-Labs Studio] Memproses file biner ke Ultra-Memory Bus...");
         
@@ -191,7 +202,7 @@
     }
   </script>
 
-    <!-- Panggil Core Engine Mandiri K-Labs Otomatis -->
+  <!-- Panggil Core Engine Mandiri K-Labs Otomatis -->
   <script>
     (function() {
       const script = document.createElement('script');
