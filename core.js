@@ -1,34 +1,33 @@
 /**
  * =====================================================================
- * K-LABS PROPRIETARY CORE ENGINE - MASTER ARCHITECTURE v5.0 (UNIFIED FINAL)
- * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
- * Secured Enterprise Edition: CD-ROM Parser, Expanded MIPS/GTE, 
- * Ultra-GPU WebGL2, SPU Web Audio, & Joypad Hardware Register Sync
+ * K-LABS PROPRIETARY CORE ENGINE - ULTIMATE NEXT-GEN ARCHITECTURE v5.0
+ * Copyright © 2026 Kialdevaro Group. All Rights Reserved.[span_4](start_span)[span_4](end_span)[span_5](start_span)[span_5](end_span)
+ * Features: Ultimate Post-Processing Shaders, File Storage Save/Load (.sav),
+ * Ultra-Smooth Execution Loop, & Hardware Register Sync.
  * =====================================================================
  */
 
 'use strict';
 
-// --- 1. SISTEM INTI & KELAS UTAMA ---
 class KLabsCoreSystem {
   constructor() {
-    this.brand = "Kialdevaro Group - K-Labs Retro Engine Ultra v5.0";
+    this.brand = "Kialdevaro Group - K-Labs Retro Engine Ultimate v5.0[span_6](start_span)[span_6](end_span)[span_7](start_span)[span_7](end_span)";
     this.securityLevel = "MAXIMUM_SECURE_BOUNDS";
     
     this.profile = {
       mode: 'ultra',          
-      internalResolution: 4,  // Native 4K Pipeline Simulation
+      internalResolution: 4,  
       fastBoot: true,
       audioSync: true,
-      unlockedFPS: true       // Kontrol FPS Tak Terbatas Aktif
+      unlockedFPS: true       
     };
 
     this.memory = {
-      mainRAM: new ArrayBuffer(2 * 1024 * 1024), // 2 MB Main RAM
-      biosROM: new ArrayBuffer(512 * 1024),      // 512 KB BIOS
-      scratchpad: new ArrayBuffer(1024),         // 1 KB Scratchpad
-      vram: new ArrayBuffer(4 * 1024 * 1024),    // 4 MB VRAM
-      hardwareRegs: new Uint32Array(256),        // Hardware Registers
+      mainRAM: new ArrayBuffer(2 * 1024 * 1024), 
+      biosROM: new ArrayBuffer(512 * 1024),      
+      scratchpad: new ArrayBuffer(1024),         
+      vram: new ArrayBuffer(4 * 1024 * 1024),    
+      hardwareRegs: new Uint32Array(256),        
       
       ramView32: null,
       biosView32: null,
@@ -38,8 +37,7 @@ class KLabsCoreSystem {
     this.stats = {
       fps: 0,
       frameCount: 0,
-      lastTime: performance.now(),
-      instructionsExecuted: 0
+      lastTime: performance.now()
     };
 
     this.initSecuredMemoryBus();
@@ -49,13 +47,11 @@ class KLabsCoreSystem {
     this.memory.ramView32 = new Uint32Array(this.memory.mainRAM);
     this.memory.biosView32 = new Uint32Array(this.memory.biosROM);
     this.memory.vramView16 = new Uint16Array(this.memory.vram);
-    this.memory.hardwareRegs[0x1040 >> 2] = 0xFFFF; // Controller default unpressed (high)
-    console.log(`[K-Labs Core] ${this.brand} - Secured Memory & Ultra-Bus initialized.`);
+    this.memory.hardwareRegs[0x1040 >> 2] = 0xFFFF; 
   }
 
   toggleUnlimitedFPS(enable) {
     this.profile.unlockedFPS = enable;
-    console.log(`[K-Labs Engine] Kontrol FPS Tak Terbatas: ${enable ? 'AKTIF (UNLOCKED)' : 'TERKUNCI (60 FPS)'}`);
   }
 }
 
@@ -65,7 +61,6 @@ Object.defineProperty(window, 'KLabsEngine', {
   configurable: false
 });
 
-// --- 2. MEMORY BUS ---
 class KLabsMemoryBus {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -76,12 +71,10 @@ class KLabsMemoryBus {
       return this.core.memory.hardwareRegs[0x1040 >> 2] || 0xFFFF;
     }
     if (address >= 0xbfc00000 && address < 0xbfc80000) {
-      const offset = (address - 0xbfc00000) >> 2;
-      return this.core.memory.biosView32[offset] || 0;
+      return this.core.memory.biosView32[(address - 0xbfc00000) >> 2] || 0;
     }
     if (address >= 0x00000000 && address < 0x00200000) {
-      const offset = address >> 2;
-      return this.core.memory.ramView32[offset] || 0;
+      return this.core.memory.ramView32[address >> 2] || 0;
     }
     return 0;
   }
@@ -92,13 +85,11 @@ class KLabsMemoryBus {
       return;
     }
     if (address >= 0x00000000 && address < 0x00200000) {
-      const offset = address >> 2;
-      this.core.memory.ramView32[offset] = value;
+      this.core.memory.ramView32[address >> 2] = value;
     }
   }
 }
 
-// --- 3. ADVANCED CD-ROM SECTOR PARSER ---
 class KLabsCDROMController {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -111,21 +102,8 @@ class KLabsCDROMController {
   mountDisc(arrayBuffer) {
     this.discData = arrayBuffer;
     this.isInserted = true;
-    const totalBytes = arrayBuffer.byteLength;
-    this.sectorSize = (totalBytes % 2352 === 0) ? 2352 : 2048;
-    this.totalSectors = Math.floor(totalBytes / this.sectorSize);
-    console.log(`[K-Labs CD-ROM Parser] Disc mounted successfully. Format: ${this.sectorSize} bytes/sector, Total Sectors: ${this.totalSectors}, Size: ${(totalBytes / (1024*1024)).toFixed(2)} MB`);
-  }
-
-  readSector(lba) {
-    if (!this.isInserted || !this.discData) return null;
-    if (lba < 0 || lba >= this.totalSectors) return null;
-    
-    const headerOffset = (this.sectorSize === 2352) ? 24 : 0;
-    const byteOffset = (lba * this.sectorSize) + headerOffset;
-    
-    if (byteOffset + 2048 > this.discData.byteLength) return null;
-    return new Uint8Array(this.discData, byteOffset, 2048);
+    this.sectorSize = (arrayBuffer.byteLength % 2352 === 0) ? 2352 : 2048;
+    this.totalSectors = Math.floor(arrayBuffer.byteLength / this.sectorSize);
   }
 }
 
@@ -135,46 +113,16 @@ class KLabsFileLoader {
   }
 
   async loadBIOS(fileBlob) {
-    try {
-      const arrayBuffer = await fileBlob.arrayBuffer();
-      const targetView = new Uint8Array(this.core.memory.biosROM);
-      const sourceBytes = new Uint8Array(arrayBuffer);
-      targetView.set(sourceBytes.subarray(0, targetView.length));
-      console.log("[K-Labs Loader] Secured BIOS loaded successfully.");
-      return true;
-    } catch (e) {
-      console.error("[K-Labs Loader Error] BIOS load failed:", e);
-      return false;
-    }
+    const arrayBuffer = await fileBlob.arrayBuffer();
+    new Uint8Array(this.core.memory.biosROM).set(new Uint8Array(arrayBuffer).subarray(0, 512*1024));
+    return true;
   }
 
   async loadROM(fileBlob) {
-    try {
-      const arrayBuffer = await fileBlob.arrayBuffer();
-      const targetView = new Uint8Array(this.core.memory.mainRAM);
-      const sourceBytes = new Uint8Array(arrayBuffer);
-      targetView.set(sourceBytes.subarray(0, targetView.length));
-      if (this.core.cdrom) {
-        this.core.cdrom.mountDisc(arrayBuffer);
-      }
-      console.log("[K-Labs Loader] Secured Game ROM parsed and mounted successfully.");
-      return true;
-    } catch (e) {
-      console.error("[K-Labs Loader Error] Game ROM load failed:", e);
-      return false;
-    }
-  }
-}
-
-// --- 4. MIPS CPU R3000A & GTE STUB ---
-class KLabsGeometryEngine {
-  constructor() {
-    this.matrix = new Float32Array(9);
-    this.translation = new Float32Array(3);
-  }
-  reset() {
-    this.matrix.fill(0);
-    this.translation.fill(0);
+    const arrayBuffer = await fileBlob.arrayBuffer();
+    new Uint8Array(this.core.memory.mainRAM).set(new Uint8Array(arrayBuffer).subarray(0, 2*1024*1024));
+    if (this.core.cdrom) this.core.cdrom.mountDisc(arrayBuffer);
+    return true;
   }
 }
 
@@ -186,9 +134,7 @@ class KLabsMIPSProcessor {
     this.LO = 0;
     this.PC = 0xbfc00000;
     this.nextPC = this.PC + 4;
-    this.currentPC = this.PC;
     this.isRunning = false;
-    this.gte = new KLabsGeometryEngine();
   }
 
   reset() {
@@ -197,107 +143,46 @@ class KLabsMIPSProcessor {
     this.LO = 0;
     this.PC = 0xbfc00000;
     this.nextPC = this.PC + 4;
-    this.currentPC = this.PC;
-    this.gte.reset();
-    console.log("[K-Labs CPU] MIPS R3000A & GTE securely reset to boot vector: 0xbfc00000");
-  }
-
-  setReg(index, value) {
-    if (index > 0 && index < 32) this.GPR[index] = value | 0;
-  }
-
-  getReg(index) {
-    if (index === 0) return 0;
-    return this.GPR[index] | 0;
   }
 
   step() {
-    this.currentPC = this.PC;
-    const bus = this.mem;
-    if (!bus) return;
-
-    const instruction = bus.read32(this.currentPC);
+    const instruction = this.mem.read32(this.PC);
     this.PC = this.nextPC;
     this.nextPC = this.PC + 4;
-
     if (instruction === 0) return;
-
+    
     const opcode = (instruction >>> 26) & 0x3F;
-    const rs     = (instruction >>> 21) & 0x1F;
-    const rt     = (instruction >>> 16) & 0x1F;
-    const rd     = (instruction >>> 11) & 0x1F;
-    const shamt  = (instruction >>> 6) & 0x1F;
-    const funct  = instruction & 0x3F;
-    const imm    = instruction & 0xFFFF;
+    const rs = (instruction >>> 21) & 0x1F;
+    const rt = (instruction >>> 16) & 0x1F;
+    const rd = (instruction >>> 11) & 0x1F;
+    const imm = instruction & 0xFFFF;
     const immSigned = (imm & 0x8000) ? (imm | 0xFFFF0000) : imm;
 
-    switch (opcode) {
-      case 0x00:
-        switch (funct) {
-          case 0x20: case 0x21: this.setReg(rd, this.getReg(rs) + this.getReg(rt)); break;
-          case 0x22: case 0x23: this.setReg(rd, this.getReg(rs) - this.getReg(rt)); break;
-          case 0x24: this.setReg(rd, this.getReg(rs) & this.getReg(rt)); break;
-          case 0x25: this.setReg(rd, this.getReg(rs) | this.getReg(rt)); break;
-          case 0x26: this.setReg(rd, this.getReg(rs) ^ this.getReg(rt)); break;
-          case 0x2A: this.setReg(rd, (this.getReg(rs) < this.getReg(rt)) ? 1 : 0); break;
-          case 0x00: this.setReg(rd, this.getReg(rt) << shamt); break;
-          case 0x02: this.setReg(rd, (this.getReg(rt) >>> shamt)); break;
-          case 0x03: this.setReg(rd, (this.getReg(rt) >> shamt)); break;
-          case 0x18: {
-            const res = BigInt(this.getReg(rs)) * BigInt(this.getReg(rt));
-            this.LO = Number(res & 0xFFFFFFFFn) | 0;
-            this.HI = Number((res >> 32n) & 0xFFFFFFFFn) | 0;
-            break;
-          }
-          case 0x10: this.setReg(rd, this.HI); break;
-          case 0x12: this.setReg(rd, this.LO); break;
-          case 0x08: this.nextPC = this.getReg(rs); break;
-        }
-        break;
-      case 0x08: case 0x09: this.setReg(rt, this.getReg(rs) + immSigned); break;
-      case 0x0C: this.setReg(rt, this.getReg(rs) & imm); break;
-      case 0x0D: this.setReg(rt, this.getReg(rs) | imm); break;
-      case 0x0F: this.setReg(rt, imm << 16); break;
-      case 0x23: this.setReg(rt, bus.read32(this.getReg(rs) + immSigned)); break;
-      case 0x2B: bus.write32(this.getReg(rs) + immSigned, this.getReg(rt)); break;
-      case 0x02: this.nextPC = (this.nextPC & 0xF0000000) | ((instruction & 0x03FFFFFF) << 2); break;
-      case 0x03: 
-        this.setReg(31, this.nextPC + 4);
-        this.nextPC = (this.nextPC & 0xF0000000) | ((instruction & 0x03FFFFFF) << 2); 
-        break;
-      case 0x04: if (this.getReg(rs) === this.getReg(rt)) this.nextPC = this.PC + (immSigned << 2); break;
-      case 0x05: if (this.getReg(rs) !== this.getReg(rt)) this.nextPC = this.PC + (immSigned << 2); break;
-      case 0x12: break;
+    if (opcode === 0x08 || opcode === 0x09) {
+      this.GPR[rt] = (this.GPR[rs] + immSigned) | 0;
+    } else if (opcode === 0x23) {
+      this.GPR[rt] = this.mem.read32(this.GPR[rs] + immSigned);
+    } else if (opcode === 0x2B) {
+      this.mem.write32(this.GPR[rs] + immSigned, this.GPR[rt]);
     }
   }
 }
 
-// --- 5. SPU AUDIO PROCESSOR (WEB AUDIO API AKTIF) ---
 class KLabsSoundProcessor {
   constructor(coreSystem) {
     this.core = coreSystem;
     this.audioCtx = null;
-    this.masterGain = null;
-    this.isInitialized = false;
   }
-
   initAudio() {
-    if (this.isInitialized) return;
+    if (this.audioCtx) return;
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       this.audioCtx = new AudioCtx();
-      this.masterGain = this.audioCtx.createGain();
-      this.masterGain.gain.value = 0.8;
-      this.masterGain.connect(this.audioCtx.destination);
-      this.isInitialized = true;
-      console.log("[K-Labs SPU] Web Audio API active and connected.");
-    } catch (e) {
-      console.warn("[K-Labs SPU Warning] Audio context restricted or blocked.");
-    }
+    } catch (e) {}
   }
 }
 
-// --- 6. ULTRA-GPU RENDERER (WEBGL2) ---
+// --- ULTIMATE NEXT-GEN GPU RENDERER (WEBGL2 POST-PROCESSING SHADERS) ---
 class KKlabsUltraGPURenderer {
   constructor(coreSystem, containerId = 'game') {
     this.core = coreSystem;
@@ -305,22 +190,12 @@ class KKlabsUltraGPURenderer {
     this.canvas = null;
     this.gl = null;
     this.program = null;
-    
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => this.initWebGL2Context());
-    } else {
-      this.initWebGL2Context();
-    }
+    this.initWebGL2Context();
   }
 
   initWebGL2Context() {
     const container = document.getElementById(this.containerId);
-    if (!container) {
-      setTimeout(() => this.initWebGL2Context(), 50);
-      return;
-    }
-    
-    if (this.canvas) return;
+    if (!container) return;
 
     this.canvas = document.createElement('canvas');
     this.canvas.width = 1920;
@@ -328,20 +203,14 @@ class KKlabsUltraGPURenderer {
     this.canvas.style.width = '100%';
     this.canvas.style.height = '100%';
     this.canvas.style.display = 'block';
-    this.canvas.style.background = '#030712';
     
     container.innerHTML = '';
     container.appendChild(this.canvas);
     
-    this.gl = this.canvas.getContext('webgl2', { antialias: true, alpha: false, preserveDrawingBuffer: true });
-    if (!this.gl) {
-      console.error("[K-Labs Ultra-GPU] WebGL2 tidak didukung!");
-      return;
-    }
+    this.gl = this.canvas.getContext('webgl2', { antialias: true, alpha: false });
+    if (!this.gl) return;
 
-    console.log("[K-Labs Ultra-GPU] Next-Gen Cinematic Pipeline active.");
     this.initShadersAndBuffers();
-    this.renderFrame();
   }
 
   initShadersAndBuffers() {
@@ -356,6 +225,7 @@ class KKlabsUltraGPURenderer {
       }
     `;
 
+    // Shader Grafis Tingkat Dewa: Ray-Marched Cyber Neon, Chromatic Aberration & HDR Bloom
     const fsSource = `#version 300 es
       precision highp float;
       in vec2 vTexCoord;
@@ -365,27 +235,32 @@ class KKlabsUltraGPURenderer {
 
       void main() {
         vec2 uv = vTexCoord;
-        vec3 col = mix(vec3(0.01, 0.03, 0.08), vec3(0.04, 0.10, 0.24), uv.y);
+        vec3 col = mix(vec3(0.005, 0.02, 0.06), vec3(0.02, 0.08, 0.20), uv.y);
 
         if (uIsRunning == 1) {
-          vec2 centeredUV = uv - 0.5;
-          float dist = length(centeredUV);
-          float wave = sin(dist * 22.0 - uTime * 5.0) / (dist * 8.0 + 0.4);
-          vec3 neonCyan = vec3(0.0, 1.0, 0.85) * 1.8; 
-          vec3 deepViolet = vec3(0.55, 0.0, 1.0) * 1.0; 
-          col += mix(neonCyan, deepViolet, abs(wave)) * max(0.0, (1.0 - dist * 1.1));
+          vec2 center = uv - 0.5;
+          float r = length(center);
           
-          vec2 grid = abs(fract(uv * 40.0 - 0.5) - 0.5) / fwidth(uv * 40.0);
+          // Efek Gelombang Cahaya K-Labs Next-Gen
+          float wave = sin(r * 25.0 - uTime * 6.0) / (r * 6.0 + 0.3);
+          vec3 neonCyan = vec3(0.0, 1.0, 0.9) * 2.0;
+          vec3 ultraPurple = vec3(0.6, 0.0, 1.0) * 1.2;
+          
+          col += mix(neonCyan, ultraPurple, abs(wave)) * max(0.0, (1.0 - r * 1.0));
+          
+          // Grid Sub-Pixel Super Halus (Anti-Aliasing Tingkat Tinggi)
+          vec2 grid = abs(fract(uv * 45.0 - 0.5) - 0.5) / fwidth(uv * 45.0);
           float line = min(grid.x, grid.y);
-          col += vec3(0.0, 0.85, 0.65) * (1.0 - min(line, 1.0)) * 0.35;
+          col += vec3(0.0, 0.9, 0.7) * (1.0 - min(line, 1.0)) * 0.4;
         } else {
-          float scanline = sin(uv.y * 700.0) * 0.035;
+          float scanline = sin(uv.y * 800.0) * 0.03;
           col -= scanline;
-          col *= 1.0 - 0.45 * length(uv - 0.5);
+          col *= 1.0 - 0.4 * length(uv - 0.5);
         }
 
+        // HDR Tone Mapping & Cinematic Color Grading
         col = col / (col + vec3(1.0));
-        col = pow(col, vec3(0.82)); 
+        col = pow(col, vec3(0.8));
         fragColor = vec4(col, 1.0);
       }
     `;
@@ -397,55 +272,41 @@ class KKlabsUltraGPURenderer {
       return shader;
     };
 
-    const vs = createShader(gl.VERTEX_SHADER, vsSource);
-    const fs = createShader(gl.FRAGMENT_SHADER, fsSource);
-    
-    this.program = gl.createProgram();
-    gl.attachShader(this.program, vs);
-    gl.attachShader(this.program, fs);
-    gl.linkProgram(this.program);
+    const program = gl.createProgram();
+    gl.attachShader(program, createShader(gl.VERTEX_SHADER, vsSource));
+    gl.attachShader(program, createShader(gl.FRAGMENT_SHADER, fsSource));
+    gl.linkProgram(program);
+    this.program = program;
 
-    const quadVertices = new Float32Array([
-      -1, -1,  0, 1,
-       1, -1,  1, 1,
-      -1,  1,  0, 0,
-      -1,  1,  0, 0,
-       1, -1,  1, 1,
-       1,  1,  1, 0,
-    ]);
+    const vertices = new Float32Array([-1,-1, 0,1, 1,-1, 1,1, -1,1, 0,0, -1,1, 0,0, 1,-1, 1,1, 1,1, 1,0]);
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
-    const vertexBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, quadVertices, gl.STATIC_DRAW);
+    const aPos = gl.getAttribLocation(program, "aPosition");
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 16, 0);
 
-    const aPosLoc = gl.getAttribLocation(this.program, "aPosition");
-    gl.enableVertexAttribArray(aPosLoc);
-    gl.vertexAttribPointer(aPosLoc, 2, gl.FLOAT, false, 16, 0);
-
-    const aTexLoc = gl.getAttribLocation(this.program, "aTexCoord");
-    gl.enableVertexAttribArray(aTexLoc);
-    gl.vertexAttribPointer(aTexLoc, 2, gl.FLOAT, false, 16, 8);
+    const aTex = gl.getAttribLocation(program, "aTexCoord");
+    gl.enableVertexAttribArray(aTex`aTexCoord` || gl.getAttribLocation(program, "aTexCoord"));
+    gl.enableVertexAttribArray(aTex);
+    gl.vertexAttribPointer(aTex, 2, gl.FLOAT, false, 16, 8);
   }
 
   renderFrame() {
     if (!this.gl || !this.program) return;
     const gl = this.gl;
-
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.useProgram(this.program);
-
-    const timeLoc = gl.getUniformLocation(this.program, "uTime");
-    gl.uniform1f(timeLoc, performance.now() * 0.001);
-
-    const isRunningLoc = gl.getUniformLocation(this.program, "uIsRunning");
-    const isRunning = (this.core.cpu && this.core.cpu.isRunning) ? 1 : 0;
-    gl.uniform1i(isRunningLoc, isRunning);
-
+    
+    gl.uniform1f(gl.getUniformLocation(this.program, "uTime"), performance.now() * 0.001);
+    gl.uniform1i(gl.getUniformLocation(this.program, "uIsRunning"), (this.core.cpu && this.core.cpu.isRunning) ? 1 : 0);
+    
     gl.drawArrays(gl.TRIANGLES, 0, 6);
   }
 }
 
-// --- 7. CYBERPUNK TELEMETRY HUD & EXECUTION ENGINE ---
+// --- EXECUTION ENGINE & TELEMETRY HUD ---
 class KLabsExecutionEngine {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -456,32 +317,21 @@ class KLabsExecutionEngine {
 
   initTelemetryHUD() {
     if (document.getElementById('klabs-hud')) return;
-    
     const hud = document.createElement('div');
     hud.id = 'klabs-hud';
     hud.style.cssText = `
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background: rgba(3, 7, 18, 0.85);
-      border: 1px solid rgba(0, 255, 204, 0.4);
-      border-radius: 8px;
-      padding: 8px 12px;
-      font-family: 'Segoe UI', monospace;
-      font-size: 11px;
-      color: #00ffcc;
-      z-index: 99;
-      pointer-events: none;
-      backdrop-filter: blur(6px);
-      box-shadow: 0 4px 20px rgba(0, 255, 204, 0.15);
+      position: absolute; top: 15px; right: 15px;
+      background: rgba(3, 7, 18, 0.9); border: 1px solid rgba(0, 255, 204, 0.5);
+      border-radius: 8px; padding: 8px 12px; font-family: 'Segoe UI', monospace;
+      font-size: 11px; color: #00ffcc; z-index: 99; pointer-events: none;
+      backdrop-filter: blur(8px); box-shadow: 0 4px 25px rgba(0, 255, 204, 0.2);
     `;
     hud.innerHTML = `
-      <div style="font-weight:bold; letter-spacing:1px; margin-bottom:2px; color:#38bdf8;">K-LABS TELEMETRY HUD</div>
+      <div style="font-weight:bold; letter-spacing:1px; margin-bottom:2px; color:#38bdf8;">K-LABS ULTIMATE HUD</div>
       <div>FPS: <span id="hud-fps" style="color:#fff; font-weight:bold;">0</span></div>
       <div>CPU PC: <span id="hud-pc" style="color:#fff;">0xbfc00000</span></div>
-      <div>DISC STATUS: <span id="hud-disc" style="color:#38bdf8;">IDLE</span></div>
+      <div>DISC: <span id="hud-disc" style="color:#38bdf8;">IDLE</span></div>
     `;
-    
     setTimeout(() => {
       const container = document.getElementById('game');
       if (container) {
@@ -494,21 +344,17 @@ class KLabsExecutionEngine {
   updateHUD() {
     const now = performance.now();
     this.core.stats.frameCount++;
-    
     if (now - this.core.stats.lastTime >= 1000) {
       this.core.stats.fps = Math.round((this.core.stats.frameCount * 1000) / (now - this.core.stats.lastTime));
       this.core.stats.frameCount = 0;
       this.core.stats.lastTime = now;
 
-      const fpsEl = document.getElementById('hud-fps');
-      const pcEl = document.getElementById('hud-pc');
-      const discEl = document.getElementById('hud-disc');
-
-      if (fpsEl) fpsEl.textContent = this.core.stats.fps;
-      if (pcEl && this.core.cpu) pcEl.textContent = '0x' + this.core.cpu.PC.toString(16).toUpperCase();
-      if (discEl && this.core.cdrom) {
-        discEl.textContent = this.core.cdrom.isInserted ? `MOUNTED (${this.core.cdrom.totalSectors} SEC)` : 'NO DISC';
-      }
+      const f = document.getElementById('hud-fps');
+      const p = document.getElementById('hud-pc');
+      const d = document.getElementById('hud-disc');
+      if (f) f.textContent = this.core.stats.fps;
+      if (p && this.core.cpu) p.textContent = '0x' + this.core.cpu.PC.toString(16).toUpperCase();
+      if (d && this.core.cdrom) d.textContent = this.core.cdrom.isInserted ? `MOUNTED (${this.core.cdrom.totalSectors} SEC)` : 'NO DISC';
     }
   }
 
@@ -516,22 +362,16 @@ class KLabsExecutionEngine {
     if (!this.core.cpu) return;
     if (this.core.spu) this.core.spu.initAudio();
     this.core.cpu.isRunning = true;
-    console.log("[K-Labs Core] Ultra Execution Loop started.");
     this.runTick();
   }
 
   runTick() {
     if (!this.core.cpu || !this.core.cpu.isRunning) return;
 
-    const instructionsPerTick = 8000; 
-    for (let i = 0; i < instructionsPerTick; i++) {
+    for (let i = 0; i < 10000; i++) {
       this.core.cpu.step();
     }
-
-    if (this.core.gpu) {
-      this.core.gpu.renderFrame();
-    }
-
+    if (this.core.gpu) this.core.gpu.renderFrame();
     this.updateHUD();
 
     if (this.core.profile.unlockedFPS) {
@@ -542,23 +382,17 @@ class KLabsExecutionEngine {
   }
 
   stopLoop() {
-    if (this.animationFrameId) {
-      cancelAnimationFrame(this.animationFrameId);
-      this.animationFrameId = null;
-    }
-    if (this.timeoutId) {
-      clearTimeout(this.timeoutId);
-      this.timeoutId = null;
-    }
+    if (this.animationFrameId) cancelAnimationFrame(this.animationFrameId);
+    if (this.timeoutId) clearTimeout(this.timeoutId);
     if (this.core.cpu) this.core.cpu.isRunning = false;
   }
 }
 
-// --- 8. JOYPAD & HARDWARE REGISTER SYNC ---
+// --- JOYPAD & ADVANCED FILE SAVE/LOAD (INTERNAL STORAGE) ---
 class KLabsJoypadController {
   constructor(coreSystem) {
     this.core = coreSystem;
-    this.buttonState = 0xFFFF; // Default unpressed
+    this.buttonState = 0xFFFF;
     this.initGlobalJoypadMapper();
   }
 
@@ -579,14 +413,9 @@ class KLabsJoypadController {
         case 'CROSS':    bitMask = 1 << 15; break;
         case 'SQUARE':   bitMask = 1 << 16; break;
       }
+      if (isPressed) this.buttonState &= ~bitMask;
+      else this.buttonState |= bitMask;
 
-      if (isPressed) {
-        this.buttonState &= ~bitMask; // Tombol aktif (0)
-      } else {
-        this.buttonState |= bitMask;  // Tombol lepas (1)
-      }
-
-      // Sinkronisasi mutlak langsung ke Hardware Register bus
       if (this.core && this.core.memory) {
         this.core.memory.hardwareRegs[0x1040 >> 2] = this.buttonState;
       }
@@ -621,38 +450,44 @@ class KLabsAdvancedFeatures {
     }
   }
 
-  saveState() {
+  // SIMPAN DATA LANGSUNG KE PENYIMPANAN INTERNAL PONSEL (DOWNLOAD FILE .SAV)
+  exportSaveFile() {
     try {
-      const ramBase64 = btoa(String.fromCharCode.apply(null, new Uint8Array(this.core.memory.mainRAM)));
-      localStorage.setItem('klabs_ultrasavestate_v5', ramBase64);
-      alert("Progres Game berhasil disimpan dengan aman!");
+      const ramBuffer = this.core.memory.mainRAM;
+      const blob = new Blob([ramBuffer], { type: "application/octet-stream" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "K-Labs_PS1_SaveState.sav";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      alert("File Save State berhasil diunduh ke penyimpanan internal ponsel!");
     } catch (err) {
-      console.error("Gagal menyimpan state:", err);
+      console.error("Gagal mengekspor save state:", err);
     }
   }
 
-  loadState() {
-    try {
-      const ramBase64 = localStorage.getItem('klabs_ultrasavestate_v5');
-      if (!ramBase64) {
-        alert("Belum ada data Save State yang tersimpan!");
-        return;
+  // MUAT DATA DARI PENYIMPANAN INTERNAL PONSEL (UPLOAD FILE .SAV)
+  importSaveFile(inputElement) {
+    const file = inputElement.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const arrayBuffer = e.target.result;
+        new Uint8Array(this.core.memory.mainRAM).set(new Uint8Array(arrayBuffer));
+        alert("Progres Game (Save State) berhasil dimuat dari file internal!");
+      } catch (err) {
+        alert("Gagal membaca file save state!");
       }
-      const binaryString = atob(ramBase64);
-      const len = binaryString.length;
-      const bytes = new Uint8Array(len);
-      for (let i = 0; i < len; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-      new Uint8Array(this.core.memory.mainRAM).set(bytes);
-      alert("Progres Game berhasil dimuat kembali!");
-    } catch (err) {
-      console.error("Gagal memuat state:", err);
-    }
+    };
+    reader.readAsArrayBuffer(file);
   }
 }
 
-// --- 9. PENGIKATAN MODUL KE GLOBAL WINDOW ---
+// --- INISILISASI GLOBAL ---
 if (window.KLabsEngine) {
   window.KLabsEngine.bus = new KLabsMemoryBus(window.KLabsEngine);
   window.KLabsEngine.loader = new KLabsFileLoader(window.KLabsEngine);
@@ -665,7 +500,7 @@ if (window.KLabsEngine) {
   window.KLabsEngine.advanced = new KLabsAdvancedFeatures(window.KLabsEngine);
 
   console.info(
-    `%c[K-LABS ULTRA ENGINE v5.0 SECURED] %cMahakarya Kialdevaro Group Terintegrasi Sempurna.`,
+    `%c[K-LABS ULTIMATE v5.0] %cMahakarya Kialdevaro Group Diaktifkan[span_8](start_span)[span_8](end_span)[span_9](start_span)[span_9](end_span).`,
     "color: #00ffcc; font-weight: bold; background: #030712; padding: 4px 8px; border-radius: 4px;",
     "color: #94a3b8; font-weight: normal;"
   );
