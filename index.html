@@ -1,13 +1,13 @@
 <!-- ===================================================================== -->
-<!-- K-LABS RETRO ENGINE - ULTRA INTERFACE ARCHITECTURE v5.0 (FINAL)       -->
-<!-- Copyright © 2026 Kialdevaro Group. All Rights Reserved.               -->
+<!-- K-LABS RETRO ENGINE - ULTIMATE NEXT-GEN ARCHITECTURE v5.0             -->
+<!-- Copyright © 2026 Kialdevaro Group. All Rights Reserved.[span_0](start_span)[span_0](end_span)[span_1](start_span)[span_1](end_span)  -->
 <!-- ===================================================================== -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>K-Labs Retro Engine Ultra - Kialdevaro Group</title>
+  <title>K-Labs Retro Engine Ultimate - Kialdevaro Group</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { 
@@ -26,15 +26,15 @@
       gap: 12px; 
     }
     .header-panel { 
-      background: rgba(15, 23, 42, 0.85); 
-      border: 1px solid rgba(0, 255, 204, 0.3); 
+      background: rgba(15, 23, 42, 0.9); 
+      border: 1px solid rgba(0, 255, 204, 0.4); 
       border-radius: 14px; 
       padding: 14px; 
-      backdrop-filter: blur(12px); 
+      backdrop-filter: blur(14px); 
       display: flex; 
       justify-content: space-between; 
       align-items: center; 
-      box-shadow: 0 8px 32px rgba(0, 255, 204, 0.1);
+      box-shadow: 0 8px 32px rgba(0, 255, 204, 0.15);
     }
     .brand-title { 
       font-size: 15px; 
@@ -43,8 +43,8 @@
       letter-spacing: 1.5px; 
     }
     .control-panel { 
-      background: rgba(15, 23, 42, 0.9); 
-      border: 1px solid rgba(0, 255, 204, 0.25); 
+      background: rgba(15, 23, 42, 0.95); 
+      border: 1px solid rgba(0, 255, 204, 0.3); 
       border-radius: 14px; 
       padding: 14px; 
       display: flex; 
@@ -74,7 +74,7 @@
       text-align: center; 
       font-size: 14px; 
       transition: 0.2s; 
-      box-shadow: 0 4px 20px rgba(0, 255, 204, 0.3);
+      box-shadow: 0 4px 25px rgba(0, 255, 204, 0.4);
     }
     .btn-run:hover { 
       opacity: 0.95; 
@@ -85,8 +85,8 @@
 <body>
   <div class="container">
     <div class="header-panel">
-      <div class="brand-title">K-LABS RETRO ENGINE // ULTRA v5.0</div>
-      <div style="font-size: 11px; color: #38bdf8; font-weight: 600;">© 2026 Kialdevaro Group</div>
+      <div class="brand-title">K-LABS RETRO ENGINE // ULTIMATE</div>
+      <div style="font-size: 11px; color: #38bdf8; font-weight: 600;">© 2026 Kialdevaro Group[span_2](start_span)[span_2](end_span)[span_3](start_span)[span_3](end_span)</div>
     </div>
 
     <div class="control-panel">
@@ -98,19 +98,20 @@
         <span>2. FILE GAME ROM (.bin/.iso):</span>
         <input type="file" id="romFile">
       </div>
-      <button class="btn-run" onclick="bootMasterEngine()">▶ JALANKAN ULTRA ENGINE (WEBGL2)</button>
+      <button class="btn-run" onclick="bootMasterEngine()">▶ JALANKAN ULTIMATE ENGINE (WEBGL2)</button>
     </div>
     
-    <!-- Wadah Kanvas GPU WebGL2 -->
-    <div id="game" style="width: 100%; aspect-ratio: 4/3; background: #030712; border-radius: 14px; border: 1px solid rgba(0,255,204,0.4); overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 30px rgba(0,255,204,0.05);">
+    <!-- Wadah Kanvas GPU WebGL2 Next-Gen -->
+    <div id="game" style="width: 100%; aspect-ratio: 4/3; background: #030712; border-radius: 14px; border: 1px solid rgba(0,255,204,0.5); overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 40px rgba(0,255,204,0.1);">
     </div>
 
-    <!-- Tombol Fitur Pro & Toggle FPS -->
-    <div style="display: flex; gap: 8px;">
-      <button onclick="document.getElementById('game').requestFullscreen()" style="flex:1; background:#1e293b; color:#00ffcc; border:1px solid #00ffcc44; border-radius:8px; padding:8px; font-size:11px; cursor:pointer; font-weight:bold;">⛶ FULLSCREEN</button>
-      <button id="btn-fps-toggle" onclick="toggleFPSMode(this)" style="flex:1; background:#1e293b; color:#38bdf8; border:1px solid #38bdf844; border-radius:8px; padding:8px; font-size:11px; cursor:pointer; font-weight:bold;">⚡ FPS: UNLOCKED</button>
-      <button onclick="window.KLabsEngine.advanced.saveState()" style="flex:1; background:#1e293b; color:#38bdf8; border:1px solid #38bdf844; border-radius:8px; padding:8px; font-size:11px; cursor:pointer; font-weight:bold;">💾 SAVE</button>
-      <button onclick="window.KLabsEngine.advanced.loadState()" style="flex:1; background:#1e293b; color:#38bdf8; border:1px solid #38bdf844; border-radius:8px; padding:8px; font-size:11px; cursor:pointer; font-weight:bold;">📂 LOAD</button>
+    <!-- Tombol Fitur Pro & Manajemen Penyimpanan Internal -->
+    <div style="display: flex; gap: 6px;">
+      <button onclick="document.getElementById('game').requestFullscreen()" style="flex:1; background:#1e293b; color:#00ffcc; border:1px solid #00ffcc44; border-radius:8px; padding:8px; font-size:10px; cursor:pointer; font-weight:bold;">⛶ FULL</button>
+      <button id="btn-fps-toggle" onclick="toggleFPSMode(this)" style="flex:1; background:#1e293b; color:#38bdf8; border:1px solid #38bdf844; border-radius:8px; padding:8px; font-size:10px; cursor:pointer; font-weight:bold;">⚡ UNLOCK</button>
+      <button onclick="window.KLabsEngine.advanced.exportSaveFile()" style="flex:1; background:#1e293b; color:#10b981; border:1px solid #10b98144; border-radius:8px; padding:8px; font-size:10px; cursor:pointer; font-weight:bold;">💾 EXPORT</button>
+      <button onclick="document.getElementById('importSaveInput').click()" style="flex:1; background:#1e293b; color:#f59e0b; border:1px solid #f59e0b44; border-radius:8px; padding:8px; font-size:10px; cursor:pointer; font-weight:bold;">📂 IMPORT</button>
+      <input type="file" id="importSaveInput" style="display:none" onchange="window.KLabsEngine.advanced.importSaveFile(this)">
     </div>
 
     <!-- Panel Tombol Bahu Stik Virtual -->
@@ -147,14 +148,12 @@
     </div>
   </div>
 
-  <!-- Skrip Kontrol UI & Eksekusi Engine -->
   <script>
     function toggleFPSMode(btn) {
       if (window.KLabsEngine) {
-        const currentState = window.KLabsEngine.profile.unlockedFPS;
-        const newState = !currentState;
+        const newState = !window.KLabsEngine.profile.unlockedFPS;
         window.KLabsEngine.toggleUnlimitedFPS(newState);
-        btn.textContent = newState ? "⚡ FPS: UNLOCKED" : "🔒 FPS: 60 LOCKED";
+        btn.textContent = newState ? "⚡ UNLOCK" : "🔒 60 FPS";
         btn.style.color = newState ? "#38bdf8" : "#fACC15";
       }
     }
@@ -174,12 +173,10 @@
         }
 
         if (!window.KLabsEngine || !window.KLabsEngine.loader) {
-           alert("Galat: Core Engine (core.js) belum terhubung dengan benar!");
+           alert("Galat: Core Engine belum terhubung!");
            return;
         }
 
-        console.log("[K-Labs Studio] Memproses file biner ke Ultra-Memory Bus...");
-        
         await window.KLabsEngine.loader.loadBIOS(biosInput.files[0]);
         await window.KLabsEngine.loader.loadROM(romInput.files[0]);
 
@@ -190,25 +187,18 @@
 
         if (window.KLabsEngine.execution) {
           window.KLabsEngine.execution.startLoop();
-          console.log("[K-Labs Studio] Master Ultra Execution Loop berhasil diaktifkan!");
-        } else {
-          alert("Galat: Execution Engine tidak ditemukan!");
         }
-
       } catch (error) {
         alert("DETAIL ERROR: " + error.message);
-        console.error("[K-Labs Critical Error]:", error);
       }
     }
   </script>
 
-  <!-- Panggil Core Engine Mandiri K-Labs Otomatis -->
   <script>
     (function() {
       const script = document.createElement('script');
       const isGitHubPages = window.location.hostname.includes('github.io');
       const basePath = isGitHubPages && !window.location.pathname.startsWith('/K-Labs/') ? '/K-Labs/' : '';
-      
       script.src = basePath + 'core.js?v=' + Date.now();
       document.body.appendChild(script);
     })();
