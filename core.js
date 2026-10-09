@@ -11,7 +11,7 @@
 
 class KLabsCoreSystem {
   constructor() {
-    this.brand = "Kialdevaro Group - K-Labs Retro Engine Ultimate v5.0";[span_2](start_span)[span_2](end_span)[span_3](start_span)[span_3](end_span)
+    this.brand = "Kialdevaro Group - K-Labs Retro Engine Ultimate v5.0";
     this.securityLevel = "MAXIMUM_SECURE_BOUNDS";
     
     this.profile = {
