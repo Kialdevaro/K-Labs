@@ -1,7 +1,7 @@
 /**
  * =====================================================================
  * K-LABS PROPRIETARY CORE ENGINE - AEROSPACE GRADE ULTIMATE v5.0
- * Copyright © 2026 Kialdevaro Group. All Rights Reserved[span_3](start_span)[span_3](end_span)[span_4](start_span)[span_4](end_span).
+ * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
  * Secured Architecture: ISO Bootloader, MIPS CPU, GP0/GP1 GPU Parser,
  * VRAM Framebuffer Texture Mapping, & Active SPU Audio Stream.
  * =====================================================================
@@ -9,10 +9,9 @@
 
 'use strict';
 
-// --- 1. SISTEM INTI & KELAS UTAMA ---
 class KLabsCoreSystem {
   constructor() {
-    this.brand = "Kialdevaro Group - K-Labs Retro Engine Ultimate v5.0";[span_5](start_span)[span_5](end_span)[span_6](start_span)[span_6](end_span)
+    this.brand = "Kialdevaro Group - K-Labs Retro Engine Ultimate v5.0";
     this.securityLevel = "MAXIMUM_SECURE_BOUNDS_AEROSPACE";
     
     this.profile = {
@@ -24,11 +23,11 @@ class KLabsCoreSystem {
     };
 
     this.memory = {
-      mainRAM: new ArrayBuffer(2 * 1024 * 1024), // 2 MB Main RAM
-      biosROM: new ArrayBuffer(512 * 1024),      // 512 KB BIOS
-      scratchpad: new ArrayBuffer(1024),         // 1 KB Scratchpad
-      vram: new ArrayBuffer(1024 * 512 * 2),     // 1 MB VRAM Framebuffer (1024x512 16-bit)
-      hardwareRegs: new Uint32Array(256),        // Hardware Registers
+      mainRAM: new ArrayBuffer(2 * 1024 * 1024), 
+      biosROM: new ArrayBuffer(512 * 1024),      
+      scratchpad: new ArrayBuffer(1024),         
+      vram: new ArrayBuffer(1024 * 512 * 2),     
+      hardwareRegs: new Uint32Array(256),        
       
       ramView32: null,
       biosView32: null,
@@ -48,8 +47,7 @@ class KLabsCoreSystem {
     this.memory.ramView32 = new Uint32Array(this.memory.mainRAM);
     this.memory.biosView32 = new Uint32Array(this.memory.biosROM);
     this.memory.vramView16 = new Uint16Array(this.memory.vram);
-    this.memory.hardwareRegs[0x1040 >> 2] = 0xFFFF; // Controller default unpressed
-    console.log(`[K-Labs Core] ${this.brand} - Secured Aerospace Memory Bus initialized.`);
+    this.memory.hardwareRegs[0x1040 >> 2] = 0xFFFF; 
   }
 
   toggleUnlimitedFPS(enable) {
@@ -63,7 +61,6 @@ Object.defineProperty(window, 'KLabsEngine', {
   configurable: false
 });
 
-// --- 2. MEMORY BUS & GPU GP0/GP1 REGISTERS ---
 class KLabsMemoryBus {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -93,7 +90,6 @@ class KLabsMemoryBus {
   }
 }
 
-// --- 3. ISO9660 & PSX-EXE BOOTLOADER ---
 class KLabsISOBootloader {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -101,8 +97,6 @@ class KLabsISOBootloader {
 
   parseAndBootGame() {
     if (!this.core.cdrom || !this.core.cdrom.isInserted) return false;
-    console.log("[K-Labs Bootloader] Menganalisis struktur ISO9660 & Eksekutor Game...");
-    
     const disc = new Uint8Array(this.core.cdrom.discData);
     let exeOffset = -1;
 
@@ -130,7 +124,6 @@ class KLabsISOBootloader {
       if (this.core.cpu) {
         this.core.cpu.PC = entryPoint;
         this.core.cpu.nextPC = entryPoint + 4;
-        console.log(`[K-Labs Bootloader] Sukses! Entry Point: 0x${entryPoint.toString(16)}`);
       }
       return true;
     }
@@ -176,7 +169,6 @@ class KLabsFileLoader {
   }
 }
 
-// --- 4. MIPS CPU R3000A ---
 class KLabsMIPSProcessor {
   constructor(memoryBus) {
     this.mem = memoryBus;
@@ -218,7 +210,6 @@ class KLabsMIPSProcessor {
   }
 }
 
-// --- 5. ACTIVE SPU AUDIO STREAM PIPELINE ---
 class KLabsSoundProcessor {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -237,14 +228,10 @@ class KLabsSoundProcessor {
       this.analyser = this.audioCtx.createAnalyser();
       this.gainNode.connect(this.analyser);
       this.analyser.connect(this.audioCtx.destination);
-      console.log("[K-Labs SPU] Web Audio Stream Pipeline active.");
-    } catch (e) {
-      console.warn("[K-Labs SPU] Audio context restricted.");
-    }
+    } catch (e) {}
   }
 }
 
-// --- 6. VRAM TEXTURE MAPPING & WEBGL2 RENDERER ---
 class KKlabsUltraGPURenderer {
   constructor(coreSystem, containerId = 'game') {
     this.core = coreSystem;
@@ -289,7 +276,6 @@ class KKlabsUltraGPURenderer {
       }
     `;
 
-    // Shader Penggabungan VRAM Framebuffer & Post-Processing Cinematic Cyber
     const fsSource = `#version 300 es
       precision highp float;
       in vec2 vTexCoord;
@@ -301,18 +287,14 @@ class KKlabsUltraGPURenderer {
       void main() {
         vec2 uv = vTexCoord;
         vec4 vramColor = texture(uVramTex, uv);
-        
         vec3 col = mix(vec3(0.005, 0.02, 0.06), vec3(0.02, 0.08, 0.20), uv.y);
 
         if (uIsRunning == 1) {
-          // Campurkan hasil VRAM framebuffer asli dengan shader cyber neon tingkat tinggi
           vec3 gameVisual = mix(col, vramColor.rgb * 1.5, 0.6);
-          
           vec2 center = uv - 0.5;
           float r = length(center);
           float wave = sin(r * 20.0 - uTime * 4.0) / (r * 8.0 + 0.4);
           vec3 neonCyan = vec3(0.0, 1.0, 0.9) * 0.8;
-          
           gameVisual += neonCyan * abs(wave) * (1.0 - r);
           col = gameVisual;
         } else {
@@ -367,7 +349,6 @@ class KKlabsUltraGPURenderer {
     if (!this.gl || !this.program) return;
     const gl = this.gl;
 
-    // Perbarui Tekstur VRAM Framebuffer secara real-time dari memori sistem
     gl.bindTexture(gl.TEXTURE_2D, this.vramTexture);
     gl.texImage2D(
       gl.TEXTURE_2D, 0, gl.RGBA, 1024, 512, 0, 
@@ -388,7 +369,6 @@ class KKlabsUltraGPURenderer {
   }
 }
 
-// --- 7. EXECUTION ENGINE & TELEMETRY HUD ---
 class KLabsExecutionEngine {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -470,7 +450,6 @@ class KLabsExecutionEngine {
   }
 }
 
-// --- 8. JOYPAD & STORAGE ---
 class KLabsJoypadController {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -560,15 +539,14 @@ class KLabsAdvancedFeatures {
   }
 }
 
-// --- INISIALISASI KONEKSI GLOBAL ---
-if (window.KLabsEngine) {
-  window.KLabsEngine.bus = new KLabsMemoryBus(window.KLabsEngine);
-  window.KLabsEngine.loader = new KLabsFileLoader(window.KLabsEngine);
-  window.KLabsEngine.cpu = new KLabsMIPSProcessor(window.KLabsEngine.bus);
-  window.KLabsEngine.cdrom = new KLabsCDROMController(window.KLabsEngine);
-  window.KLabsEngine.spu = new KLabsSoundProcessor(window.KLabsEngine);
-  window.KLabsEngine.gpu = new KKlabsUltraGPURenderer(window.KLabsEngine, 'game');
-  window.KLabsEngine.execution = new KLabsExecutionEngine(window.KLabsEngine);
-  window.KLabsEngine.joypad = new KLabsJoypadController(window.KLabsEngine);
-  window.KLabsEngine.advanced = new KLabsAdvancedFeatures(window.KLabsEngine);
-}
+// Inisialisasi Mutlak Global
+window.KLabsEngine = new KLabsCoreSystem();
+window.KLabsEngine.bus = new KLabsMemoryBus(window.KLabsEngine);
+window.KLabsEngine.loader = new KLabsFileLoader(window.KLabsEngine);
+window.KLabsEngine.cpu = new KLabsMIPSProcessor(window.KLabsEngine.bus);
+window.KLabsEngine.cdrom = new KLabsCDROMController(window.KLabsEngine);
+window.KLabsEngine.spu = new KLabsSoundProcessor(window.KLabsEngine);
+window.KLabsEngine.gpu = new KKlabsUltraGPURenderer(window.KLabsEngine, 'game');
+window.KLabsEngine.execution = new KLabsExecutionEngine(window.KLabsEngine);
+window.KLabsEngine.joypad = new KLabsJoypadController(window.KLabsEngine);
+window.KLabsEngine.advanced = new KLabsAdvancedFeatures(window.KLabsEngine);
