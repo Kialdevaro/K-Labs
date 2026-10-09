@@ -1,6 +1,6 @@
 <!-- ===================================================================== -->
 <!-- K-LABS RETRO ENGINE - ULTIMATE NEXT-GEN ARCHITECTURE v5.0             -->
-<!-- Copyright © 2026 Kialdevaro Group. All Rights Reserved.[span_0](start_span)[span_0](end_span)[span_1](start_span)[span_1](end_span)  -->
+<!-- Copyright © 2026 Kialdevaro Group. All Rights Reserved.               -->
 <!-- ===================================================================== -->
 <!DOCTYPE html>
 <html lang="id">
@@ -194,14 +194,7 @@
     }
   </script>
 
-  <script>
-    (function() {
-      const script = document.createElement('script');
-      const isGitHubPages = window.location.hostname.includes('github.io');
-      const basePath = isGitHubPages && !window.location.pathname.startsWith('/K-Labs/') ? '/K-Labs/' : '';
-      script.src = basePath + 'core.js?v=' + Date.now();
-      document.body.appendChild(script);
-    })();
-  </script>
+  <!-- Panggil core.js secara statis dan pasti -->
+  <script src="core.js"></script>
 </body>
 </html>
