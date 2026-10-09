@@ -109,9 +109,9 @@
     <div style="display: flex; gap: 6px;">
       <button onclick="document.getElementById('game').requestFullscreen()" style="flex:1; background:#1e293b; color:#00ffcc; border:1px solid #00ffcc44; border-radius:8px; padding:8px; font-size:10px; cursor:pointer; font-weight:bold;">⛶ FULL</button>
       <button id="btn-fps-toggle" onclick="toggleFPSMode(this)" style="flex:1; background:#1e293b; color:#38bdf8; border:1px solid #38bdf844; border-radius:8px; padding:8px; font-size:10px; cursor:pointer; font-weight:bold;">⚡ UNLOCK</button>
-      <button onclick="window.KLabsEngine.advanced.exportSaveFile()" style="flex:1; background:#1e293b; color:#10b981; border:1px solid #10b98144; border-radius:8px; padding:8px; font-size:10px; cursor:pointer; font-weight:bold;">💾 EXPORT</button>
+      <button onclick="if(window.KLabsEngine && window.KLabsEngine.advanced) window.KLabsEngine.advanced.exportSaveFile()" style="flex:1; background:#1e293b; color:#10b981; border:1px solid #10b98144; border-radius:8px; padding:8px; font-size:10px; cursor:pointer; font-weight:bold;">💾 EXPORT</button>
       <button onclick="document.getElementById('importSaveInput').click()" style="flex:1; background:#1e293b; color:#f59e0b; border:1px solid #f59e0b44; border-radius:8px; padding:8px; font-size:10px; cursor:pointer; font-weight:bold;">📂 IMPORT</button>
-      <input type="file" id="importSaveInput" style="display:none" onchange="window.KLabsEngine.advanced.importSaveFile(this)">
+      <input type="file" id="importSaveInput" style="display:none" onchange="if(window.KLabsEngine && window.KLabsEngine.advanced) window.KLabsEngine.advanced.importSaveFile(this)">
     </div>
 
     <!-- Panel Tombol Bahu Stik Virtual -->
@@ -133,17 +133,17 @@
     <!-- D-Pad & Tombol Aksi -->
     <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px 12px;">
       <div style="width: 95px; height: 95px; background: rgba(255,255,255,0.02); border-radius: 50%; border: 1px solid #00ffcc33; display: flex; align-items: center; justify-content: center; position: relative;">
-        <div style="position: absolute; top: 4px; cursor: pointer; color: #00ffcc; font-size: 14px;" onmousedown="KLabsPressButton('UP', true)" onmouseup="KLabsPressButton('UP', false)">▲</div>
-        <div style="position: absolute; bottom: 4px; cursor: pointer; color: #00ffcc; font-size: 14px;" onmousedown="KLabsPressButton('DOWN', true)" onmouseup="KLabsPressButton('DOWN', false)">▼</div>
-        <div style="position: absolute; left: 6px; cursor: pointer; color: #00ffcc; font-size: 14px;" onmousedown="KLabsPressButton('LEFT', true)" onmouseup="KLabsPressButton('LEFT', false)">◀</div>
-        <div style="position: absolute; right: 6px; cursor: pointer; color: #00ffcc; font-size: 14px;" onmousedown="KLabsPressButton('RIGHT', true)" onmouseup="KLabsPressButton('RIGHT', false)">▶</div>
+        <div style="position: absolute; top: 4px; cursor: pointer; color: #00ffcc; font-size: 14px;" onmousedown="KLabsPressButton('UP', true)" onmouseup="KLabsPressButton('UP', false)" ontouchstart="KLabsPressButton('UP', true)" ontouchend="KLabsPressButton('UP', false)">▲</div>
+        <div style="position: absolute; bottom: 4px; cursor: pointer; color: #00ffcc; font-size: 14px;" onmousedown="KLabsPressButton('DOWN', true)" onmouseup="KLabsPressButton('DOWN', false)" ontouchstart="KLabsPressButton('DOWN', true)" ontouchend="KLabsPressButton('DOWN', false)">▼</div>
+        <div style="position: absolute; left: 6px; cursor: pointer; color: #00ffcc; font-size: 14px;" onmousedown="KLabsPressButton('LEFT', true)" onmouseup="KLabsPressButton('LEFT', false)" ontouchstart="KLabsPressButton('LEFT', true)" ontouchend="KLabsPressButton('LEFT', false)">◀</div>
+        <div style="position: absolute; right: 6px; cursor: pointer; color: #00ffcc; font-size: 14px;" onmousedown="KLabsPressButton('RIGHT', true)" onmouseup="KLabsPressButton('RIGHT', false)" ontouchstart="KLabsPressButton('RIGHT', true)" ontouchend="KLabsPressButton('RIGHT', false)">▶</div>
       </div>
       
       <div style="display: grid; grid-template-columns: repeat(2, 40px); gap: 8px;">
-        <button onmousedown="KLabsPressButton('SQUARE', true)" onmouseup="KLabsPressButton('SQUARE', false)" style="height: 40px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 50%; font-size: 13px; font-weight:bold;">□</button>
-        <button onmousedown="KLabsPressButton('TRIANGLE', true)" onmouseup="KLabsPressButton('TRIANGLE', false)" style="height: 40px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 50%; font-size: 13px; font-weight:bold;">△</button>
-        <button onmousedown="KLabsPressButton('CROSS', true)" onmouseup="KLabsPressButton('CROSS', false)" style="height: 40px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 50%; font-size: 13px; font-weight:bold;">✕</button>
-        <button onmousedown="KLabsPressButton('CIRCLE', true)" onmouseup="KLabsPressButton('CIRCLE', false)" style="height: 40px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 50%; font-size: 13px; font-weight:bold;">◯</button>
+        <button onmousedown="KLabsPressButton('SQUARE', true)" onmouseup="KLabsPressButton('SQUARE', false)" ontouchstart="KLabsPressButton('SQUARE', true)" ontouchend="KLabsPressButton('SQUARE', false)" style="height: 40px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 50%; font-size: 13px; font-weight:bold;">□</button>
+        <button onmousedown="KLabsPressButton('TRIANGLE', true)" onmouseup="KLabsPressButton('TRIANGLE', false)" ontouchstart="KLabsPressButton('TRIANGLE', true)" ontouchend="KLabsPressButton('TRIANGLE', false)" style="height: 40px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 50%; font-size: 13px; font-weight:bold;">△</button>
+        <button onmousedown="KLabsPressButton('CROSS', true)" onmouseup="KLabsPressButton('CROSS', false)" ontouchstart="KLabsPressButton('CROSS', true)" ontouchend="KLabsPressButton('CROSS', false)" style="height: 40px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 50%; font-size: 13px; font-weight:bold;">✕</button>
+        <button onmousedown="KLabsPressButton('CIRCLE', true)" onmouseup="KLabsPressButton('CIRCLE', false)" ontouchstart="KLabsPressButton('CIRCLE', true)" ontouchend="KLabsPressButton('CIRCLE', false)" style="height: 40px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 50%; font-size: 13px; font-weight:bold;">◯</button>
       </div>
     </div>
   </div>
@@ -173,7 +173,7 @@
         }
 
         if (!window.KLabsEngine || !window.KLabsEngine.loader) {
-           alert("Galat: Core Engine belum terhubung!");
+           alert("Galat: Core Engine belum sepenuhnya terhubung. Tunggu beberapa detik atau muat ulang halaman!");
            return;
         }
 
@@ -194,7 +194,34 @@
     }
   </script>
 
-  <!-- Panggil core.js secara statis dan pasti -->
-  <script src="core.js"></script>
+  <!-- Pemuat Inti Otomatis Cerdas Anti-Galat GitHub Pages -->
+  <script>
+    (function() {
+      const script = document.createElement('script');
+      const pathname = window.location.pathname;
+      const isGitHubPages = window.location.hostname.includes('github.io');
+      
+      // Penentuan jalur mutlak secara dinamis
+      let basePath = './';
+      if (isGitHubPages) {
+        basePath = pathname.includes('/K-Labs/') ? '/K-Labs/' : './';
+      }
+      
+      script.src = basePath + 'core.js?v=' + Date.now();
+      
+      script.onload = function() {
+        console.log("[K-Labs Studio] Core Engine berhasil dimuat dari jalur: " + script.src);
+      };
+      
+      script.onerror = function() {
+        console.warn("[K-Labs Studio] Jalur utama gagal, mencoba fallback ke direktori akar...");
+        const fallback = document.createElement('script');
+        fallback.src = 'core.js?v=' + Date.now();
+        document.body.appendChild(fallback);
+      };
+
+      document.body.appendChild(script);
+    })();
+  </script>
 </body>
 </html>
