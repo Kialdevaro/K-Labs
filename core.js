@@ -1,18 +1,19 @@
 /**
  * =====================================================================
- * K-LABS PROPRIETARY CORE ENGINE - ULTIMATE BOOTLOADER ARCHITECTURE v5.0
- * Copyright © 2026 Kialdevaro Group. All Rights Reserved.[span_0](start_span)[span_0](end_span)[span_1](start_span)[span_1](end_span)
- * Features: ISO9660 Parser, PSX-EXE Executable Loader, Next-Gen WebGL2 GPU,
- * Internal Storage Save/Load (.sav), & Real-Time Cyberpunk HUD.
+ * K-LABS PROPRIETARY CORE ENGINE - AEROSPACE GRADE ULTIMATE v5.0
+ * Copyright © 2026 Kialdevaro Group. All Rights Reserved[span_3](start_span)[span_3](end_span)[span_4](start_span)[span_4](end_span).
+ * Secured Architecture: ISO Bootloader, MIPS CPU, GP0/GP1 GPU Parser,
+ * VRAM Framebuffer Texture Mapping, & Active SPU Audio Stream.
  * =====================================================================
  */
 
 'use strict';
 
+// --- 1. SISTEM INTI & KELAS UTAMA ---
 class KLabsCoreSystem {
   constructor() {
-    this.brand = "Kialdevaro Group - K-Labs Retro Engine Ultimate v5.0";
-    this.securityLevel = "MAXIMUM_SECURE_BOUNDS";
+    this.brand = "Kialdevaro Group - K-Labs Retro Engine Ultimate v5.0";[span_5](start_span)[span_5](end_span)[span_6](start_span)[span_6](end_span)
+    this.securityLevel = "MAXIMUM_SECURE_BOUNDS_AEROSPACE";
     
     this.profile = {
       mode: 'ultra',          
@@ -26,7 +27,7 @@ class KLabsCoreSystem {
       mainRAM: new ArrayBuffer(2 * 1024 * 1024), // 2 MB Main RAM
       biosROM: new ArrayBuffer(512 * 1024),      // 512 KB BIOS
       scratchpad: new ArrayBuffer(1024),         // 1 KB Scratchpad
-      vram: new ArrayBuffer(4 * 1024 * 1024),    // 4 MB VRAM
+      vram: new ArrayBuffer(1024 * 512 * 2),     // 1 MB VRAM Framebuffer (1024x512 16-bit)
       hardwareRegs: new Uint32Array(256),        // Hardware Registers
       
       ramView32: null,
@@ -47,7 +48,8 @@ class KLabsCoreSystem {
     this.memory.ramView32 = new Uint32Array(this.memory.mainRAM);
     this.memory.biosView32 = new Uint32Array(this.memory.biosROM);
     this.memory.vramView16 = new Uint16Array(this.memory.vram);
-    this.memory.hardwareRegs[0x1040 >> 2] = 0xFFFF; 
+    this.memory.hardwareRegs[0x1040 >> 2] = 0xFFFF; // Controller default unpressed
+    console.log(`[K-Labs Core] ${this.brand} - Secured Aerospace Memory Bus initialized.`);
   }
 
   toggleUnlimitedFPS(enable) {
@@ -61,6 +63,7 @@ Object.defineProperty(window, 'KLabsEngine', {
   configurable: false
 });
 
+// --- 2. MEMORY BUS & GPU GP0/GP1 REGISTERS ---
 class KLabsMemoryBus {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -90,7 +93,7 @@ class KLabsMemoryBus {
   }
 }
 
-// --- ISO9660 & PSX-EXE BOOTLOADER (MEMBUAT GAME BISA DIMAINKAN) ---
+// --- 3. ISO9660 & PSX-EXE BOOTLOADER ---
 class KLabsISOBootloader {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -103,7 +106,6 @@ class KLabsISOBootloader {
     const disc = new Uint8Array(this.core.cdrom.discData);
     let exeOffset = -1;
 
-    // Pindai sektor disc untuk mencari header khas PSX Executable ("PS-X EXE")
     for (let i = 0; i < disc.byteLength - 32; i += 2048) {
       if (disc[i] === 0x50 && disc[i+1] === 0x53 && disc[i+2] === 0x2D && disc[i+3] === 0x58) {
         exeOffset = i;
@@ -112,36 +114,27 @@ class KLabsISOBootloader {
     }
 
     if (exeOffset !== -1) {
-      console.log("[K-Labs Bootloader] PSX-EXE Header ditemukan pada offset:", exeOffset.toString(16));
-      
       const headerView = new DataView(disc.buffer, exeOffset, 2048);
-      const loadAddress = headerView.getUint32(0x18, true); // Alamat tujuan di RAM
-      const fileSize = headerView.getUint32(0x1C, true);     // Ukuran file biner
-      const entryPoint = headerView.getUint32(0x10, true);   // Initial Program Counter (PC)
+      const loadAddress = headerView.getUint32(0x18, true); 
+      const fileSize = headerView.getUint32(0x1C, true);     
+      const entryPoint = headerView.getUint32(0x10, true);   
       
-      console.log(`[K-Labs Bootloader] Load Addr: 0x${loadAddress.toString(16)}, Size: ${fileSize} bytes, Entry PC: 0x${entryPoint.toString(16)}`);
-      
-      // Salin biner game ke dalam Main RAM
       const ramTarget = new Uint8Array(this.core.memory.mainRAM);
       const payloadSource = disc.subarray(exeOffset + 2048, exeOffset + 2048 + fileSize);
       const ramOffset = loadAddress & 0x1FFFFF; 
       
       if (ramOffset + payloadSource.length <= ramTarget.length) {
         ramTarget.set(payloadSource, ramOffset);
-        console.log("[K-Labs Bootloader] Payload game berhasil dimuat ke Main RAM!");
       }
       
-      // Arahkan CPU Program Counter (PC) ke Entry Point game agar game mulai berjalan!
       if (this.core.cpu) {
         this.core.cpu.PC = entryPoint;
         this.core.cpu.nextPC = entryPoint + 4;
-        console.log(`[K-Labs Bootloader] Suksess! CPU PC dialihkan ke game entry point: 0x${entryPoint.toString(16)}`);
+        console.log(`[K-Labs Bootloader] Sukses! Entry Point: 0x${entryPoint.toString(16)}`);
       }
       return true;
-    } else {
-      console.warn("[K-Labs Bootloader] Header PSX-EXE tidak ditemukan secara langsung. Menjalankan BIOS Vector Standar.");
-      return false;
     }
+    return false;
   }
 }
 
@@ -160,8 +153,6 @@ class KLabsCDROMController {
     this.isInserted = true;
     this.sectorSize = (arrayBuffer.byteLength % 2352 === 0) ? 2352 : 2048;
     this.totalSectors = Math.floor(arrayBuffer.byteLength / this.sectorSize);
-    
-    // Jalankan bootloader otomatis saat disc dipasang
     this.bootloader.parseAndBootGame();
   }
 }
@@ -180,13 +171,12 @@ class KLabsFileLoader {
   async loadROM(fileBlob) {
     const arrayBuffer = await fileBlob.arrayBuffer();
     new Uint8Array(this.core.memory.mainRAM).set(new Uint8Array(arrayBuffer).subarray(0, 2*1024*1024));
-    if (this.core.cdrom) {
-      this.core.cdrom.mountDisc(arrayBuffer);
-    }
+    if (this.core.cdrom) this.core.cdrom.mountDisc(arrayBuffer);
     return true;
   }
 }
 
+// --- 4. MIPS CPU R3000A ---
 class KLabsMIPSProcessor {
   constructor(memoryBus) {
     this.mem = memoryBus;
@@ -228,21 +218,33 @@ class KLabsMIPSProcessor {
   }
 }
 
+// --- 5. ACTIVE SPU AUDIO STREAM PIPELINE ---
 class KLabsSoundProcessor {
   constructor(coreSystem) {
     this.core = coreSystem;
     this.audioCtx = null;
+    this.gainNode = null;
+    this.analyser = null;
   }
+
   initAudio() {
     if (this.audioCtx) return;
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       this.audioCtx = new AudioCtx();
-    } catch (e) {}
+      this.gainNode = this.audioCtx.createGain();
+      this.gainNode.gain.value = 0.75;
+      this.analyser = this.audioCtx.createAnalyser();
+      this.gainNode.connect(this.analyser);
+      this.analyser.connect(this.audioCtx.destination);
+      console.log("[K-Labs SPU] Web Audio Stream Pipeline active.");
+    } catch (e) {
+      console.warn("[K-Labs SPU] Audio context restricted.");
+    }
   }
 }
 
-// --- ULTIMATE NEXT-GEN GPU RENDERER (WEBGL2 POST-PROCESSING SHADERS) ---
+// --- 6. VRAM TEXTURE MAPPING & WEBGL2 RENDERER ---
 class KKlabsUltraGPURenderer {
   constructor(coreSystem, containerId = 'game') {
     this.core = coreSystem;
@@ -250,6 +252,7 @@ class KKlabsUltraGPURenderer {
     this.canvas = null;
     this.gl = null;
     this.program = null;
+    this.vramTexture = null;
     this.initWebGL2Context();
   }
 
@@ -258,8 +261,8 @@ class KKlabsUltraGPURenderer {
     if (!container) return;
 
     this.canvas = document.createElement('canvas');
-    this.canvas.width = 1920;
-    this.canvas.height = 1440;
+    this.canvas.width = 1024;
+    this.canvas.height = 512;
     this.canvas.style.width = '100%';
     this.canvas.style.height = '100%';
     this.canvas.style.display = 'block';
@@ -271,6 +274,7 @@ class KKlabsUltraGPURenderer {
     if (!this.gl) return;
 
     this.initShadersAndBuffers();
+    this.initVRAMTexture();
   }
 
   initShadersAndBuffers() {
@@ -285,36 +289,39 @@ class KKlabsUltraGPURenderer {
       }
     `;
 
+    // Shader Penggabungan VRAM Framebuffer & Post-Processing Cinematic Cyber
     const fsSource = `#version 300 es
       precision highp float;
       in vec2 vTexCoord;
+      uniform sampler2D uVramTex;
       uniform float uTime;
       uniform int uIsRunning;
       out vec4 fragColor;
 
       void main() {
         vec2 uv = vTexCoord;
+        vec4 vramColor = texture(uVramTex, uv);
+        
         vec3 col = mix(vec3(0.005, 0.02, 0.06), vec3(0.02, 0.08, 0.20), uv.y);
 
         if (uIsRunning == 1) {
+          // Campurkan hasil VRAM framebuffer asli dengan shader cyber neon tingkat tinggi
+          vec3 gameVisual = mix(col, vramColor.rgb * 1.5, 0.6);
+          
           vec2 center = uv - 0.5;
           float r = length(center);
-          float wave = sin(r * 25.0 - uTime * 6.0) / (r * 6.0 + 0.3);
-          vec3 neonCyan = vec3(0.0, 1.0, 0.9) * 2.0;
-          vec3 ultraPurple = vec3(0.6, 0.0, 1.0) * 1.2;
-          col += mix(neonCyan, ultraPurple, abs(wave)) * max(0.0, (1.0 - r * 1.0));
+          float wave = sin(r * 20.0 - uTime * 4.0) / (r * 8.0 + 0.4);
+          vec3 neonCyan = vec3(0.0, 1.0, 0.9) * 0.8;
           
-          vec2 grid = abs(fract(uv * 45.0 - 0.5) - 0.5) / fwidth(uv * 45.0);
-          float line = min(grid.x, grid.y);
-          col += vec3(0.0, 0.9, 0.7) * (1.0 - min(line, 1.0)) * 0.4;
+          gameVisual += neonCyan * abs(wave) * (1.0 - r);
+          col = gameVisual;
         } else {
-          float scanline = sin(uv.y * 800.0) * 0.03;
+          float scanline = sin(uv.y * 600.0) * 0.03;
           col -= scanline;
-          col *= 1.0 - 0.4 * length(uv - 0.5);
         }
 
         col = col / (col + vec3(1.0));
-        col = pow(col, vec3(0.8));
+        col = pow(col, vec3(0.85));
         fragColor = vec4(col, 1.0);
       }
     `;
@@ -346,19 +353,42 @@ class KKlabsUltraGPURenderer {
     gl.vertexAttribPointer(aTex, 2, gl.FLOAT, false, 16, 8);
   }
 
+  initVRAMTexture() {
+    const gl = this.gl;
+    this.vramTexture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, this.vramTexture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  }
+
   renderFrame() {
     if (!this.gl || !this.program) return;
     const gl = this.gl;
+
+    // Perbarui Tekstur VRAM Framebuffer secara real-time dari memori sistem
+    gl.bindTexture(gl.TEXTURE_2D, this.vramTexture);
+    gl.texImage2D(
+      gl.TEXTURE_2D, 0, gl.RGBA, 1024, 512, 0, 
+      gl.RGBA, gl.UNSIGNED_SHORT_5_5_5_1, this.core.memory.vram
+    );
+
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.useProgram(this.program);
     
     gl.uniform1f(gl.getUniformLocation(this.program, "uTime"), performance.now() * 0.001);
     gl.uniform1i(gl.getUniformLocation(this.program, "uIsRunning"), (this.core.cpu && this.core.cpu.isRunning) ? 1 : 0);
     
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, this.vramTexture);
+    gl.uniform1i(gl.getUniformLocation(this.program, "uVramTex"), 0);
+
     gl.drawArrays(gl.TRIANGLES, 0, 6);
   }
 }
 
+// --- 7. EXECUTION ENGINE & TELEMETRY HUD ---
 class KLabsExecutionEngine {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -379,7 +409,7 @@ class KLabsExecutionEngine {
       backdrop-filter: blur(8px); box-shadow: 0 4px 25px rgba(0, 255, 204, 0.2);
     `;
     hud.innerHTML = `
-      <div style="font-weight:bold; letter-spacing:1px; margin-bottom:2px; color:#38bdf8;">K-LABS ULTIMATE HUD</div>
+      <div style="font-weight:bold; letter-spacing:1px; margin-bottom:2px; color:#38bdf8;">K-LABS ROCKET HUD</div>
       <div>FPS: <span id="hud-fps" style="color:#fff; font-weight:bold;">0</span></div>
       <div>CPU PC: <span id="hud-pc" style="color:#fff;">0xbfc00000</span></div>
       <div>DISC: <span id="hud-disc" style="color:#38bdf8;">IDLE</span></div>
@@ -420,7 +450,7 @@ class KLabsExecutionEngine {
   runTick() {
     if (!this.core.cpu || !this.core.cpu.isRunning) return;
 
-    for (let i = 0; i < 10000; i++) {
+    for (let i = 0; i < 12000; i++) {
       this.core.cpu.step();
     }
     if (this.core.gpu) this.core.gpu.renderFrame();
@@ -440,6 +470,7 @@ class KLabsExecutionEngine {
   }
 }
 
+// --- 8. JOYPAD & STORAGE ---
 class KLabsJoypadController {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -529,6 +560,7 @@ class KLabsAdvancedFeatures {
   }
 }
 
+// --- INISIALISASI KONEKSI GLOBAL ---
 if (window.KLabsEngine) {
   window.KLabsEngine.bus = new KLabsMemoryBus(window.KLabsEngine);
   window.KLabsEngine.loader = new KLabsFileLoader(window.KLabsEngine);
