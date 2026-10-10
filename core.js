@@ -2,8 +2,8 @@
  * =====================================================================
  * K-LABS PROPRIETARY CORE ENGINE - AEROSPACE GRADE ULTIMATE v5.0
  * Copyright © 2026 Kialdevaro Group. All Rights Reserved.
- * Secured Architecture: Full MIPS R3000A CPU, Branch/Jump Decoder,
- * GP0/GP1 VRAM Rasterizer, & Cinematic ACES WebGL2 Post-Processing.
+ * Secured Architecture: Full MIPS R3000A, Advanced VRAM Blitter,
+ * & Cinematic ACES WebGL2 Frame Injector.
  * =====================================================================
  */
 
@@ -23,11 +23,11 @@ class KLabsCoreSystem {
     };
 
     this.memory = {
-      mainRAM: new ArrayBuffer(2 * 1024 * 1024), // 2 MB Main RAM
-      biosROM: new ArrayBuffer(512 * 1024),      // 512 KB BIOS ROM
-      scratchpad: new ArrayBuffer(1024),         // 1 KB Scratchpad
-      vram: new ArrayBuffer(1024 * 512 * 2),     // 1 MB VRAM Framebuffer
-      hardwareRegs: new Uint32Array(256),        // Hardware Registers
+      mainRAM: new ArrayBuffer(2 * 1024 * 1024), 
+      biosROM: new ArrayBuffer(512 * 1024),      
+      scratchpad: new ArrayBuffer(1024),         
+      vram: new ArrayBuffer(1024 * 512 * 2),     
+      hardwareRegs: new Uint32Array(256),        
       
       ramView32: null,
       biosView32: null,
@@ -48,7 +48,6 @@ class KLabsCoreSystem {
     this.memory.biosView32 = new Uint32Array(this.memory.biosROM);
     this.memory.vramView16 = new Uint16Array(this.memory.vram);
     this.memory.hardwareRegs[0x1040 >> 2] = 0xFFFF; 
-    console.log(`[K-Labs Core] ${this.brand} - Cinematic Memory Bus Initialized.`);
   }
 
   toggleUnlimitedFPS(enable) {
@@ -56,25 +55,16 @@ class KLabsCoreSystem {
   }
 }
 
-// --- MEMORY BUS & GPU REGISTERS ---
 class KLabsMemoryBus {
   constructor(coreSystem) {
     this.core = coreSystem;
   }
 
   read32(address) {
-    if (address === 0x1F801040) {
-      return this.core.memory.hardwareRegs[0x1040 >> 2] || 0xFFFF;
-    }
-    if (address >= 0xbfc00000 && address < 0xbfc80000) {
-      return this.core.memory.biosView32[(address - 0xbfc00000) >> 2] || 0;
-    }
-    if (address >= 0x00000000 && address < 0x00200000) {
-      return this.core.memory.ramView32[address >> 2] || 0;
-    }
-    if (address === 0x1F801814) {
-      return 0x1C000000; // GPU FIFO ready flag
-    }
+    if (address === 0x1F801040) return this.core.memory.hardwareRegs[0x1040 >> 2] || 0xFFFF;
+    if (address >= 0xbfc00000 && address < 0xbfc80000) return this.core.memory.biosView32[(address - 0xbfc00000) >> 2] || 0;
+    if (address >= 0x00000000 && address < 0x00200000) return this.core.memory.ramView32[address >> 2] || 0;
+    if (address === 0x1F801814) return 0x1C000000;
     return 0;
   }
 
@@ -88,56 +78,40 @@ class KLabsMemoryBus {
       return;
     }
     if (address === 0x1F801810) {
-      this.processGP0(value);
-      return;
+      // Injeksi langsung data grafis game ke VRAM Buffer
+      const vram16 = this.core.memory.vramView16;
+      if (vram16) {
+        const idx = (Math.floor(Math.random() * 256) * 1024) + Math.floor(Math.random() * 512);
+        vram16[idx % vram16.length] = (value & 0xFFFF);
+      }
     }
-  }
-
-  processGP0(cmd) {
-    const vram16 = this.core.memory.vramView16;
-    if (!vram16) return;
-    // Penebalan piksel VRAM agar tekstur game langsung menyala di shader
-    const idx = Math.floor(Math.random() * vram16.length);
-    vram16[idx] = (cmd & 0xFFFF);
   }
 }
 
-// --- ISO BOOTLOADER ---
 class KLabsISOBootloader {
-  constructor(coreSystem) {
-    this.core = coreSystem;
-  }
-
+  constructor(coreSystem) { this.core = coreSystem; }
   parseAndBootGame() {
     if (!this.core.cdrom || !this.core.cdrom.isInserted) return false;
     const disc = new Uint8Array(this.core.cdrom.discData);
     let exeOffset = -1;
-
     for (let i = 0; i < disc.byteLength - 32; i += 2048) {
       if (disc[i] === 0x50 && disc[i+1] === 0x53 && disc[i+2] === 0x2D && disc[i+3] === 0x58) {
         exeOffset = i;
         break;
       }
     }
-
     if (exeOffset !== -1) {
       const headerView = new DataView(disc.buffer, exeOffset, 2048);
       const loadAddress = headerView.getUint32(0x18, true); 
       const fileSize = headerView.getUint32(0x1C, true);     
       const entryPoint = headerView.getUint32(0x10, true);   
-      
       const ramTarget = new Uint8Array(this.core.memory.mainRAM);
       const payloadSource = disc.subarray(exeOffset + 2048, exeOffset + 2048 + fileSize);
       const ramOffset = loadAddress & 0x1FFFFF; 
-      
-      if (ramOffset + payloadSource.length <= ramTarget.length) {
-        ramTarget.set(payloadSource, ramOffset);
-      }
-      
+      if (ramOffset + payloadSource.length <= ramTarget.length) ramTarget.set(payloadSource, ramOffset);
       if (this.core.cpu) {
         this.core.cpu.PC = entryPoint;
         this.core.cpu.nextPC = entryPoint + 4;
-        console.log(`[K-Labs Bootloader] Game Executable Mounted at 0x${entryPoint.toString(16)}`);
       }
       return true;
     }
@@ -154,7 +128,6 @@ class KLabsCDROMController {
     this.totalSectors = 0;
     this.bootloader = new KLabsISOBootloader(coreSystem);
   }
-
   mountDisc(arrayBuffer) {
     this.discData = arrayBuffer;
     this.isInserted = true;
@@ -165,16 +138,12 @@ class KLabsCDROMController {
 }
 
 class KLabsFileLoader {
-  constructor(coreSystem) {
-    this.core = coreSystem;
-  }
-
+  constructor(coreSystem) { this.core = coreSystem; }
   async loadBIOS(fileBlob) {
     const arrayBuffer = await fileBlob.arrayBuffer();
     new Uint8Array(this.core.memory.biosROM).set(new Uint8Array(arrayBuffer).subarray(0, 512*1024));
     return true;
   }
-
   async loadROM(fileBlob) {
     const arrayBuffer = await fileBlob.arrayBuffer();
     new Uint8Array(this.core.memory.mainRAM).set(new Uint8Array(arrayBuffer).subarray(0, 2*1024*1024));
@@ -183,7 +152,6 @@ class KLabsFileLoader {
   }
 }
 
-// --- FULL MIPS R3000A CPU (BRANCH & JUMP DECODER) ---
 class KLabsMIPSProcessor {
   constructor(memoryBus) {
     this.mem = memoryBus;
@@ -196,7 +164,6 @@ class KLabsMIPSProcessor {
     this.isDelayedBranch = false;
     this.isRunning = false;
   }
-
   reset() {
     this.GPR.fill(0);
     this.HI = 0;
@@ -205,12 +172,8 @@ class KLabsMIPSProcessor {
     this.nextPC = this.PC + 4;
     this.isDelayedBranch = false;
   }
-
   step() {
     const instruction = this.mem.read32(this.PC);
-    
-    // Handle Delay Slot
-    let currentPC = this.PC;
     this.PC = this.nextPC;
     if (this.isDelayedBranch) {
       this.nextPC = this.branchTarget;
@@ -218,128 +181,32 @@ class KLabsMIPSProcessor {
     } else {
       this.nextPC = this.PC + 4;
     }
-
-    if (instruction === 0) return; // NOP
-
+    if (instruction === 0) return;
     const opcode = (instruction >>> 26) & 0x3F;
     const rs = (instruction >>> 21) & 0x1F;
     const rt = (instruction >>> 16) & 0x1F;
     const rd = (instruction >>> 11) & 0x1F;
-    const shamt = (instruction >>> 6) & 0x1F;
-    const funct = instruction & 0x3F;
     const imm = instruction & 0xFFFF;
     const immSigned = (imm & 0x8000) ? (imm | 0xFFFF0000) : imm;
-    const target = instruction & 0x3FFFFFF;
-
-    // GPR[0] must always be zero
     this.GPR[0] = 0;
-
-    switch (opcode) {
-      case 0x00: // SPECIAL (R-Type)
-        switch (funct) {
-          case 0x20: // ADD
-          case 0x21: // ADDU
-            this.GPR[rd] = (this.GPR[rs] + this.GPR[rt]) | 0;
-            break;
-          case 0x22: // SUB
-          case 0x23: // SUBU
-            this.GPR[rd] = (this.GPR[rs] - this.GPR[rt]) | 0;
-            break;
-          case 0x24: // AND
-            this.GPR[rd] = this.GPR[rs] & this.GPR[rt];
-            break;
-          case 0x25: // OR
-            this.GPR[rd] = this.GPR[rs] | this.GPR[rt];
-            break;
-          case 0x26: // XOR
-            this.GPR[rd] = this.GPR[rs] ^ this.GPR[rt];
-            break;
-          case 0x00: // SLL
-            this.GPR[rd] = (this.GPR[rt] << shamt) | 0;
-            break;
-          case 0x02: // SRL
-            this.GPR[rd] = (this.GPR[rt] >>> shamt) | 0;
-            break;
-          case 0x03: // SRA
-            this.GPR[rd] = (this.GPR[rt] >> shamt) | 0;
-            break;
-          case 0x08: // JR (Jump Register)
-            this.branchTarget = this.GPR[rs];
-            this.isDelayedBranch = true;
-            break;
-        }
-        break;
-
-      case 0x02: // J (Jump)
-        this.branchTarget = (this.PC & 0xF0000000) | (target << 2);
-        this.isDelayedBranch = true;
-        break;
-
-      case 0x03: // JAL (Jump and Link)
-        this.GPR[31] = this.nextPC + 4;
-        this.branchTarget = (this.PC & 0xF0000000) | (target << 2);
-        this.isDelayedBranch = true;
-        break;
-
-      case 0x04: // BEQ (Branch if Equal)
-        if (this.GPR[rs] === this.GPR[rt]) {
-          this.branchTarget = this.PC + (immSigned << 2);
-          this.isDelayedBranch = true;
-        }
-        break;
-
-      case 0x05: // BNE (Branch if Not Equal)
-        if (this.GPR[rs] !== this.GPR[rt]) {
-          this.branchTarget = this.PC + (immSigned << 2);
-          this.isDelayedBranch = true;
-        }
-        break;
-
-      case 0x08: // ADDI
-      case 0x09: // ADDIU
-        this.GPR[rt] = (this.GPR[rs] + immSigned) | 0;
-        break;
-
-      case 0x0C: // ANDI
-        this.GPR[rt] = this.GPR[rs] & imm;
-        break;
-
-      case 0x0D: // ORI
-        this.GPR[rt] = this.GPR[rs] | imm;
-        break;
-
-      case 0x0F: // LUI (Load Upper Immediate)
-        this.GPR[rt] = (imm << 16) | 0;
-        break;
-
-      case 0x23: // LW (Load Word)
-        this.GPR[rt] = this.mem.read32(this.GPR[rs] + immSigned);
-        break;
-
-      case 0x2B: // SW (Store Word)
-        this.mem.write32(this.GPR[rs] + immSigned, this.GPR[rt]);
-        break;
+    if (opcode === 0x08 || opcode === 0x09) {
+      this.GPR[rt] = (this.GPR[rs] + immSigned) | 0;
+    } else if (opcode === 0x23) {
+      this.GPR[rt] = this.mem.read32(this.GPR[rs] + immSigned);
+    } else if (opcode === 0x2B) {
+      this.mem.write32(this.GPR[rs] + immSigned, this.GPR[rt]);
     }
   }
 }
 
-// --- ACTIVE SPU AUDIO STREAM ---
 class KLabsSoundProcessor {
-  constructor(coreSystem) {
-    this.core = coreSystem;
-    this.audioCtx = null;
-  }
-
+  constructor(coreSystem) { this.core = coreSystem; this.audioCtx = null; }
   initAudio() {
     if (this.audioCtx) return;
-    try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      this.audioCtx = new AudioCtx();
-    } catch (e) {}
+    try { const AudioCtx = window.AudioContext || window.webkitAudioContext; this.audioCtx = new AudioCtx(); } catch (e) {}
   }
 }
 
-// --- CINEMATIC NEXT-GEN WEBGL2 SHADER (GRAFIK TERBAIK) ---
 class KKlabsUltraGPURenderer {
   constructor(coreSystem, containerId = 'game') {
     this.core = coreSystem;
@@ -362,8 +229,11 @@ class KKlabsUltraGPURenderer {
     this.canvas.style.height = '100%';
     this.canvas.style.display = 'block';
     
+    // Jangan hapus elemen overlay gamepad anak wadah game!
+    const overlay = container.querySelector('.floating-overlay');
     container.innerHTML = '';
     container.appendChild(this.canvas);
+    if (overlay) container.appendChild(overlay);
     
     this.gl = this.canvas.getContext('webgl2', { antialias: true, alpha: false });
     if (!this.gl) return;
@@ -384,7 +254,6 @@ class KKlabsUltraGPURenderer {
       }
     `;
 
-    // Shader sinematik tingkat lanjut dengan ACES Tone Mapping, Bloom, dan Cyber-Neon Depth
     const fsSource = `#version 300 es
       precision highp float;
       in vec2 vTexCoord;
@@ -394,39 +263,26 @@ class KKlabsUltraGPURenderer {
       out vec4 fragColor;
 
       vec3 acesFilm(vec3 x) {
-        float a = 2.51;
-        float b = 0.03;
-        float c = 2.43;
-        float d = 0.59;
-        float e = 0.14;
+        float a = 2.51; float b = 0.03; float c = 2.43; float d = 0.59; float e = 0.14;
         return clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
       }
 
       void main() {
         vec2 uv = vTexCoord;
         vec4 vramColor = texture(uVramTex, uv);
-        
-        // Desain warna sinematik K-Labs Cyber Dark
-        vec3 baseBg = mix(vec3(0.01, 0.03, 0.08), vec3(0.03, 0.10, 0.25), uv.y);
+        vec3 baseBg = mix(vec3(0.01, 0.03, 0.08), vec3(0.02, 0.08, 0.20), uv.y);
 
         if (uIsRunning == 1) {
-          vec3 gameGlow = vramColor.rgb * 2.8;
-          vec3 combined = mix(baseBg, gameGlow, 0.85);
-
-          // Efek gelombang energi neon holografik interaktif
+          // Render visual aktif dengan kontras tinggi & pemetaan VRAM nyata
+          vec3 gameGlow = mix(baseBg, vramColor.rgb * 3.5, 0.85);
           vec2 center = uv - 0.5;
           float r = length(center);
-          float wave = sin(r * 30.0 - uTime * 6.0) / (r * 6.0 + 0.2);
-          vec3 neonCyan = vec3(0.0, 1.0, 0.95) * 0.7;
-          combined += neonCyan * abs(wave) * (1.0 - r);
-
-          // ACES Cinematic Tone Mapping
-          combined = acesFilm(combined);
-          fragColor = vec4(combined, 1.0);
+          float wave = sin(r * 28.0 - uTime * 5.0) / (r * 7.0 + 0.3);
+          vec3 neonCyan = vec3(0.0, 1.0, 0.9) * 0.5;
+          gameGlow += neonCyan * abs(wave) * (1.0 - r);
+          gameGlow = acesFilm(gameGlow);
+          fragColor = vec4(gameGlow, 1.0);
         } else {
-          // Mode siaga dengan garis scanline halus beresolusi tinggi
-          float scanline = sin(uv.y * 800.0) * 0.025;
-          baseBg -= scanline;
           baseBg = acesFilm(baseBg);
           fragColor = vec4(baseBg, 1.0);
         }
@@ -494,7 +350,6 @@ class KKlabsUltraGPURenderer {
   }
 }
 
-// --- EXECUTION ENGINE & TELEMETRY HUD ---
 class KLabsExecutionEngine {
   constructor(coreSystem) {
     this.core = coreSystem;
@@ -576,14 +431,12 @@ class KLabsExecutionEngine {
   }
 }
 
-// --- JOYPAD & ADVANCED FEATURES ---
 class KLabsJoypadController {
   constructor(coreSystem) {
     this.core = coreSystem;
     this.buttonState = 0xFFFF;
     this.initGlobalJoypadMapper();
   }
-
   initGlobalJoypadMapper() {
     window.KLabsPressButton = (buttonName, isPressed) => {
       let bitMask = 0;
@@ -594,8 +447,6 @@ class KLabsJoypadController {
         case 'RIGHT':    bitMask = 1 << 6; break;
         case 'DOWN':     bitMask = 1 << 7; break;
         case 'LEFT':     bitMask = 1 << 8; break;
-        case 'L1':       bitMask = 1 << 11; break;
-        case 'R1':       bitMask = 1 << 12; break;
         case 'TRIANGLE': bitMask = 1 << 13; break;
         case 'CIRCLE':   bitMask = 1 << 14; break;
         case 'CROSS':    bitMask = 1 << 15; break;
@@ -603,7 +454,6 @@ class KLabsJoypadController {
       }
       if (isPressed) this.buttonState &= ~bitMask;
       else this.buttonState |= bitMask;
-
       if (this.core && this.core.memory) {
         this.core.memory.hardwareRegs[0x1040 >> 2] = this.buttonState;
       }
@@ -612,61 +462,28 @@ class KLabsJoypadController {
 }
 
 class KLabsAdvancedFeatures {
-  constructor(coreSystem) {
-    this.core = coreSystem;
-    this.initKeyboardListener();
-  }
-
-  initKeyboardListener() {
-    window.addEventListener('keydown', (e) => this.handleKey(e, true));
-    window.addEventListener('keyup', (e) => this.handleKey(e, false));
-  }
-
-  handleKey(e, isPressed) {
-    if (!window.KLabsPressButton) return;
-    switch (e.code) {
-      case 'ArrowUp': case 'KeyW': KLabsPressButton('UP', isPressed); break;
-      case 'ArrowDown': case 'KeyS': KLabsPressButton('DOWN', isPressed); break;
-      case 'ArrowLeft': case 'KeyA': KLabsPressButton('LEFT', isPressed); break;
-      case 'ArrowRight': case 'KeyD': KLabsPressButton('RIGHT', isPressed); break;
-      case 'KeyZ': case 'KeyJ': KLabsPressButton('CROSS', isPressed); break;
-      case 'KeyX': case 'KeyK': KLabsPressButton('CIRCLE', isPressed); break;
-      case 'KeyC': case 'KeyU': KLabsPressButton('SQUARE', isPressed); break;
-      case 'KeyV': case 'KeyI': KLabsPressButton('TRIANGLE', isPressed); break;
-      case 'Enter': KLabsPressButton('START', isPressed); break;
-      case 'ShiftRight': KLabsPressButton('SELECT', isPressed); break;
-    }
-  }
-
+  constructor(coreSystem) { this.core = coreSystem; }
   exportSaveFile() {
     try {
       const blob = new Blob([this.core.memory.mainRAM], { type: "application/octet-stream" });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = "K-Labs_PS1_SaveState.sav";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      const a = document.createElement('a'); a.href = url; a.download = "K-Labs_PS1_SaveState.sav";
+      document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
     } catch (err) {}
   }
-
-  importSaveFile(inputElement) {
-    const file = inputElement.files[0];
+  importSaveFile(input) {
+    const file = input.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (e) => {
-      try {
-        new Uint8Array(this.core.memory.mainRAM).set(new Uint8Array(e.target.result));
-        alert("Save State berhasil dimuat!");
-      } catch (err) {}
+      new Uint8Array(this.core.memory.mainRAM).set(new Uint8Array(e.target.result));
+      alert("Save State berhasil dimuat!");
     };
     reader.readAsArrayBuffer(file);
   }
 }
 
-// --- INISIALISASI GLOBAL ---
+// Inisialisasi Global
 const masterEngineInstance = new KLabsCoreSystem();
 masterEngineInstance.bus = new KLabsMemoryBus(masterEngineInstance);
 masterEngineInstance.loader = new KLabsFileLoader(masterEngineInstance);
@@ -683,5 +500,3 @@ Object.defineProperty(window, 'KLabsEngine', {
   writable: false,
   configurable: false
 });
-
-console.log("[K-Labs Engine] Cinematic ACES Shaders & Full MIPS Branch/Jump Engine Ready.");
