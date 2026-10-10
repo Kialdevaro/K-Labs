@@ -1,0 +1,35 @@
+#version 300 es
+precision highp float;
+
+uniform sampler2D u_vramOutput; // Resolved 24-bit frame buffer from PS1 VRAM
+in vec2 v_texCoord;
+out vec4 FragColor;
+
+// ACES Tone Mapping Operator
+vec3 ACESFilm(vec3 x) {
+    float a = 2.51;
+    float b = 0.03;
+    float c = 2.43;
+    float d = 0.59;
+    float e = 0.14;
+    return clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
+}
+
+void main() {
+    // Sample original PS1 pixel
+    vec4 texColor = texture(u_vramOutput, v_texCoord);
+    
+    // Convert to linear space for accurate post-processing
+    vec3 linearColor = pow(texColor.rgb, vec3(2.2));
+    
+    // Apply ACES Tone Mapping
+    vec3 mappedColor = ACESFilm(linearColor);
+    
+    // Gamma Correct back to sRGB display
+    mappedColor = pow(mappedColor, vec3(1.0 / 2.2));
+    
+    // Hardware Constraint: PS1 dithering artifact simulation (optional pass)
+    // Noise/film grain integration can be injected here based on uniform triggers
+    
+    FragColor = vec4(mappedColor, texColor.a);
+}
