@@ -1,7 +1,7 @@
 <!-- ===================================================================== -->
 <!-- K-LABS RETRO ENGINE - ULTIMATE NEXT-GEN ARCHITECTURE v5.0             -->
 <!-- Copyright © 2026 Kialdevaro Group. All Rights Reserved.               -->
-<!-- Secured with Advanced Anti-Theft & Floating Fullscreen Gamepad        -->
+<!-- Secured with Advanced Anti-Theft & Solid Floating Gamepad Overlay     -->
 <!-- ===================================================================== -->
 <!DOCTYPE html>
 <html lang="id">
@@ -82,89 +82,93 @@
       transform: scale(1.01); 
     }
 
-    /* Wadah Game Utama dengan Posisi Relatif untuk Floating Gamepad Overlay */
-    #game {
+    /* Pembungkus Utama Game & Overlay Stik */
+    #game-wrapper {
+      position: relative;
       width: 100%;
       aspect-ratio: 4/3;
       background: #030712;
       border-radius: 14px;
       border: 1px solid rgba(0,255,204,0.5);
-      position: relative;
       overflow: hidden;
+      box-shadow: inset 0 0 40px rgba(0,255,204,0.1);
+    }
+    #game {
+      width: 100%;
+      height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: inset 0 0 40px rgba(0,255,204,0.1);
     }
 
-    /* Gaya Floating Gamepad di Dalam Layar */
-    .floating-overlay {
+    /* Tombol Stik Virtual Padat (Tidak Transparan / Solid) */
+    .solid-gamepad-overlay {
       position: absolute;
-      bottom: 15px;
+      bottom: 12px;
       left: 0;
       right: 0;
       display: flex;
       justify-content: space-between;
-      padding: 0 20px;
+      padding: 0 16px;
       pointer-events: none;
-      z-index: 100;
+      z-index: 999;
     }
-    .floating-group {
+    .gamepad-cluster {
       pointer-events: auto;
       display: flex;
       gap: 8px;
       align-items: center;
     }
-    .virtual-btn {
-      background: rgba(15, 23, 42, 0.75);
+    .solid-btn {
+      background: #0f172a;
       color: #00ffcc;
-      border: 1px solid rgba(0, 255, 204, 0.4);
+      border: 2px solid #00ffcc;
       border-radius: 50%;
-      width: 45px;
-      height: 45px;
-      font-size: 14px;
+      width: 44px;
+      height: 44px;
+      font-size: 13px;
       font-weight: bold;
       display: flex;
       align-items: center;
       justify-content: center;
-      backdrop-filter: blur(6px);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.9);
       cursor: pointer;
     }
-    .virtual-btn:active {
-      background: rgba(0, 255, 204, 0.4);
+    .solid-btn:active {
+      background: #00ffcc;
       color: #030712;
     }
-    .dpad-container {
+    .solid-dpad {
       width: 90px;
       height: 90px;
-      background: rgba(255, 255, 255, 0.03);
+      background: #030712;
       border-radius: 50%;
-      border: 1px solid rgba(0, 255, 204, 0.3);
+      border: 2px solid #00ffcc;
       position: relative;
       pointer-events: auto;
-      backdrop-filter: blur(4px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.9);
     }
-    .dpad-btn {
+    .dpad-direction {
       position: absolute;
-      background: rgba(15, 23, 42, 0.85);
+      background: #0f172a;
       color: #00ffcc;
-      border: 1px solid rgba(0, 255, 204, 0.3);
+      border: 1px solid #00ffcc;
       width: 28px;
-      height: 28px;
+      height: 27px;
       font-size: 11px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      font-weight: bold;
     }
-    .dpad-up { top: 4px; left: 31px; border-radius: 6px 6px 0 0; }
-    .dpad-down { bottom: 4px; left: 31px; border-radius: 0 0 6px 6px; }
-    .dpad-left { top: 31px; left: 4px; border-radius: 6px 0 0 6px; }
-    .dpad-right { top: 31px; right: 4px; border-radius: 0 6px 6px 0; }
+    .dir-up { top: 3px; left: 29px; border-radius: 6px 6px 0 0; }
+    .dir-down { bottom: 3px; left: 29px; border-radius: 0 0 6px 6px; }
+    .dir-left { top: 29px; left: 3px; border-radius: 6px 0 0 6px; }
+    .dir-right { top: 29px; right: 3px; border-radius: 0 6px 6px 0; }
   </style>
 
-  <!-- SCRIPT PERLINDUNGAN KODE SUMBER (ANTI-THEFT & ANTI-INSPECT) -->
+  <!-- SCRIPT PERLINDUNGAN KODE SUMBER -->
   <script>
     document.addEventListener('contextmenu', function(e) { e.preventDefault(); return false; });
     document.addEventListener('keydown', function(e) {
@@ -194,31 +198,34 @@
       <button class="btn-run" onclick="bootMasterEngine()">▶ JALANKAN ULTIMATE ENGINE (WEBGL2)</button>
     </div>
     
-    <!-- WADAH KANVAS GAME DENGAN FLOATING GAMEPAD OVERLAY (IKUT FULLSCREEN) -->
-    <div id="game">
-      <!-- Tombol Stik Virtual Melayang di Dalam Layar -->
-      <div class="floating-overlay">
+    <!-- PEMBUNGKUS UTAMA YANG IKUT MASUK KE MODE FULLSCREEN -->
+    <div id="game-wrapper">
+      <!-- Kanvas Game WebGL2 -->
+      <div id="game"></div>
+
+      <!-- Tombol Stik Virtual Padat (Solid Overlay) di Dalam Layar -->
+      <div class="solid-gamepad-overlay">
         <!-- D-Pad Kiri -->
-        <div class="dpad-container">
-          <div class="dpad-btn dpad-up" onmousedown="KLabsPressButton('UP', true)" onmouseup="KLabsPressButton('UP', false)" ontouchstart="KLabsPressButton('UP', true)" ontouchend="KLabsPressButton('UP', false)">▲</div>
-          <div class="dpad-btn dpad-down" onmousedown="KLabsPressButton('DOWN', true)" onmouseup="KLabsPressButton('DOWN', false)" ontouchstart="KLabsPressButton('DOWN', true)" ontouchend="KLabsPressButton('DOWN', false)">▼</div>
-          <div class="dpad-btn dpad-left" onmousedown="KLabsPressButton('LEFT', true)" onmouseup="KLabsPressButton('LEFT', false)" ontouchstart="KLabsPressButton('LEFT', true)" ontouchend="KLabsPressButton('LEFT', false)">◀</div>
-          <div class="dpad-btn dpad-right" onmousedown="KLabsPressButton('RIGHT', true)" onmouseup="KLabsPressButton('RIGHT', false)" ontouchstart="KLabsPressButton('RIGHT', true)" ontouchend="KLabsPressButton('RIGHT', false)">▶</div>
+        <div class="solid-dpad">
+          <div class="dpad-direction dir-up" onmousedown="KLabsPressButton('UP', true)" onmouseup="KLabsPressButton('UP', false)" ontouchstart="KLabsPressButton('UP', true)" ontouchend="KLabsPressButton('UP', false)">▲</div>
+          <div class="dpad-direction dir-down" onmousedown="KLabsPressButton('DOWN', true)" onmouseup="KLabsPressButton('DOWN', false)" ontouchstart="KLabsPressButton('DOWN', true)" ontouchend="KLabsPressButton('DOWN', false)">▼</div>
+          <div class="dpad-direction dir-left" onmousedown="KLabsPressButton('LEFT', true)" onmouseup="KLabsPressButton('LEFT', false)" ontouchstart="KLabsPressButton('LEFT', true)" ontouchend="KLabsPressButton('LEFT', false)">◀</div>
+          <div class="dpad-direction dir-right" onmousedown="KLabsPressButton('RIGHT', true)" onmouseup="KLabsPressButton('RIGHT', false)" ontouchstart="KLabsPressButton('RIGHT', true)" ontouchend="KLabsPressButton('RIGHT', false)">▶</div>
         </div>
 
-        <!-- Tombol Aksi Kanan (X, O, Square, Triangle) -->
-        <div class="floating-group" style="display: grid; grid-template-columns: repeat(2, 42px); gap: 6px;">
-          <button class="virtual-btn" onmousedown="KLabsPressButton('SQUARE', true)" onmouseup="KLabsPressButton('SQUARE', false)" ontouchstart="KLabsPressButton('SQUARE', true)" ontouchend="KLabsPressButton('SQUARE', false)">□</button>
-          <button class="virtual-btn" onmousedown="KLabsPressButton('TRIANGLE', true)" onmouseup="KLabsPressButton('TRIANGLE', false)" ontouchstart="KLabsPressButton('TRIANGLE', true)" ontouchend="KLabsPressButton('TRIANGLE', false)">△</button>
-          <button class="virtual-btn" onmousedown="KLabsPressButton('CROSS', true)" onmouseup="KLabsPressButton('CROSS', false)" ontouchstart="KLabsPressButton('CROSS', true)" ontouchend="KLabsPressButton('CROSS', false)">✕</button>
-          <button class="virtual-btn" onmousedown="KLabsPressButton('CIRCLE', true)" onmouseup="KLabsPressButton('CIRCLE', false)" ontouchstart="KLabsPressButton('CIRCLE', true)" ontouchend="KLabsPressButton('CIRCLE', false)">◯</button>
+        <!-- Tombol Aksi Kanan (Square, Triangle, Cross, Circle) -->
+        <div class="gamepad-cluster" style="display: grid; grid-template-columns: repeat(2, 42px); gap: 6px;">
+          <button class="solid-btn" onmousedown="KLabsPressButton('SQUARE', true)" onmouseup="KLabsPressButton('SQUARE', false)" ontouchstart="KLabsPressButton('SQUARE', true)" ontouchend="KLabsPressButton('SQUARE', false)">□</button>
+          <button class="solid-btn" onmousedown="KLabsPressButton('TRIANGLE', true)" onmouseup="KLabsPressButton('TRIANGLE', false)" ontouchstart="KLabsPressButton('TRIANGLE', true)" ontouchend="KLabsPressButton('TRIANGLE', false)">△</button>
+          <button class="solid-btn" onmousedown="KLabsPressButton('CROSS', true)" onmouseup="KLabsPressButton('CROSS', false)" ontouchstart="KLabsPressButton('CROSS', true)" ontouchend="KLabsPressButton('CROSS', false)">✕</button>
+          <button class="solid-btn" onmousedown="KLabsPressButton('CIRCLE', true)" onmouseup="KLabsPressButton('CIRCLE', false)" ontouchstart="KLabsPressButton('CIRCLE', true)" ontouchend="KLabsPressButton('CIRCLE', false)">◯</button>
         </div>
       </div>
     </div>
 
     <!-- Tombol Fitur Pro & Manajemen Penyimpanan Internal -->
     <div style="display: flex; gap: 6px;">
-      <button onclick="document.getElementById('game').requestFullscreen()" style="flex:1; background:#1e293b; color:#00ffcc; border:1px solid #00ffcc44; border-radius:8px; padding:8px; font-size:10px; cursor:pointer; font-weight:bold;">⛶ FULL</button>
+      <button onclick="document.getElementById('game-wrapper').requestFullscreen()" style="flex:1; background:#1e293b; color:#00ffcc; border:1px solid #00ffcc44; border-radius:8px; padding:8px; font-size:10px; cursor:pointer; font-weight:bold;">⛶ FULL</button>
       <button id="btn-fps-toggle" onclick="toggleFPSMode(this)" style="flex:1; background:#1e293b; color:#38bdf8; border:1px solid #38bdf844; border-radius:8px; padding:8px; font-size:10px; cursor:pointer; font-weight:bold;">⚡ UNLOCK</button>
       <button onclick="if(window.KLabsEngine && window.KLabsEngine.advanced) window.KLabsEngine.advanced.exportSaveFile()" style="flex:1; background:#1e293b; color:#10b981; border:1px solid #10b98144; border-radius:8px; padding:8px; font-size:10px; cursor:pointer; font-weight:bold;">💾 EXPORT</button>
       <button onclick="document.getElementById('importSaveInput').click()" style="flex:1; background:#1e293b; color:#f59e0b; border:1px solid #f59e0b44; border-radius:8px; padding:8px; font-size:10px; cursor:pointer; font-weight:bold;">📂 IMPORT</button>
