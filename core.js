@@ -78,7 +78,6 @@ class KLabsMemoryBus {
       return;
     }
     if (address === 0x1F801810) {
-      // Injeksi langsung data grafis game ke VRAM Buffer
       const vram16 = this.core.memory.vramView16;
       if (vram16) {
         const idx = (Math.floor(Math.random() * 256) * 1024) + Math.floor(Math.random() * 512);
@@ -229,11 +228,9 @@ class KKlabsUltraGPURenderer {
     this.canvas.style.height = '100%';
     this.canvas.style.display = 'block';
     
-    // Jangan hapus elemen overlay gamepad anak wadah game!
-    const overlay = container.querySelector('.floating-overlay');
+    // Hanya membersihkan dan mengisi wadah #game, overlay gamepad di luar #game aman
     container.innerHTML = '';
     container.appendChild(this.canvas);
-    if (overlay) container.appendChild(overlay);
     
     this.gl = this.canvas.getContext('webgl2', { antialias: true, alpha: false });
     if (!this.gl) return;
@@ -273,7 +270,6 @@ class KKlabsUltraGPURenderer {
         vec3 baseBg = mix(vec3(0.01, 0.03, 0.08), vec3(0.02, 0.08, 0.20), uv.y);
 
         if (uIsRunning == 1) {
-          // Render visual aktif dengan kontras tinggi & pemetaan VRAM nyata
           vec3 gameGlow = mix(baseBg, vramColor.rgb * 3.5, 0.85);
           vec2 center = uv - 0.5;
           float r = length(center);
@@ -376,10 +372,10 @@ class KLabsExecutionEngine {
       <div>DISC: <span id="hud-disc" style="color:#38bdf8;">IDLE</span></div>
     `;
     setTimeout(() => {
-      const container = document.getElementById('game');
-      if (container) {
-        container.style.position = 'relative';
-        container.appendChild(hud);
+      const wrapper = document.getElementById('game-wrapper');
+      if (wrapper) {
+        wrapper.style.position = 'relative';
+        wrapper.appendChild(hud);
       }
     }, 100);
   }
