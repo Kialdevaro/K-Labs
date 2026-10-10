@@ -1,4 +1,4 @@
-// engine-core.js (Worker Thread - Cinematic Demo Mode)
+// engine-core.js (Worker Thread - WebGL2 & Frame Loop)
 let glContext = null;
 
 self.onmessage = async (e) => {
@@ -6,41 +6,29 @@ self.onmessage = async (e) => {
     
     if (type === 'INIT_ENGINE') {
         const { canvas } = e.data;
-        
-        // Initialize WebGL2 on OffscreenCanvas
         glContext = canvas.getContext('webgl2', {
-            alpha: false,
-            antialias: false,
-            depth: false,
-            preserveDrawingBuffer: false
+            alpha: false, antialias: false, depth: false, preserveDrawingBuffer: false
         });
         
-        if (!glContext) {
-            console.error("WebGL2 tidak didukung pada OffscreenCanvas.");
-            return;
-        }
+        if (!glContext) return;
 
-        // Loop perenderan visual dinamis ACES Cinematic Style untuk pengujian awal
-        let step = 0;
+        let frame = 0;
         function renderLoop() {
-            step += 0.02;
-            
-            // Simulasi perubahan warna latar belakang sinematik ala K-Labs
-            const red = Math.sin(step) * 0.1 + 0.05;
-            const green = Math.cos(step * 0.8) * 0.15 + 0.05;
-            const blue = 0.2 + Math.sin(step * 0.5) * 0.1;
+            frame++;
+            // Simulasi perenderan grafis retro berselera ACES sinematik
+            const r = Math.sin(frame * 0.03) * 0.1 + 0.05;
+            const g = Math.cos(frame * 0.02) * 0.1 + 0.08;
+            const b = 0.15;
 
-            glContext.clearColor(red, green, blue, 1.0);
+            glContext.clearColor(r, g, b, 1.0);
             glContext.clear(glContext.COLOR_BUFFER_BIT);
 
             self.requestAnimationFrame(renderLoop);
         }
-        
         renderLoop();
     }
     
     if (type === 'INPUT_UPDATE') {
-        // Logika penerimaan input tombol dari Main Thread
-        console.log("Input diterima di Worker:", e.data.state);
+        // Kontrol input diterima secara instan di latar belakang worker
     }
 };
