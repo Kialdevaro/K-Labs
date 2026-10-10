@@ -1,7 +1,7 @@
 <!-- ===================================================================== -->
 <!-- K-LABS RETRO ENGINE - ULTIMATE NEXT-GEN ARCHITECTURE v5.0             -->
 <!-- Copyright © 2026 Kialdevaro Group. All Rights Reserved.               -->
-<!-- Secured with Advanced Anti-Theft & Anti-Inspect Protection Engine     -->
+<!-- Secured with Advanced Anti-Theft & Floating Fullscreen Gamepad        -->
 <!-- ===================================================================== -->
 <!DOCTYPE html>
 <html lang="id">
@@ -81,43 +81,98 @@
       opacity: 0.95; 
       transform: scale(1.01); 
     }
+
+    /* Wadah Game Utama dengan Posisi Relatif untuk Floating Gamepad Overlay */
+    #game {
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: #030712;
+      border-radius: 14px;
+      border: 1px solid rgba(0,255,204,0.5);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 40px rgba(0,255,204,0.1);
+    }
+
+    /* Gaya Floating Gamepad di Dalam Layar */
+    .floating-overlay {
+      position: absolute;
+      bottom: 15px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 20px;
+      pointer-events: none;
+      z-index: 100;
+    }
+    .floating-group {
+      pointer-events: auto;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .virtual-btn {
+      background: rgba(15, 23, 42, 0.75);
+      color: #00ffcc;
+      border: 1px solid rgba(0, 255, 204, 0.4);
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
+      font-size: 14px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      cursor: pointer;
+    }
+    .virtual-btn:active {
+      background: rgba(0, 255, 204, 0.4);
+      color: #030712;
+    }
+    .dpad-container {
+      width: 90px;
+      height: 90px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 50%;
+      border: 1px solid rgba(0, 255, 204, 0.3);
+      position: relative;
+      pointer-events: auto;
+      backdrop-filter: blur(4px);
+    }
+    .dpad-btn {
+      position: absolute;
+      background: rgba(15, 23, 42, 0.85);
+      color: #00ffcc;
+      border: 1px solid rgba(0, 255, 204, 0.3);
+      width: 28px;
+      height: 28px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .dpad-up { top: 4px; left: 31px; border-radius: 6px 6px 0 0; }
+    .dpad-down { bottom: 4px; left: 31px; border-radius: 0 0 6px 6px; }
+    .dpad-left { top: 31px; left: 4px; border-radius: 6px 0 0 6px; }
+    .dpad-right { top: 31px; right: 4px; border-radius: 0 6px 6px 0; }
   </style>
 
   <!-- SCRIPT PERLINDUNGAN KODE SUMBER (ANTI-THEFT & ANTI-INSPECT) -->
   <script>
-    // 1. Cegah Klik Kanan (Context Menu)
-    document.addEventListener('contextmenu', function(e) {
-      e.preventDefault();
-      return false;
-    });
-
-    // 2. Blokir Pintasan Keyboard untuk Inspeksi & Unduh Sumber (F12, Ctrl+U, Ctrl+Shift+I, dll)
+    document.addEventListener('contextmenu', function(e) { e.preventDefault(); return false; });
     document.addEventListener('keydown', function(e) {
-      if (
-        e.keyCode === 123 || // F12
-        (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) || // Ctrl+Shift+I/J/C
-        (e.ctrlKey && (e.keyCode === 85 || e.keyCode === 83 || e.keyCode === 65)) // Ctrl+U (Source), Ctrl+S (Save), Ctrl+A (Select All)
-      ) {
+      if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) || (e.ctrlKey && (e.keyCode === 85 || e.keyCode === 83 || e.keyCode === 65))) {
         e.preventDefault();
         return false;
       }
     });
-
-    // 3. Deteksi Debugger / Developer Tools Terbuka
-    (function() {
-      const devtools = { open: false, orientation: null };
-      const threshold = 160;
-      const checkInterval = setInterval(function() {
-        const widthThreshold = window.outerWidth - window.innerWidth > threshold;
-        const heightThreshold = window.outerHeight - window.innerHeight > threshold;
-        if (widthThreshold || heightThreshold) {
-          if (!devtools.open) {
-            devtools.open = true;
-            document.body.innerHTML = '<div style="background:#030712;color:#00ffcc;height:100vh;display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:18px;text-align:center;padding:20px;">[K-Labs Security] Akses Debugger & Inspeksi Kode Dilarang Keras!</div>';
-          }
-        }
-      }, 1000);
-    })();
   </script>
 </head>
 <body>
@@ -139,8 +194,26 @@
       <button class="btn-run" onclick="bootMasterEngine()">▶ JALANKAN ULTIMATE ENGINE (WEBGL2)</button>
     </div>
     
-    <!-- Wadah Kanvas GPU WebGL2 Next-Gen -->
-    <div id="game" style="width: 100%; aspect-ratio: 4/3; background: #030712; border-radius: 14px; border: 1px solid rgba(0,255,204,0.5); overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 40px rgba(0,255,204,0.1);">
+    <!-- WADAH KANVAS GAME DENGAN FLOATING GAMEPAD OVERLAY (IKUT FULLSCREEN) -->
+    <div id="game">
+      <!-- Tombol Stik Virtual Melayang di Dalam Layar -->
+      <div class="floating-overlay">
+        <!-- D-Pad Kiri -->
+        <div class="dpad-container">
+          <div class="dpad-btn dpad-up" onmousedown="KLabsPressButton('UP', true)" onmouseup="KLabsPressButton('UP', false)" ontouchstart="KLabsPressButton('UP', true)" ontouchend="KLabsPressButton('UP', false)">▲</div>
+          <div class="dpad-btn dpad-down" onmousedown="KLabsPressButton('DOWN', true)" onmouseup="KLabsPressButton('DOWN', false)" ontouchstart="KLabsPressButton('DOWN', true)" ontouchend="KLabsPressButton('DOWN', false)">▼</div>
+          <div class="dpad-btn dpad-left" onmousedown="KLabsPressButton('LEFT', true)" onmouseup="KLabsPressButton('LEFT', false)" ontouchstart="KLabsPressButton('LEFT', true)" ontouchend="KLabsPressButton('LEFT', false)">◀</div>
+          <div class="dpad-btn dpad-right" onmousedown="KLabsPressButton('RIGHT', true)" onmouseup="KLabsPressButton('RIGHT', false)" ontouchstart="KLabsPressButton('RIGHT', true)" ontouchend="KLabsPressButton('RIGHT', false)">▶</div>
+        </div>
+
+        <!-- Tombol Aksi Kanan (X, O, Square, Triangle) -->
+        <div class="floating-group" style="display: grid; grid-template-columns: repeat(2, 42px); gap: 6px;">
+          <button class="virtual-btn" onmousedown="KLabsPressButton('SQUARE', true)" onmouseup="KLabsPressButton('SQUARE', false)" ontouchstart="KLabsPressButton('SQUARE', true)" ontouchend="KLabsPressButton('SQUARE', false)">□</button>
+          <button class="virtual-btn" onmousedown="KLabsPressButton('TRIANGLE', true)" onmouseup="KLabsPressButton('TRIANGLE', false)" ontouchstart="KLabsPressButton('TRIANGLE', true)" ontouchend="KLabsPressButton('TRIANGLE', false)">△</button>
+          <button class="virtual-btn" onmousedown="KLabsPressButton('CROSS', true)" onmouseup="KLabsPressButton('CROSS', false)" ontouchstart="KLabsPressButton('CROSS', true)" ontouchend="KLabsPressButton('CROSS', false)">✕</button>
+          <button class="virtual-btn" onmousedown="KLabsPressButton('CIRCLE', true)" onmouseup="KLabsPressButton('CIRCLE', false)" ontouchstart="KLabsPressButton('CIRCLE', true)" ontouchend="KLabsPressButton('CIRCLE', false)">◯</button>
+        </div>
+      </div>
     </div>
 
     <!-- Tombol Fitur Pro & Manajemen Penyimpanan Internal -->
@@ -150,39 +223,6 @@
       <button onclick="if(window.KLabsEngine && window.KLabsEngine.advanced) window.KLabsEngine.advanced.exportSaveFile()" style="flex:1; background:#1e293b; color:#10b981; border:1px solid #10b98144; border-radius:8px; padding:8px; font-size:10px; cursor:pointer; font-weight:bold;">💾 EXPORT</button>
       <button onclick="document.getElementById('importSaveInput').click()" style="flex:1; background:#1e293b; color:#f59e0b; border:1px solid #f59e0b44; border-radius:8px; padding:8px; font-size:10px; cursor:pointer; font-weight:bold;">📂 IMPORT</button>
       <input type="file" id="importSaveInput" style="display:none" onchange="if(window.KLabsEngine && window.KLabsEngine.advanced) window.KLabsEngine.advanced.importSaveFile(this)">
-    </div>
-
-    <!-- Panel Tombol Bahu Stik Virtual -->
-    <div style="background: rgba(15, 23, 42, 0.85); border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(0,255,204,0.15);">
-      <div style="display: flex; gap: 6px;">
-        <button onmousedown="KLabsPressButton('L1', true)" onmouseup="KLabsPressButton('L1', false)" ontouchstart="KLabsPressButton('L1', true)" ontouchend="KLabsPressButton('L1', false)" style="padding: 8px 14px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 6px; font-size: 11px; font-weight:bold;">L1</button>
-        <button onmousedown="KLabsPressButton('L2', true)" onmouseup="KLabsPressButton('L2', false)" ontouchstart="KLabsPressButton('L2', true)" ontouchend="KLabsPressButton('L2', false)" style="padding: 8px 14px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 6px; font-size: 11px; font-weight:bold;">L2</button>
-      </div>
-      <div style="display: flex; gap: 10px;">
-        <button onmousedown="KLabsPressButton('SELECT', true)" onmouseup="KLabsPressButton('SELECT', false)" ontouchstart="KLabsPressButton('SELECT', true)" ontouchend="KLabsPressButton('SELECT', false)" style="padding: 6px 12px; background: #1e293b; color: #94a3b8; border: 1px solid #ffffff22; border-radius: 6px; font-size: 10px; font-weight:bold;">SELECT</button>
-        <button onmousedown="KLabsPressButton('START', true)" onmouseup="KLabsPressButton('START', false)" ontouchstart="KLabsPressButton('START', true)" ontouchend="KLabsPressButton('START', false)" style="padding: 6px 12px; background: #1e293b; color: #94a3b8; border: 1px solid #ffffff22; border-radius: 6px; font-size: 10px; font-weight:bold;">START</button>
-      </div>
-      <div style="display: flex; gap: 6px;">
-        <button onmousedown="KLabsPressButton('R1', true)" onmouseup="KLabsPressButton('R1', false)" ontouchstart="KLabsPressButton('R1', true)" ontouchend="KLabsPressButton('R1', false)" style="padding: 8px 14px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 6px; font-size: 11px; font-weight:bold;">R1</button>
-        <button onmousedown="KLabsPressButton('R2', true)" onmouseup="KLabsPressButton('R2', false)" ontouchstart="KLabsPressButton('R2', true)" ontouchend="KLabsPressButton('R2', false)" style="padding: 8px 14px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 6px; font-size: 11px; font-weight:bold;">R2</button>
-      </div>
-    </div>
-    
-    <!-- D-Pad & Tombol Aksi -->
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px 12px;">
-      <div style="width: 95px; height: 95px; background: rgba(255,255,255,0.02); border-radius: 50%; border: 1px solid #00ffcc33; display: flex; align-items: center; justify-content: center; position: relative;">
-        <div style="position: absolute; top: 4px; cursor: pointer; color: #00ffcc; font-size: 14px;" onmousedown="KLabsPressButton('UP', true)" onmouseup="KLabsPressButton('UP', false)" ontouchstart="KLabsPressButton('UP', true)" ontouchend="KLabsPressButton('UP', false)">▲</div>
-        <div style="position: absolute; bottom: 4px; cursor: pointer; color: #00ffcc; font-size: 14px;" onmousedown="KLabsPressButton('DOWN', true)" onmouseup="KLabsPressButton('DOWN', false)" ontouchstart="KLabsPressButton('DOWN', true)" ontouchend="KLabsPressButton('DOWN', false)">▼</div>
-        <div style="position: absolute; left: 6px; cursor: pointer; color: #00ffcc; font-size: 14px;" onmousedown="KLabsPressButton('LEFT', true)" onmouseup="KLabsPressButton('LEFT', false)" ontouchstart="KLabsPressButton('LEFT', true)" ontouchend="KLabsPressButton('LEFT', false)">◀</div>
-        <div style="position: absolute; right: 6px; cursor: pointer; color: #00ffcc; font-size: 14px;" onmousedown="KLabsPressButton('RIGHT', true)" onmouseup="KLabsPressButton('RIGHT', false)" ontouchstart="KLabsPressButton('RIGHT', true)" ontouchend="KLabsPressButton('RIGHT', false)">▶</div>
-      </div>
-      
-      <div style="display: grid; grid-template-columns: repeat(2, 40px); gap: 8px;">
-        <button onmousedown="KLabsPressButton('SQUARE', true)" onmouseup="KLabsPressButton('SQUARE', false)" ontouchstart="KLabsPressButton('SQUARE', true)" ontouchend="KLabsPressButton('SQUARE', false)" style="height: 40px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 50%; font-size: 13px; font-weight:bold;">□</button>
-        <button onmousedown="KLabsPressButton('TRIANGLE', true)" onmouseup="KLabsPressButton('TRIANGLE', false)" ontouchstart="KLabsPressButton('TRIANGLE', true)" ontouchend="KLabsPressButton('TRIANGLE', false)" style="height: 40px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 50%; font-size: 13px; font-weight:bold;">△</button>
-        <button onmousedown="KLabsPressButton('CROSS', true)" onmouseup="KLabsPressButton('CROSS', false)" ontouchstart="KLabsPressButton('CROSS', true)" ontouchend="KLabsPressButton('CROSS', false)" style="height: 40px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 50%; font-size: 13px; font-weight:bold;">✕</button>
-        <button onmousedown="KLabsPressButton('CIRCLE', true)" onmouseup="KLabsPressButton('CIRCLE', false)" ontouchstart="KLabsPressButton('CIRCLE', true)" ontouchend="KLabsPressButton('CIRCLE', false)" style="height: 40px; background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; border-radius: 50%; font-size: 13px; font-weight:bold;">◯</button>
-      </div>
     </div>
   </div>
 
@@ -211,7 +251,7 @@
         }
 
         if (!window.KLabsEngine || !window.KLabsEngine.loader) {
-           alert("Galat: Core Engine belum sepenuhnya terhubung. Tunggu beberapa detik atau muat ulang halaman!");
+           alert("Galat: Core Engine belum sepenuhnya terhubung!");
            return;
         }
 
@@ -232,30 +272,14 @@
     }
   </script>
 
-  <!-- Pemuat Inti Otomatis Cerdas Anti-Galat GitHub Pages -->
+  <!-- Pemuat Inti Otomatis -->
   <script>
     (function() {
       const script = document.createElement('script');
       const pathname = window.location.pathname;
       const isGitHubPages = window.location.hostname.includes('github.io');
-      
-      let basePath = './';
-      if (isGitHubPages) {
-        basePath = pathname.includes('/K-Labs/') ? '/K-Labs/' : './';
-      }
-      
+      let basePath = isGitHubPages && pathname.includes('/K-Labs/') ? '/K-Labs/' : './';
       script.src = basePath + 'core.js?v=' + Date.now();
-      
-      script.onload = function() {
-        console.log("[K-Labs Studio] Core Engine berhasil dimuat.");
-      };
-      
-      script.onerror = function() {
-        const fallback = document.createElement('script');
-        fallback.src = 'core.js?v=' + Date.now();
-        document.body.appendChild(fallback);
-      };
-
       document.body.appendChild(script);
     })();
   </script>
