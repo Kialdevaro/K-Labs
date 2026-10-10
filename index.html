@@ -1,7 +1,7 @@
 <!-- ===================================================================== -->
 <!-- K-LABS RETRO ENGINE - ULTIMATE NEXT-GEN ARCHITECTURE v5.0             -->
 <!-- Copyright © 2026 Kialdevaro Group. All Rights Reserved.               -->
-<!-- Secured with PlayStation Dual Analog, HUD Toggle & Anti-Theft Shield  -->
+<!-- Secured with Full Controller Layout, Master Settings & FPS Control    -->
 <!-- ===================================================================== -->
 <!DOCTYPE html>
 <html lang="id">
@@ -79,7 +79,7 @@
     }
     .btn-run:hover { opacity: 0.95; transform: scale(1.01); }
 
-    /* Wadah Utama Game & Overlay Stik */
+    /* Wadah Game & Overlay Stik */
     #game-wrapper {
       position: relative;
       width: 100%;
@@ -111,7 +111,7 @@
     }
     .bumper-btn:active { background: #00ffcc; color: #030712; }
 
-    /* Overlay Gamepad Bawah (D-Pad / Analog & Tombol Aksi) */
+    /* Overlay Gamepad Bawah */
     .gamepad-overlay-bottom {
       position: absolute;
       bottom: 12px; left: 12px; right: 12px;
@@ -131,8 +131,8 @@
     }
     .action-btn:active { background: #00ffcc; color: #030712; }
 
-    /* Desain Stik Analog Ala PlayStation */
-    .ps-analog-stick {
+    /* Stik Analog & D-Pad */
+    .ps-control-box {
       width: 90px; height: 90px;
       background: radial-gradient(circle, #0f172a 40%, #030712 90%);
       border-radius: 50%;
@@ -141,7 +141,6 @@
       pointer-events: auto;
       box-shadow: inset 0 0 12px rgba(0,255,204,0.4), 0 4px 15px rgba(0,0,0,0.8);
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
     }
     .analog-thumb {
       width: 40px; height: 40px;
@@ -151,6 +150,29 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.9);
       transition: transform 0.05s ease;
     }
+    .dpad-layout {
+      width: 90px; height: 90px;
+      background: rgba(3, 7, 18, 0.85);
+      border-radius: 50%;
+      border: 2px solid rgba(0, 255, 204, 0.5);
+      position: relative;
+      pointer-events: auto;
+      display: none;
+    }
+    .dpad-dir {
+      position: absolute;
+      background: rgba(15, 23, 42, 0.95);
+      color: #00ffcc;
+      border: 1px solid #00ffcc;
+      width: 28px; height: 27px;
+      font-size: 11px; font-weight: bold;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+    }
+    .dir-up { top: 3px; left: 29px; border-radius: 6px 6px 0 0; }
+    .dir-down { bottom: 3px; left: 29px; border-radius: 0 0 6px 6px; }
+    .dir-left { top: 29px; left: 3px; border-radius: 6px 0 0 6px; }
+    .dir-right { top: 29px; right: 3px; border-radius: 0 6px 6px 0; }
 
     /* Modal Menu Setingan Terpadu */
     #settings-modal {
@@ -164,6 +186,7 @@
       border-radius: 16px; width: 100%; max-width: 450px; padding: 20px;
       display: flex; flex-direction: column; gap: 15px;
       box-shadow: 0 10px 40px rgba(0, 255, 204, 0.25);
+      max-height: 90vh; overflow-y: auto;
     }
     .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; padding-bottom: 10px; }
     .modal-title { color: #00ffcc; font-weight: bold; font-size: 14px; letter-spacing: 1px; }
@@ -202,7 +225,7 @@
       <button class="btn-run" onclick="bootMasterEngine()">▶ JALANKAN ULTIMATE ENGINE (WEBGL2)</button>
     </div>
     
-    <!-- WADAH GAME DENGAN OVERLAY KONTROL LENGKAP -->
+    <!-- WADAH GAME DENGAN KONTROL LENGKAP -->
     <div id="game-wrapper">
       <div id="game"></div>
 
@@ -218,11 +241,19 @@
         </div>
       </div>
 
-      <!-- Overlay Stik Analog & Tombol Aksi di Bawah -->
+      <!-- Overlay Stik / D-Pad & Tombol Aksi di Bawah -->
       <div class="gamepad-overlay-bottom" id="bottom-gamepad-overlay">
-        <!-- Stik Analog Kiri ala PS -->
-        <div class="ps-analog-stick" id="ps-analog-left" ontouchmove="handleAnalogMove(event)" ontouchend="resetAnalogThumb()">
+        <!-- Stik Analog PS -->
+        <div class="ps-control-box" id="ps-analog-control" ontouchmove="handleAnalogMove(event)" ontouchend="resetAnalogThumb()">
           <div class="analog-thumb" id="thumb-stick"></div>
+        </div>
+
+        <!-- D-Pad Alternatif -->
+        <div class="dpad-layout" id="dpad-control">
+          <div class="dpad-dir dir-up" onmousedown="KLabsPressButton('UP', true)" onmouseup="KLabsPressButton('UP', false)" ontouchstart="KLabsPressButton('UP', true)" ontouchend="KLabsPressButton('UP', false)">▲</div>
+          <div class="dpad-dir dir-down" onmousedown="KLabsPressButton('DOWN', true)" onmouseup="KLabsPressButton('DOWN', false)" ontouchstart="KLabsPressButton('DOWN', true)" ontouchend="KLabsPressButton('DOWN', false)">▼</div>
+          <div class="dpad-dir dir-left" onmousedown="KLabsPressButton('LEFT', true)" onmouseup="KLabsPressButton('LEFT', false)" ontouchstart="KLabsPressButton('LEFT', true)" ontouchend="KLabsPressButton('LEFT', false)">◀</div>
+          <div class="dpad-dir dir-right" onmousedown="KLabsPressButton('RIGHT', true)" onmouseup="KLabsPressButton('RIGHT', false)" ontouchstart="KLabsPressButton('RIGHT', true)" ontouchend="KLabsPressButton('RIGHT', false)">▶</div>
         </div>
 
         <!-- Tombol Aksi (Square, Triangle, Cross, Circle) -->
@@ -253,9 +284,9 @@
         <button class="close-btn" onclick="closeSettingsModal()">✕</button>
       </div>
       
-      <!-- 1. Tampilkan / Sembunyikan HUD FPS & CPU -->
+      <!-- 1. Telemetri HUD FPS & Pengaturan FPS Mode -->
       <div class="setting-section">
-        <span>📊 TELEMETRI HUD & RENDERER</span>
+        <span>📊 TELEMETRI HUD & FPS ENGINE</span>
         <div class="setting-row">
           <span>Tampilkan Render FPS & CPU HUD</span>
           <select class="setting-select" id="cfg-hud-toggle" onchange="toggleHUDDisplay(this.value)">
@@ -263,9 +294,16 @@
             <option value="hide">Sembunyikan HUD</option>
           </select>
         </div>
+        <div class="setting-row">
+          <span>Mode Kecepatan FPS</span>
+          <select class="setting-select" id="cfg-fps-mode" onchange="toggleFPSMode(this.value)">
+            <option value="unlocked">⚡ Unlocked FPS (Max Speed)</option>
+            <option value="locked60">🔒 60 FPS (Standard Locked)</option>
+          </select>
+        </div>
       </div>
 
-      <!-- 2. Tampilkan / Sembunyikan Overlay Joystick -->
+      <!-- 2. Overlay Joystick Toggle & Tipe Kontrol -->
       <div class="setting-section">
         <span>🎮 VIRTUAL GAMEPAD OVERLAY</span>
         <div class="setting-row">
@@ -275,9 +313,16 @@
             <option value="hide">Sembunyikan Stik</option>
           </select>
         </div>
+        <div class="setting-row">
+          <span>Tipe Kontrol (Analog PS / D-Pad)</span>
+          <select class="setting-select" id="cfg-stick-type" onchange="switchStickType(this.value)">
+            <option value="analog">Dual Analog Stick</option>
+            <option value="dpad">Standard D-Pad</option>
+          </select>
+        </div>
       </div>
 
-      <!-- 3. Audio & Volume -->
+      <!-- 3. Audio SPU Pipeline -->
       <div class="setting-section">
         <span>🎵 AUDIO SPU PIPELINE</span>
         <div class="setting-row">
@@ -309,6 +354,13 @@
       if (hud) hud.style.display = (val === 'show') ? 'block' : 'none';
     }
 
+    function toggleFPSMode(val) {
+      if (window.KLabsEngine) {
+        const isUnlocked = (val === 'unlocked');
+        window.KLabsEngine.toggleUnlimitedFPS(isUnlocked);
+      }
+    }
+
     function toggleOverlayGamepad(val) {
       const top = document.getElementById('top-bumper-overlay');
       const bottom = document.getElementById('bottom-gamepad-overlay');
@@ -317,9 +369,21 @@
       if (bottom) bottom.style.display = displayVal;
     }
 
+    function switchStickType(type) {
+      const analogBox = document.getElementById('ps-analog-control');
+      const dpadBox = document.getElementById('dpad-control');
+      if (type === 'analog') {
+        analogBox.style.display = 'flex';
+        dpadBox.style.display = 'none';
+      } else {
+        analogBox.style.display = 'none';
+        dpadBox.style.display = 'block';
+      }
+    }
+
     function handleAnalogMove(e) {
       const touch = e.touches[0];
-      const stick = document.getElementById('ps-analog-left');
+      const stick = document.getElementById('ps-analog-control');
       const thumb = document.getElementById('thumb-stick');
       const rect = stick.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
@@ -332,7 +396,6 @@
       const moveY = Math.sin(angle) * distance;
       thumb.style.transform = `translate(${moveX}px, ${moveY}px)`;
 
-      // Mapping arah analog ke dpad register
       if (moveY < -10) KLabsPressButton('UP', true); else KLabsPressButton('UP', false);
       if (moveY > 10) KLabsPressButton('DOWN', true); else KLabsPressButton('DOWN', false);
       if (moveX < -10) KLabsPressButton('LEFT', true); else KLabsPressButton('LEFT', false);
