@@ -1,7 +1,7 @@
 <!-- ===================================================================== -->
 <!-- K-LABS RETRO ENGINE - ULTIMATE NEXT-GEN ARCHITECTURE v5.0             -->
 <!-- Copyright © 2026 Kialdevaro Group. All Rights Reserved.               -->
-<!-- Secured with Unified Settings Modal, L1-R2 Bumpers & Anti-Theft Shield-->
+<!-- Secured with PlayStation Dual Analog, HUD Toggle & Anti-Theft Shield  -->
 <!-- ===================================================================== -->
 <!DOCTYPE html>
 <html lang="id">
@@ -79,7 +79,7 @@
     }
     .btn-run:hover { opacity: 0.95; transform: scale(1.01); }
 
-    /* Pembungkus Wadah Game & Overlay Stik */
+    /* Wadah Utama Game & Overlay Stik */
     #game-wrapper {
       position: relative;
       width: 100%;
@@ -92,16 +92,12 @@
     }
     #game { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
 
-    /* Tombol Overlay L1, L2, R1, R2 & Gamepad di dalam Layar */
+    /* Overlay Tombol Atas (L1, L2, R1, R2) */
     .gamepad-overlay-top {
       position: absolute;
-      top: 10px;
-      left: 10px;
-      right: 10px;
-      display: flex;
-      justify-content: space-between;
-      pointer-events: none;
-      z-index: 99;
+      top: 10px; left: 10px; right: 10px;
+      display: flex; justify-content: space-between;
+      pointer-events: none; z-index: 99;
     }
     .bumper-group { pointer-events: auto; display: flex; gap: 6px; }
     .bumper-btn {
@@ -110,23 +106,17 @@
       border: 1px solid rgba(0, 255, 204, 0.5);
       padding: 6px 12px;
       border-radius: 6px;
-      font-size: 11px;
-      font-weight: bold;
-      cursor: pointer;
-      backdrop-filter: blur(4px);
+      font-size: 11px; font-weight: bold;
+      cursor: pointer; backdrop-filter: blur(4px);
     }
     .bumper-btn:active { background: #00ffcc; color: #030712; }
 
+    /* Overlay Gamepad Bawah (D-Pad / Analog & Tombol Aksi) */
     .gamepad-overlay-bottom {
       position: absolute;
-      bottom: 12px;
-      left: 12px;
-      right: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      pointer-events: none;
-      z-index: 99;
+      bottom: 12px; left: 12px; right: 12px;
+      display: flex; justify-content: space-between; align-items: flex-end;
+      pointer-events: none; z-index: 99;
     }
     .pad-cluster { pointer-events: auto; display: flex; gap: 8px; align-items: center; }
     .action-btn {
@@ -134,56 +124,44 @@
       color: #00ffcc;
       border: 2px solid #00ffcc;
       border-radius: 50%;
-      width: 44px;
-      height: 44px;
-      font-size: 13px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      backdrop-filter: blur(4px);
+      width: 44px; height: 44px;
+      font-size: 13px; font-weight: bold;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; backdrop-filter: blur(4px);
     }
     .action-btn:active { background: #00ffcc; color: #030712; }
-    .dpad-box {
+
+    /* Desain Stik Analog Ala PlayStation */
+    .ps-analog-stick {
       width: 90px; height: 90px;
-      background: rgba(3, 7, 18, 0.75);
+      background: radial-gradient(circle, #0f172a 40%, #030712 90%);
       border-radius: 50%;
-      border: 2px solid rgba(0, 255, 204, 0.5);
+      border: 2px solid #00ffcc;
       position: relative;
-      backdrop-filter: blur(4px);
-    }
-    .dpad-dir {
-      position: absolute;
-      background: rgba(15, 23, 42, 0.9);
-      color: #00ffcc;
-      border: 1px solid #00ffcc;
-      width: 28px; height: 27px;
-      font-size: 11px; font-weight: bold;
+      pointer-events: auto;
+      box-shadow: inset 0 0 12px rgba(0,255,204,0.4), 0 4px 15px rgba(0,0,0,0.8);
       display: flex; align-items: center; justify-content: center;
       cursor: pointer;
     }
-    .dir-up { top: 3px; left: 29px; border-radius: 6px 6px 0 0; }
-    .dir-down { bottom: 3px; left: 29px; border-radius: 0 0 6px 6px; }
-    .dir-left { top: 29px; left: 3px; border-radius: 6px 0 0 6px; }
-    .dir-right { top: 29px; right: 3px; border-radius: 0 6px 6px 0; }
+    .analog-thumb {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border: 2px solid #38bdf8;
+      border-radius: 50%;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.9);
+      transition: transform 0.05s ease;
+    }
 
     /* Modal Menu Setingan Terpadu */
     #settings-modal {
       display: none;
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(3, 7, 18, 0.85);
-      backdrop-filter: blur(10px);
-      z-index: 9999;
-      justify-content: center; align-items: center;
-      padding: 15px;
+      background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(10px);
+      z-index: 9999; justify-content: center; align-items: center; padding: 15px;
     }
     .modal-content {
-      background: #0f172a;
-      border: 1px solid rgba(0, 255, 204, 0.5);
-      border-radius: 16px;
-      width: 100%; max-width: 450px;
-      padding: 20px;
+      background: #0f172a; border: 1px solid rgba(0, 255, 204, 0.5);
+      border-radius: 16px; width: 100%; max-width: 450px; padding: 20px;
       display: flex; flex-direction: column; gap: 15px;
       box-shadow: 0 10px 40px rgba(0, 255, 204, 0.25);
     }
@@ -195,7 +173,7 @@
     .setting-select, .setting-range { background: #1e293b; color: #00ffcc; border: 1px solid #00ffcc44; padding: 6px; border-radius: 6px; font-size: 11px; }
   </style>
 
-  <!-- SCRIPT KEAMANAN TINGKAT TINGGI (ANTI-THEFT & ANTI-DEBUG) -->
+  <!-- SCRIPT KEAMANAN ANTI-PENCURIAN KODE -->
   <script>
     document.addEventListener('contextmenu', e => e.preventDefault());
     document.addEventListener('keydown', e => {
@@ -224,12 +202,12 @@
       <button class="btn-run" onclick="bootMasterEngine()">▶ JALANKAN ULTIMATE ENGINE (WEBGL2)</button>
     </div>
     
-    <!-- WADAH GAME DENGAN OVERLAY TOMBOL L1, L2, R1, R2 & ANALOG TOGGLE -->
+    <!-- WADAH GAME DENGAN OVERLAY KONTROL LENGKAP -->
     <div id="game-wrapper">
       <div id="game"></div>
 
-      <!-- Overlay Tombol Bahu (L1, L2, R1, R2) di Atas Layar -->
-      <div class="gamepad-overlay-top">
+      <!-- Overlay Tombol Bahu (L1, L2, R1, R2) -->
+      <div class="gamepad-overlay-top" id="top-bumper-overlay">
         <div class="bumper-group">
           <button class="bumper-btn" onmousedown="KLabsPressButton('L1', true)" onmouseup="KLabsPressButton('L1', false)" ontouchstart="KLabsPressButton('L1', true)" ontouchend="KLabsPressButton('L1', false)">L1</button>
           <button class="bumper-btn" onmousedown="KLabsPressButton('L2', true)" onmouseup="KLabsPressButton('L2', false)" ontouchstart="KLabsPressButton('L2', true)" ontouchend="KLabsPressButton('L2', false)">L2</button>
@@ -240,15 +218,14 @@
         </div>
       </div>
 
-      <!-- Overlay D-Pad & Aksi di Bawah Layar -->
-      <div class="gamepad-overlay-bottom">
-        <div class="dpad-box" id="dpad-element">
-          <div class="dpad-dir dir-up" onmousedown="KLabsPressButton('UP', true)" onmouseup="KLabsPressButton('UP', false)" ontouchstart="KLabsPressButton('UP', true)" ontouchend="KLabsPressButton('UP', false)">▲</div>
-          <div class="dpad-dir dir-down" onmousedown="KLabsPressButton('DOWN', true)" onmouseup="KLabsPressButton('DOWN', false)" ontouchstart="KLabsPressButton('DOWN', true)" ontouchend="KLabsPressButton('DOWN', false)">▼</div>
-          <div class="dpad-dir dir-left" onmousedown="KLabsPressButton('LEFT', true)" onmouseup="KLabsPressButton('LEFT', false)" ontouchstart="KLabsPressButton('LEFT', true)" ontouchend="KLabsPressButton('LEFT', false)">◀</div>
-          <div class="dpad-dir dir-right" onmousedown="KLabsPressButton('RIGHT', true)" onmouseup="KLabsPressButton('RIGHT', false)" ontouchstart="KLabsPressButton('RIGHT', true)" ontouchend="KLabsPressButton('RIGHT', false)">▶</div>
+      <!-- Overlay Stik Analog & Tombol Aksi di Bawah -->
+      <div class="gamepad-overlay-bottom" id="bottom-gamepad-overlay">
+        <!-- Stik Analog Kiri ala PS -->
+        <div class="ps-analog-stick" id="ps-analog-left" ontouchmove="handleAnalogMove(event)" ontouchend="resetAnalogThumb()">
+          <div class="analog-thumb" id="thumb-stick"></div>
         </div>
 
+        <!-- Tombol Aksi (Square, Triangle, Cross, Circle) -->
         <div class="pad-cluster" style="display: grid; grid-template-columns: repeat(2, 42px); gap: 6px;">
           <button class="action-btn" onmousedown="KLabsPressButton('SQUARE', true)" onmouseup="KLabsPressButton('SQUARE', false)" ontouchstart="KLabsPressButton('SQUARE', true)" ontouchend="KLabsPressButton('SQUARE', false)">□</button>
           <button class="action-btn" onmousedown="KLabsPressButton('TRIANGLE', true)" onmouseup="KLabsPressButton('TRIANGLE', false)" ontouchstart="KLabsPressButton('TRIANGLE', true)" ontouchend="KLabsPressButton('TRIANGLE', false)">△</button>
@@ -258,7 +235,7 @@
       </div>
     </div>
 
-    <!-- Tombol Fitur Pro & Menu Setingan Terpadu -->
+    <!-- Tombol Navigasi Bawah & Menu Setingan -->
     <div style="display: flex; gap: 6px;">
       <button onclick="document.getElementById('game-wrapper').requestFullscreen()" style="flex:1; background:#1e293b; color:#00ffcc; border:1px solid #00ffcc44; border-radius:8px; padding:8px; font-size:10px; cursor:pointer; font-weight:bold;">⛶ FULL</button>
       <button onclick="openSettingsModal()" style="flex:1; background:#1e293b; color:#38bdf8; border:1px solid #38bdf844; border-radius:8px; padding:8px; font-size:10px; cursor:pointer; font-weight:bold;">⚙ SETINGS</button>
@@ -276,35 +253,31 @@
         <button class="close-btn" onclick="closeSettingsModal()">✕</button>
       </div>
       
-      <!-- 1. Joypad Stick Settings -->
+      <!-- 1. Tampilkan / Sembunyikan HUD FPS & CPU -->
       <div class="setting-section">
-        <span>🎮 STICK JOYPAD CONFIGURATION</span>
+        <span>📊 TELEMETRI HUD & RENDERER</span>
         <div class="setting-row">
-          <span>Mode Kontrol (D-Pad / Analog Toggle)</span>
-          <select class="setting-select" id="cfg-stick-mode" onchange="toggleAnalogMode(this.value)">
-            <option value="dpad">Standard D-Pad</option>
-            <option value="analog">Analog Stick Mode</option>
+          <span>Tampilkan Render FPS & CPU HUD</span>
+          <select class="setting-select" id="cfg-hud-toggle" onchange="toggleHUDDisplay(this.value)">
+            <option value="show">Tampilkan HUD</option>
+            <option value="hide">Sembunyikan HUD</option>
           </select>
         </div>
       </div>
 
-      <!-- 2. Graphics Settings -->
+      <!-- 2. Tampilkan / Sembunyikan Overlay Joystick -->
       <div class="setting-section">
-        <span>🖥 GRAPHICS & RENDERER CONFIG</span>
+        <span>🎮 VIRTUAL GAMEPAD OVERLAY</span>
         <div class="setting-row">
-          <span>Resolusi Internal & ACES Shader</span>
-          <select class="setting-select" id="cfg-gfx-res">
-            <option value="ultra">Cinematic Ultra (4K)</option>
-            <option value="balanced">Balanced WebGL2</option>
+          <span>Tampilkan Stik di Layar Game</span>
+          <select class="setting-select" id="cfg-overlay-toggle" onchange="toggleOverlayGamepad(this.value)">
+            <option value="show">Tampilkan Stik (Overlay)</option>
+            <option value="hide">Sembunyikan Stik</option>
           </select>
-        </div>
-        <div class="setting-row">
-          <span>FPS Unlock Mode</span>
-          <button class="bumper-btn" onclick="toggleFPSFromMenu(this)">Toggle 60 / Unlocked</button>
         </div>
       </div>
 
-      <!-- 3. Audio Settings -->
+      <!-- 3. Audio & Volume -->
       <div class="setting-section">
         <span>🎵 AUDIO SPU PIPELINE</span>
         <div class="setting-row">
@@ -313,7 +286,7 @@
         </div>
       </div>
 
-      <!-- 4. Load & Save Settings -->
+      <!-- 4. Load & Save State -->
       <div class="setting-section">
         <span>💾 LOAD & SAVE STATE MANAGEMENT</span>
         <div class="setting-row">
@@ -324,7 +297,6 @@
           </div>
         </div>
       </div>
-
     </div>
   </div>
 
@@ -332,23 +304,48 @@
     function openSettingsModal() { document.getElementById('settings-modal').style.display = 'flex'; }
     function closeSettingsModal() { document.getElementById('settings-modal').style.display = 'none'; }
 
-    function toggleAnalogMode(mode) {
-      const dpad = document.getElementById('dpad-element');
-      if (mode === 'analog') {
-        dpad.style.background = 'radial-gradient(circle, #00ffcc33 0%, #030712 80%)';
-        dpad.style.border = '2px dashed #00ffcc';
-      } else {
-        dpad.style.background = 'rgba(3, 7, 18, 0.75)';
-        dpad.style.border = '2px solid rgba(0, 255, 204, 0.5)';
-      }
+    function toggleHUDDisplay(val) {
+      const hud = document.getElementById('klabs-hud');
+      if (hud) hud.style.display = (val === 'show') ? 'block' : 'none';
     }
 
-    function toggleFPSFromMenu(btn) {
-      if (window.KLabsEngine) {
-        const current = window.KLabsEngine.profile.unlockedFPS;
-        window.KLabsEngine.toggleUnlimitedFPS(!current);
-        alert("FPS Mode diubah menjadi: " + (!current ? "Unlocked" : "60 FPS Locked"));
-      }
+    function toggleOverlayGamepad(val) {
+      const top = document.getElementById('top-bumper-overlay');
+      const bottom = document.getElementById('bottom-gamepad-overlay');
+      const displayVal = (val === 'show') ? 'flex' : 'none';
+      if (top) top.style.display = displayVal;
+      if (bottom) bottom.style.display = displayVal;
+    }
+
+    function handleAnalogMove(e) {
+      const touch = e.touches[0];
+      const stick = document.getElementById('ps-analog-left');
+      const thumb = document.getElementById('thumb-stick');
+      const rect = stick.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      let dx = touch.clientX - centerX;
+      let dy = touch.clientY - centerY;
+      const distance = Math.min(Math.sqrt(dx*dx + dy*dy), 25);
+      const angle = Math.atan2(dy, dx);
+      const moveX = Math.cos(angle) * distance;
+      const moveY = Math.sin(angle) * distance;
+      thumb.style.transform = `translate(${moveX}px, ${moveY}px)`;
+
+      // Mapping arah analog ke dpad register
+      if (moveY < -10) KLabsPressButton('UP', true); else KLabsPressButton('UP', false);
+      if (moveY > 10) KLabsPressButton('DOWN', true); else KLabsPressButton('DOWN', false);
+      if (moveX < -10) KLabsPressButton('LEFT', true); else KLabsPressButton('LEFT', false);
+      if (moveX > 10) KLabsPressButton('RIGHT', true); else KLabsPressButton('RIGHT', false);
+    }
+
+    function resetAnalogThumb() {
+      const thumb = document.getElementById('thumb-stick');
+      thumb.style.transform = `translate(0px, 0px)`;
+      KLabsPressButton('UP', false);
+      KLabsPressButton('DOWN', false);
+      KLabsPressButton('LEFT', false);
+      KLabsPressButton('RIGHT', false);
     }
 
     function adjustMasterVolume(val) {
@@ -376,7 +373,7 @@
     }
   </script>
 
-  <!-- Pemuat Inti Otomatis -->
+  <!-- Pemuat Otomatis Inti Engine -->
   <script>
     (function() {
       const script = document.createElement('script');
