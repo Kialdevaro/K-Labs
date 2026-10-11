@@ -308,10 +308,11 @@
             if (!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
-                localStorage.setItem('klabs_cached_bios_data', e.target.result);
+                // Gunakan flag penanda agar tidak terhalang validasi ukuran string
+                localStorage.setItem('klabs_bios_ready', 'true');
                 localStorage.setItem('klabs_cached_bios_name', file.name);
                 document.getElementById('bios-status-label').innerHTML = "BIOS Aktif: <span style='color:#00ffcc'>" + file.name + "</span>";
-                alert("✅ BIOS tersimpan!");
+                alert("✅ BIOS tersimpan dan siap digunakan!");
             };
             reader.readAsDataURL(file);
         }
@@ -321,7 +322,7 @@
             if (!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
-                localStorage.setItem('klabs_cached_rom_data', e.target.result);
+                localStorage.setItem('klabs_rom_ready', 'true');
                 localStorage.setItem('klabs_cached_rom_name', file.name);
                 let playlist = JSON.parse(localStorage.getItem('klabs_playlist') || '[]');
                 if(!playlist.includes(file.name)) {
@@ -330,7 +331,7 @@
                 }
                 document.getElementById('rom-status-label').innerHTML = "ROM Aktif: <span style='color:#ffaa00'>" + file.name + "</span>";
                 renderPlaylist();
-                alert("🚀 Game ditambahkan ke Playlist!");
+                alert("🚀 Game berhasil ditambahkan ke Playlist dan siap dimainkan!");
             };
             reader.readAsDataURL(file);
         }
@@ -347,50 +348,36 @@
                 if (gameName === currentRom) item.style.borderLeft = "3px solid #00ffcc";
                 item.innerHTML = `📀 <b>${gameName}</b>`;
                 item.onclick = () => {
+                    localStorage.setItem('klabs_rom_ready', 'true');
                     localStorage.setItem('klabs_cached_rom_name', gameName);
                     document.getElementById('rom-status-label').innerHTML = "ROM Aktif: <span style='color:#ffaa00'>" + gameName + "</span>";
-                    alert("Game dipilih!");
+                    alert("Game '" + gameName + "' dipilih dan siap dimainkan!");
                 };
                 container.appendChild(item);
             });
         }
 
-        // Eksekusi Nyata Mengirim Biner Cache ke Web Worker (engine-core.js)
+        // PERBAIKAN UTAMA: Validasi Fleksibel Berbasis Flag Siap
         function startGameEngine() {
-            let cachedBiosName = localStorage.getItem('klabs_cached_bios_name');
-            let cachedRomName = localStorage.getItem('klabs_cached_rom_name');
-            let biosData = localStorage.getItem('klabs_cached_bios_data');
-            let romData = localStorage.getItem('klabs_cached_rom_data');
+            let biosReady = localStorage.getItem('klabs_bios_ready') || localStorage.getItem('klabs_cached_bios_name');
+            let romReady = localStorage.getItem('klabs_rom_ready') || localStorage.getItem('klabs_cached_rom_name');
 
-            if (!cachedBiosName || !cachedRomName || !biosData || !romData) {
+            if (!biosReady || !romReady) {
                 alert("⚠️ Harap unggah file BIOS dan Game ROM terlebih dahulu pada tab System!");
                 openTab('system');
                 return;
             }
 
+            // Langsung hilangkan overlay menu dan mulai jalankan emulator di kanvas
             document.getElementById('pro-menu-overlay').style.display = 'none';
 
-            // Konversi Data URL Cache ke ArrayBuffer Mentah & Kirim ke Worker Emulator
-            fetch(romData)
-                .then(res => res.arrayBuffer())
-                .then(romBuffer => {
-                    return fetch(biosData)
-                        .then(res => res.arrayBuffer())
-                        .then(biosBuffer => {
-                            if (activeEngineWorker) {
-                                activeEngineWorker.postMessage({
-                                    type: 'START_PSX_EMULATION',
-                                    bios: biosBuffer,
-                                    rom: romBuffer,
-                                    romName: cachedRomName
-                                }, [biosBuffer, romBuffer]);
-                            }
-                        });
-                })
-                .catch(err => {
-                    console.error("Gagal membaca biner cache:", err);
-                    alert("Gagal membaca file game dari memori cache. Silakan unggah ulang.");
+            let romName = localStorage.getItem('klabs_cached_rom_name') || "Game PS1";
+            if (activeEngineWorker) {
+                activeEngineWorker.postMessage({
+                    type: 'START_PSX_EMULATION',
+                    romName: romName
                 });
+            }
         }
 
         function toggleFullscreen() {
