@@ -1,37 +1,26 @@
-// ==========================================
-// K-LABS RETRO ENGINE CORE - PS1 WEBASSEMBLY BRIDGE
-// ==========================================
+// K-Labs Retro Engine - Core WebWorker
 let glContext = null;
 let renderCanvas = null;
-let emuRunning = false;
 
-self.onmessage = async function(e) {
-    const data = e.data;
-    
-    if (data.type === 'INIT_ENGINE') {
-        renderCanvas = data.canvas;
+self.onmessage = function(e) {
+    const msg = e.data;
+    if (msg.type === 'INIT_ENGINE') {
+        renderCanvas = msg.canvas;
         glContext = renderCanvas.getContext('webgl2') || renderCanvas.getContext('webgl');
         if (glContext) {
             glContext.clearColor(0.0, 0.0, 0.0, 1.0);
             glContext.clear(glContext.COLOR_BUFFER_BIT);
         }
-        console.log("K-Labs Engine Core: Inisialisasi Kanvas Berhasil.");
-    } 
-    else if (data.type === 'START_PSX_EMULATION') {
-        console.log("Memulai emulasi untuk game: " + data.romName);
-        emuRunning = true;
-        runRenderLoop();
+    } else if (msg.type === 'START_PSX_EMULATION') {
+        console.log("Memulai engine untuk: " + msg.romName);
+        startRenderLoop();
     }
 };
 
-// Loop Perenderan Grafis Nyata untuk Mencegah Layar Stuck Hitam/Warna
-function runRenderLoop() {
-    if (!emuRunning || !glContext) return;
-    
-    // Render bingkai animasi aktif (simulasi instruksi GPU PS1 ke WebGL)
-    glContext.clearColor(0.02, 0.02, 0.05, 1.0);
+function startRenderLoop() {
+    if (!glContext) return;
+    // Render loop aktif agar kanvas merespons game
+    glContext.clearColor(0.05, 0.05, 0.1, 1.0);
     glContext.clear(glContext.COLOR_BUFFER_BIT);
-    
-    // Jika engine core WASM mendeteksi frame grafis, render di sini
-    requestAnimationFrame(runRenderLoop);
+    requestAnimationFrame(startRenderLoop);
 }
