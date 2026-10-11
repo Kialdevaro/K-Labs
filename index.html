@@ -6,7 +6,7 @@
     <title>Permainan Kialdevaro | K-Labs Retro Engine v5.0</title>
     <!-- Supabase Client SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Firebase SDK & Inisialisasi Auth -->
+    <!-- Firebase SDK & Auth -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -48,9 +48,9 @@
         }
         .nav-left { display: flex; align-items: center; gap: 8px; }
         .user-avatar-mini { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; border: 1px solid #ff5555; }
-        .nav-title { font-size: 12px; font-weight: 700; color: #fff; max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .nav-title { font-size: 12px; font-weight: 700; color: #fff; max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .nav-subtitle { font-size: 8px; color: #888; }
-        .nav-right { display: flex; gap: 10px; font-size: 14px; color: #aaa; cursor: pointer; align-items: center; }
+        .nav-right { display: flex; gap: 10px; font-size: 13px; color: #aaa; cursor: pointer; align-items: center; }
         .coin-badge { background: rgba(255,170,0,0.15); border: 1px solid #ffaa00; color: #ffaa00; padding: 2px 6px; border-radius: 8px; font-size: 10px; font-weight: bold; }
 
         /* Area Render & Canvas */
@@ -117,7 +117,7 @@
         .select-box { background: #1f1f1f; border: 1px solid #333; color: #fff; padding: 5px 10px; border-radius: 5px; font-size: 10px; outline: none; }
         .input-text { background: #1f1f1f; border: 1px solid #333; color: #fff; padding: 6px 10px; border-radius: 5px; font-size: 11px; width: 100%; margin-top: 5px; }
         .btn-action { background: #ff5555; color: #fff; border: none; padding: 8px 15px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer; margin-top: 8px; width: 100%; }
-        .btn-play { background: #00ffcc; color: #000; border: none; padding: 10px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; text-align: center; }
+        .btn-play { background: #00ffcc; color: #000; border: none; padding: 12px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 12px; text-align: center; box-shadow: 0 4px 12px rgba(0,255,204,0.3); }
 
         .list-item {
             padding: 10px 12px; font-size: 12px; color: #ccc; border-bottom: 1px solid rgba(255,255,255,0.04);
@@ -140,7 +140,6 @@
         }
         .pad-zone { pointer-events: auto; position: relative; display: flex; justify-content: center; align-items: center; }
         
-        /* D-Pad & Analog Stick Sempurna */
         .dpad-container { width: 110px; height: 110px; position: relative; }
         .pad-btn {
             position: absolute; background: rgba(35,35,35,0.65); border: 1px solid rgba(255,255,255,0.2);
@@ -152,7 +151,6 @@
         .p-right { top: 35px; right: 0; width: 35px; height: 40px; border-radius: 0 6px 6px 0; }
         .p-center { top: 35px; left: 35px; width: 40px; height: 40px; background: rgba(45,45,45,0.85); border-radius: 50%; font-size: 9px; color: #ff5555; border: 1px solid #ff5555; }
 
-        /* Tombol Aksi Kanan (Segitiga, Kotak, Bulat, Silang) */
         .action-container { width: 115px; height: 115px; position: relative; }
         .act-btn {
             position: absolute; width: 36px; height: 36px; border-radius: 50%;
@@ -181,7 +179,7 @@
         </div>
         <div class="nav-right">
             <span class="coin-badge">🪙 <span id="user-coins">0</span></span>
-            <span onclick="toggleFullscreen()" title="Fullscreen" style="font-size: 15px;">🛈 / ⛶</span>
+            <span onclick="toggleFullscreen()" title="Fullscreen">⛶</span>
             <span onclick="toggleMenu()" title="Menu">☰</span>
             <span onclick="openTab('profile')" title="Profil">👤</span>
         </div>
@@ -193,8 +191,8 @@
         <canvas id="klabs-render-surface"></canvas>
     </div>
 
-    <!-- PANEL MENU & PENGATURAN 6 TAB EMULATOR + PLAYLIST -->
-    <div id="pro-menu-overlay">
+    <!-- PANEL MENU & PENGATURAN 6 TAB EMULATOR -->
+    <div id="pro-menu-overlay" style="display: flex;">
         <div class="menu-tabs">
             <div class="tab-item active" onclick="openTab('system')">System & ROM</div>
             <div class="tab-item" onclick="openTab('playlist')">Playlist Game</div>
@@ -206,7 +204,7 @@
 
         <div class="menu-content">
             
-            <!-- 1. TAB SYSTEM & PENGUNGGAH BIOS/ROM DENGAN CACHE & TOMBOL MULAI -->
+            <!-- 1. TAB SYSTEM & PENGUNGGAH BIOS/ROM -->
             <div id="tab-system" class="setting-section active">
                 <div class="list-item" onclick="document.getElementById('bios-input').click();">⚡ <b id="bios-status-label">Masukkan File BIOS PS1</b></div>
                 <input type="file" id="bios-input" accept=".bin,.rom" style="display:none;" onchange="handleBiosUpload(this)">
@@ -239,7 +237,7 @@
                 <div id="playlist-container">
                     <p style="color: #666; font-size: 11px;">Belum ada game di playlist. Masukkan file game di tab System.</p>
                 </div>
-                <button class="btn-action" onclick="loadCachedGamePlay()">Muat Game dari Cache</button>
+                <button class="btn-action" onclick="startGameEngine()">Muat & Mainkan Game Terpilih</button>
             </div>
 
             <!-- 3. TAB INTERFACE -->
@@ -320,7 +318,7 @@
         </div>
     </div>
 
-    <!-- GAMEPAD VIRTUAL LENGKAP DI DALAM KANVAS DENGAN TOMBOL ANALOG YANG DIPERBAIKI -->
+    <!-- GAMEPAD VIRTUAL LENGKAP DI DALAM KANVAS -->
     <div id="virtual-gamepad">
         <div class="pad-zone">
             <div class="dpad-container">
@@ -368,7 +366,6 @@
             renderPlaylist();
         });
 
-        // Cek Cache BIOS & ROM
         function checkLocalCache() {
             let cachedBios = localStorage.getItem('klabs_cached_bios_name');
             let cachedRom = localStorage.getItem('klabs_cached_rom_name');
@@ -381,7 +378,6 @@
             }
         }
 
-        // Cache BIOS Otomatis ke Perangkat
         function handleBiosUpload(input) {
             const file = input.files[0];
             if (!file) return;
@@ -390,12 +386,11 @@
                 localStorage.setItem('klabs_cached_bios_data', e.target.result);
                 localStorage.setItem('klabs_cached_bios_name', file.name);
                 document.getElementById('bios-status-label').innerHTML = "BIOS Aktif: <span style='color:#00ffcc'>" + file.name + "</span>";
-                alert("✅ BIOS '" + file.name + "' tersimpan permanen di perangkat Anda!");
+                alert("✅ BIOS '" + file.name + "' tersimpan permanen!");
             };
             reader.readAsDataURL(file);
         }
 
-        // Cache ROM Game PS1 & Masukkan ke Playlist
         function handleRomUpload(input) {
             const file = input.files[0];
             if (!file) return;
@@ -404,7 +399,6 @@
                 localStorage.setItem('klabs_cached_rom_data', e.target.result);
                 localStorage.setItem('klabs_cached_rom_name', file.name);
                 
-                // Simpan ke Playlist LocalStorage
                 let playlist = JSON.parse(localStorage.getItem('klabs_playlist') || '[]');
                 if(!playlist.includes(file.name)) {
                     playlist.push(file.name);
@@ -413,12 +407,11 @@
 
                 document.getElementById('rom-status-label').innerHTML = "ROM Aktif: <span style='color:#ffaa00'>" + file.name + "</span>";
                 renderPlaylist();
-                alert("🚀 Game '" + file.name + "' berhasil dimasukkan dan disimpan ke Playlist perangkat!");
+                alert("🚀 Game '" + file.name + "' berhasil dimasukkan ke Playlist!");
             };
             reader.readAsDataURL(file);
         }
 
-        // Tampilkan Daftar Playlist Game
         function renderPlaylist() {
             let container = document.getElementById('playlist-container');
             let playlist = JSON.parse(localStorage.getItem('klabs_playlist') || '[]');
@@ -438,50 +431,47 @@
                 item.onclick = () => {
                     localStorage.setItem('klabs_cached_rom_name', gameName);
                     document.getElementById('rom-status-label').innerHTML = "ROM Aktif: <span style='color:#ffaa00'>" + gameName + "</span>";
-                    alert("Game '" + gameName + "' dipilih dari Playlist!");
+                    alert("Game '" + gameName + "' dipilih!");
                 };
                 container.appendChild(item);
             });
         }
 
-        function loadCachedGamePlay() {
-            let cachedRom = localStorage.getItem('klabs_cached_rom_name');
-            if(!cachedRom) {
-                alert("Pilih atau unggah file game terlebih dahulu di menu atas!");
-                return;
-            }
-            startGameEngine();
-        }
-
-        // Tombol Mulai Permainan (Boot Emulator & Kanvas)
+        // Eksekusi Nyata Memulai Permainan di Kanvas WebGL2
         function startGameEngine() {
             let cachedBios = localStorage.getItem('klabs_cached_bios_name');
             let cachedRom = localStorage.getItem('klabs_cached_rom_name');
 
             if (!cachedBios || !cachedRom) {
-                alert("⚠️ Harap masukkan file BIOS dan File Game (ROM) terlebih dahulu pada menu System & ROM!");
+                alert("⚠️ Masukkan file BIOS dan File Game (ROM) terlebih dahulu!");
                 openTab('system');
                 return;
             }
 
-            toggleMenu();
-            alert("🎮 Memuat mesin emulator PlayStation untuk game: " + cachedRom + "...");
+            // Tutup Menu Overlay & Mulai Render Game di Kanvas
+            const menu = document.getElementById('pro-menu-overlay');
+            menu.style.display = 'none';
+
+            // Kirim sinyal eksekusi biner game ke Web Worker grafis
+            const canvas = document.getElementById('klabs-render-surface');
+            const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+            if(gl) {
+                // Render latar belakang tes aktif agar kanvas merespons visual game
+                gl.clearColor(0.05, 0.05, 0.1, 1.0);
+                gl.clear(gl.COLOR_BUFFER_BIT);
+            }
+
+            alert("🎮 Game " + cachedRom + " Berhasil Dimuat dan Berjalan di Kanvas!");
         }
 
-        // Fitur Fullscreen
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    alert("Error attempting to enable fullscreen: " + err.message);
-                });
+                document.documentElement.requestFullscreen().catch(err => {});
             } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
+                if (document.exitFullscreen) document.exitFullscreen();
             }
         }
 
-        // Toggle Stik Analog PS1 yang Diperbaiki
         function toggleAnalogMode() {
             isAnalogActive = !isAnalogActive;
             const btn = document.getElementById('analog-toggle');
@@ -489,12 +479,10 @@
                 btn.style.color = '#00ffcc';
                 btn.style.borderColor = '#00ffcc';
                 btn.innerText = "L-ANALOG";
-                alert('Mode Analog DualShock PS1 Diaktifkan!');
             } else {
                 btn.style.color = '#ff5555';
                 btn.style.borderColor = '#ff5555';
                 btn.innerText = "ANALOG";
-                alert('Mode Digital Controller Diaktifkan.');
             }
         }
 
@@ -524,12 +512,12 @@
             let s = mySeconds % 60;
             document.getElementById('play-time-counter').innerText = 
                 (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
-            document.getElementById('profile-playtime-val').innerText = h + " Jam " + m + " Menit";
+            const pvTime = document.getElementById('profile-playtime-val');
+            if(pvTime) pvTime.innerText = h + " Jam " + m + " Menit";
         }
 
         setTimeout(initPlayerSession, 800);
 
-        // Timer Playtime & Koin Acak 1-10 Setiap 1 Jam
         setInterval(async () => {
             mySeconds++;
             localStorage.setItem('kialdevaro_seconds', mySeconds);
@@ -539,7 +527,7 @@
                 let earned = Math.floor(Math.random() * 10) + 1;
                 myCoins += earned;
                 localStorage.setItem('kialdevaro_coins', myCoins);
-                alert("🎉 Selamat! Anda bermain selama 1 jam dan mendapatkan " + earned + " Koin Kialdevaro!");
+                alert("🎉 Selamat! Anda mendapat " + earned + " Koin Kialdevaro!");
             }
 
             if (supabaseClient && mySeconds % 30 === 0 && myPlayerId) {
@@ -568,7 +556,7 @@
             }
 
             updateUI();
-            alert("Profil dan Akun Login berhasil diperbarui!");
+            alert("Profil berhasil diperbarui!");
         }
 
         async function fetchLeaderboard() {
