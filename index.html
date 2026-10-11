@@ -81,39 +81,39 @@
         #btn-r2 { right: 15px; top: 50px; }
         #btn-r1 { right: 15px; top: 98px; }
 
-        /* Gamepad Virtual Mengambang di Atas Kanvas */
+        /* Gamepad Virtual Mengambang Proporsional (Anti Terpotong) */
         #virtual-gamepad {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 180px;
-            z-index: 50; pointer-events: none; display: flex; justify-content: space-between; align-items: flex-end; padding: 12px;
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 165px;
+            z-index: 50; pointer-events: none; display: flex; justify-content: space-between; align-items: flex-end; padding: 8px 12px;
         }
         .pad-group { pointer-events: auto; position: relative; }
 
-        .dpad-container { width: 110px; height: 110px; position: relative; }
+        .dpad-container { width: 100px; height: 100px; position: relative; }
         .pad-btn {
             position: absolute; background: rgba(30,30,30,0.65); border: 1px solid rgba(255,255,255,0.25);
-            color: #fff; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 12px; cursor: pointer;
+            color: #fff; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 11px; cursor: pointer;
             backdrop-filter: blur(2px);
         }
-        .p-up { top: 0; left: 35px; width: 40px; height: 35px; border-radius: 6px 6px 0 0; }
-        .p-down { bottom: 0; left: 35px; width: 40px; height: 35px; border-radius: 0 0 6px 6px; }
-        .p-left { top: 35px; left: 0; width: 35px; height: 40px; border-radius: 6px 0 0 6px; }
-        .p-right { top: 35px; right: 0; width: 35px; height: 40px; border-radius: 0 6px 6px 0; }
-        .p-center { top: 35px; left: 35px; width: 40px; height: 40px; background: rgba(45,45,45,0.85); border-radius: 50%; font-size: 8px; color: #ff5555; border: 1px solid #ff5555; }
+        .p-up { top: 0; left: 32px; width: 36px; height: 32px; border-radius: 6px 6px 0 0; }
+        .p-down { bottom: 0; left: 32px; width: 36px; height: 32px; border-radius: 0 0 6px 6px; }
+        .p-left { top: 32px; left: 0; width: 32px; height: 36px; border-radius: 6px 0 0 6px; }
+        .p-right { top: 32px; right: 0; width: 32px; height: 36px; border-radius: 0 6px 6px 0; }
+        .p-center { top: 32px; left: 32px; width: 36px; height: 36px; background: rgba(45,45,45,0.85); border-radius: 50%; font-size: 8px; color: #ff5555; border: 1px solid #ff5555; }
 
-        .action-container { width: 115px; height: 115px; position: relative; }
+        .action-container { width: 100px; height: 100px; position: relative; }
         .act-btn {
-            position: absolute; width: 36px; height: 36px; border-radius: 50%;
+            position: absolute; width: 32px; height: 32px; border-radius: 50%;
             border: 2px solid rgba(255,255,255,0.4); background: rgba(20,20,20,0.65);
-            display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 11px; cursor: pointer;
+            display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 10px; cursor: pointer;
             backdrop-filter: blur(2px);
         }
-        .act-tri { top: 0; left: 40px; border-color: #00ffcc; color: #00ffcc; }
-        .act-squ { top: 40px; left: 0; border-color: #ff0055; color: #ff0055; }
-        .act-cir { top: 40px; right: 0; border-color: #ffaa00; color: #ffaa00; }
-        .act-cro { bottom: 0; left: 40px; border-color: #0088ff; color: #0088ff; }
+        .act-tri { top: 0; left: 34px; border-color: #00ffcc; color: #00ffcc; }
+        .act-squ { top: 34px; left: 0; border-color: #ff0055; color: #ff0055; }
+        .act-cir { top: 34px; right: 0; border-color: #ffaa00; color: #ffaa00; }
+        .act-cro { bottom: 0; left: 34px; border-color: #0088ff; color: #0088ff; }
 
-        .center-controls { display: flex; gap: 6px; align-items: center; justify-content: center; margin-bottom: 12px; pointer-events: auto; }
-        .sys-btn { background: rgba(25,25,25,0.8); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 6px 12px; border-radius: 4px; font-size: 9px; font-weight: bold; cursor: pointer; }
+        .center-controls { display: flex; gap: 6px; align-items: center; justify-content: center; margin-bottom: 8px; pointer-events: auto; }
+        .sys-btn { background: rgba(25,25,25,0.8); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 5px 10px; border-radius: 4px; font-size: 8px; font-weight: bold; cursor: pointer; }
 
         /* Panel Menu Overlay Utama */
         #pro-menu-overlay {
@@ -249,7 +249,6 @@
                     <img id="profile-preview-img" src="https://i.imgur.com/8Km9tLL.png" style="width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid #ff5555;">
                 </div>
                 
-                <!-- TOMBOL LOGIN FIREBASE GOOGLE -->
                 <button class="btn-login" onclick="loginWithGoogle()">
                     <span>🌐</span> Login dengan Akun Google
                 </button>
@@ -297,7 +296,6 @@
             activeEngineWorker.postMessage({ type: 'INIT_ENGINE', canvas: offscreen }, [offscreen]);
         });
 
-        // Fitur Login Google Firebase
         function loginWithGoogle() {
             signInWithPopup(window.firebaseAuth, window.googleProvider)
                 .then((result) => {
@@ -455,10 +453,9 @@
                 (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
         }
 
-        // Leaderboard Bot & Organik (1-100)
         async function fetchLeaderboard() {
             let container = document.getElementById('leaderboard-list-container');
-            container.innerHTML = "<p style='color: #888; text-align: center; font-size: 11px;'>Memuat 100 Peringkat Bot & Organik...</p>";
+            container.innerHTML = "<p style='color: #888; text-align: center; font-size: 11px;'>Memuat Peringkat...</p>";
 
             if (!supabaseClient) {
                 container.innerHTML = "<p style='color: #ff5555; text-align: center; font-size: 11px;'>Supabase tidak terhubung.</p>";
@@ -506,7 +503,6 @@
                 let earned = Math.floor(Math.random() * 10) + 1;
                 myCoins += earned;
                 localStorage.setItem('kialdevaro_coins', myCoins);
-                alert("🎉 Selamat! Anda bermain 1 jam dan mendapatkan " + earned + " Koin Kialdevaro!");
             }
             if (supabaseClient && mySeconds % 30 === 0 && myPlayerId) {
                 await supabaseClient.from('players').update({ coins: myCoins, playtime_seconds: mySeconds }).eq('id', myPlayerId);
