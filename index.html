@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Permainan Kialdevaro | K-Labs Retro Engine v5.0</title>
+    <title>Permainan Kialdevaro | K-Labs Retro Engine Ultimate</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -30,128 +30,105 @@
     </script>
     <style>
         * { box-sizing: border-box; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
-        body {
-            margin: 0; background: #000; color: #ddd;
+        body, html {
+            margin: 0; padding: 0; background: #000; color: #fff;
             font-family: system-ui, -apple-system, sans-serif; overflow: hidden;
-            display: flex; flex-direction: column; height: 100vh; width: 100vw;
+            width: 100vw; height: 100vh; position: fixed;
         }
 
-        /* Top Navbar */
+        /* Top Navbar Mini Transparan */
         #top-navbar {
-            height: 45px; background: #121212; border-bottom: 1px solid #222;
+            position: absolute; top: 0; left: 0; width: 100%; height: 38px;
+            background: rgba(10, 10, 10, 0.75); backdrop-filter: blur(4px);
             display: flex; justify-content: space-between; align-items: center;
-            padding: 0 10px; z-index: 60; flex-shrink: 0;
+            padding: 0 10px; z-index: 70; border-bottom: 1px solid rgba(255,255,255,0.08);
         }
-        .nav-left { display: flex; align-items: center; gap: 8px; }
-        .user-avatar-mini { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1px solid #ff5555; }
-        .nav-title { font-size: 11px; font-weight: 700; color: #fff; max-width: 110px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .nav-subtitle { font-size: 8px; color: #888; }
-        .nav-right { display: flex; gap: 10px; font-size: 14px; color: #aaa; cursor: pointer; align-items: center; }
-        .coin-badge { background: rgba(255,170,0,0.15); border: 1px solid #ffaa00; color: #ffaa00; padding: 2px 6px; border-radius: 8px; font-size: 10px; font-weight: bold; }
+        .nav-left { display: flex; align-items: center; gap: 6px; }
+        .user-avatar-mini { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; border: 1px solid #ff5555; }
+        .nav-title { font-size: 10px; font-weight: 700; color: #fff; }
+        .nav-subtitle { font-size: 7px; color: #aaa; }
+        .nav-right { display: flex; gap: 8px; font-size: 13px; color: #ccc; cursor: pointer; align-items: center; }
+        .coin-badge { background: rgba(255,170,0,0.2); border: 1px solid #ffaa00; color: #ffaa00; padding: 1px 5px; border-radius: 6px; font-size: 9px; font-weight: bold; }
 
-        /* Area Render Canvas Utama */
+        /* Kanvas Game Full Layar */
         #game-container {
-            flex: 1; display: flex; justify-content: center; align-items: center;
-            background: #000; position: relative; width: 100%; overflow: hidden;
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #000; z-index: 1; display: flex; justify-content: center; align-items: center;
         }
-        #klabs-render-surface { width: 100%; height: 100%; object-fit: contain; background: #000; z-index: 2; }
-        .watermark-bg {
-            position: absolute; width: 220px; height: 220px;
-            background-image: url('1000328115.png');
-            background-size: contain; background-repeat: no-repeat; background-position: center;
-            opacity: 0.08; z-index: 1; pointer-events: none;
-        }
+        #klabs-render-surface { width: 100%; height: 100%; object-fit: cover; background: #000; }
 
-        /* Panel Menu Overlay Profesional */
+        /* Tombol Bahu Transparan Melayang (L1, L2, R1, R2) */
+        .shoulder-btn {
+            position: absolute; background: rgba(20,20,20,0.6); border: 1px solid rgba(255,255,255,0.3);
+            color: #fff; padding: 7px 14px; border-radius: 6px; font-size: 11px; font-weight: bold;
+            z-index: 55; cursor: pointer; backdrop-filter: blur(2px);
+        }
+        #btn-l2 { left: 12px; top: 50px; }
+        #btn-l1 { left: 12px; top: 96px; }
+        #btn-r2 { right: 12px; top: 50px; }
+        #btn-r1 { right: 12px; top: 96px; }
+
+        /* Gamepad Virtual Mengambang di Atas Kanvas */
+        #virtual-gamepad {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 175px;
+            z-index: 50; pointer-events: none; display: flex; justify-content: space-between; align-items: flex-end; padding: 10px;
+        }
+        .pad-group { pointer-events: auto; position: relative; }
+
+        /* D-Pad Kiri */
+        .dpad-container { width: 110px; height: 110px; position: relative; }
+        .pad-btn {
+            position: absolute; background: rgba(30,30,30,0.6); border: 1px solid rgba(255,255,255,0.25);
+            color: #fff; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 11px; cursor: pointer;
+            backdrop-filter: blur(2px);
+        }
+        .p-up { top: 0; left: 35px; width: 40px; height: 35px; border-radius: 6px 6px 0 0; }
+        .p-down { bottom: 0; left: 35px; width: 40px; height: 35px; border-radius: 0 0 6px 6px; }
+        .p-left { top: 35px; left: 0; width: 35px; height: 40px; border-radius: 6px 0 0 6px; }
+        .p-right { top: 35px; right: 0; width: 35px; height: 40px; border-radius: 0 6px 6px 0; }
+        .p-center { top: 35px; left: 35px; width: 40px; height: 40px; background: rgba(45,45,45,0.8); border-radius: 50%; font-size: 8px; color: #ff5555; border: 1px solid #ff5555; }
+
+        /* Tombol Aksi Kanan (Segitiga, Kotak, Bulat, Silang) */
+        .action-container { width: 110px; height: 110px; position: relative; }
+        .act-btn {
+            position: absolute; width: 34px; height: 34px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.4); background: rgba(20,20,20,0.6);
+            display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 11px; cursor: pointer;
+            backdrop-filter: blur(2px);
+        }
+        .act-tri { top: 0; left: 38px; border-color: #00ffcc; color: #00ffcc; }
+        .act-squ { top: 38px; left: 0; border-color: #ff0055; color: #ff0055; }
+        .act-cir { top: 38px; right: 0; border-color: #ffaa00; color: #ffaa00; }
+        .act-cro { bottom: 0; left: 38px; border-color: #0088ff; color: #0088ff; }
+
+        /* Tombol Tengah (Start, Select, Menu) */
+        .center-controls { display: flex; gap: 6px; align-items: center; justify-content: center; margin-bottom: 12px; pointer-events: auto; }
+        .sys-btn { background: rgba(25,25,25,0.75); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 5px 10px; border-radius: 4px; font-size: 9px; font-weight: bold; cursor: pointer; }
+
+        /* Panel Menu Overlay Utama */
         #pro-menu-overlay {
-            position: absolute; top: 45px; left: 0; width: 100%; height: calc(100vh - 45px);
-            background: rgba(14, 14, 14, 0.98); z-index: 100;
-            display: flex; flex-direction: column;
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(12, 12, 12, 0.97); z-index: 200;
+            display: flex; flex-direction: column; padding-top: 38px;
         }
-        .menu-tabs {
-            display: flex; background: #1a1a1a; border-bottom: 1px solid #2c2c2c;
-            overflow-x: auto; padding: 0 4px; flex-shrink: 0; scrollbar-width: none;
-        }
+        .menu-tabs { display: flex; background: #181818; border-bottom: 1px solid #282828; overflow-x: auto; padding: 0 4px; flex-shrink: 0; scrollbar-width: none; }
         .menu-tabs::-webkit-scrollbar { display: none; }
-        .tab-item {
-            padding: 10px 10px; font-size: 10px; font-weight: 600; color: #888;
-            cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap;
-        }
+        .tab-item { padding: 12px 10px; font-size: 10px; font-weight: 600; color: #888; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; }
         .tab-item.active { color: #ff5555; border-bottom-color: #ff5555; background: rgba(255,85,85,0.04); }
 
         .menu-content { flex: 1; overflow-y: auto; padding: 15px; }
         .setting-section { display: none; }
         .setting-section.active { display: block; }
         
-        .menu-row {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
+        .menu-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .menu-row-info h4 { margin: 0; font-size: 12px; color: #fff; }
         .menu-row-info p { margin: 2px 0 0 0; font-size: 10px; color: #777; }
         
-        .switch { position: relative; display: inline-block; width: 36px; height: 18px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider-chk {
-            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #2a2a2a; transition: .3s; border-radius: 18px;
-        }
-        .slider-chk:before {
-            position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px;
-            background-color: white; transition: .3s; border-radius: 50%;
-        }
-        input:checked + .slider-chk { background-color: #ff5555; }
-        input:checked + .slider-chk:before { transform: translateX(18px); }
-
-        .select-box { background: #1f1f1f; border: 1px solid #333; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 10px; }
         .input-text { background: #1f1f1f; border: 1px solid #333; color: #fff; padding: 6px; border-radius: 4px; font-size: 11px; width: 100%; margin-top: 4px; }
-        .btn-action { background: #ff5555; color: #fff; border: none; padding: 8px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 6px; }
-        .btn-play { background: #00ffcc; color: #000; border: none; padding: 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; text-align: center; }
-
-        .list-item {
-            padding: 10px; font-size: 11px; color: #ccc; border-bottom: 1px solid rgba(255,255,255,0.04);
-            cursor: pointer; display: flex; align-items: center; gap: 8px; border-radius: 4px;
-        }
+        .btn-action { background: #ff5555; color: #fff; border: none; padding: 9px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 6px; }
+        .btn-play { background: #00ffcc; color: #000; border: none; padding: 12px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; text-align: center; box-shadow: 0 4px 12px rgba(0,255,204,0.3); }
+        .list-item { padding: 10px; font-size: 11px; color: #ccc; border-bottom: 1px solid rgba(255,255,255,0.04); cursor: pointer; display: flex; align-items: center; gap: 8px; border-radius: 4px; }
         .list-item:hover { background: rgba(255,255,255,0.04); color: #fff; }
-
-        .leaderboard-item {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 11px;
-        }
-        .leaderboard-item img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; margin-right: 6px; }
-
-        /* Gamepad Virtual Proporsional */
-        #virtual-gamepad {
-            height: 160px; background: rgba(10, 10, 10, 0.6); border-top: 1px solid rgba(255,255,255,0.1);
-            position: relative; width: 100%; display: grid; grid-template-columns: 1fr 1fr 1fr;
-            padding: 5px; z-index: 50; flex-shrink: 0;
-        }
-        .pad-zone { position: relative; display: flex; justify-content: center; align-items: center; }
-        
-        .dpad-container { width: 100px; height: 100px; position: relative; }
-        .pad-btn {
-            position: absolute; background: rgba(30,30,30,0.75); border: 1px solid rgba(255,255,255,0.2);
-            color: #fff; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 11px; cursor: pointer;
-        }
-        .p-up { top: 0; left: 32px; width: 36px; height: 32px; border-radius: 4px 4px 0 0; }
-        .p-down { bottom: 0; left: 32px; width: 36px; height: 32px; border-radius: 0 0 4px 4px; }
-        .p-left { top: 32px; left: 0; width: 32px; height: 36px; border-radius: 4px 0 0 4px; }
-        .p-right { top: 32px; right: 0; width: 32px; height: 36px; border-radius: 0 4px 4px 0; }
-        .p-center { top: 32px; left: 32px; width: 36px; height: 36px; background: rgba(45,45,45,0.9); border-radius: 50%; font-size: 8px; color: #ff5555; border: 1px solid #ff5555; }
-
-        .action-container { width: 105px; height: 105px; position: relative; }
-        .act-btn {
-            position: absolute; width: 32px; height: 32px; border-radius: 50%;
-            border: 2px solid rgba(255,255,255,0.35); background: rgba(20,20,20,0.8);
-            display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 10px; cursor: pointer;
-        }
-        .act-tri { top: 0; left: 36px; border-color: #00ffcc; color: #00ffcc; }
-        .act-squ { top: 36px; left: 0; border-color: #ff0055; color: #ff0055; }
-        .act-cir { top: 36px; right: 0; border-color: #ffaa00; color: #ffaa00; }
-        .act-cro { bottom: 0; left: 36px; border-color: #0088ff; color: #0088ff; }
-
-        .center-pad { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
-        .mini-sys-btn { background: rgba(25,25,25,0.85); border: 1px solid rgba(255,255,255,0.25); color: #fff; padding: 4px 10px; border-radius: 4px; font-size: 8px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -173,13 +150,44 @@
         </div>
     </div>
 
-    <!-- AREA RENDER KANVAS -->
+    <!-- TOMBOL BAHU MELAYANG DI ATAS KANVAS (L1, L2, R1, R2) -->
+    <div class="shoulder-btn" id="btn-l2">L2</div>
+    <div class="shoulder-btn" id="btn-l1">L1</div>
+    <div class="shoulder-btn" id="btn-r2">R2</div>
+    <div class="shoulder-btn" id="btn-r1">R1</div>
+
+    <!-- KANVAS GAME FULL LAYAR -->
     <div id="game-container">
-        <div class="watermark-bg"></div>
         <canvas id="klabs-render-surface"></canvas>
     </div>
 
-    <!-- PANEL MENU OVERLAY -->
+    <!-- GAMEPAD VIRTUAL MELAYANG DI ATAS KANVAS -->
+    <div id="virtual-gamepad">
+        <div class="pad-group">
+            <div class="dpad-container">
+                <div class="pad-btn p-up" data-key="UP">▲</div>
+                <div class="pad-btn p-down" data-key="DOWN">▼</div>
+                <div class="pad-btn p-left" data-key="LEFT">◀</div>
+                <div class="pad-btn p-right" data-key="RIGHT">▶</div>
+                <div class="pad-btn p-center" id="analog-toggle" onclick="toggleAnalogMode()">ANALOG</div>
+            </div>
+        </div>
+        <div class="pad-group center-controls">
+            <button class="sys-btn" data-key="SELECT">SELECT</button>
+            <button class="sys-btn" data-key="START">START</button>
+            <button class="sys-btn" onclick="toggleMenu()" style="background: #ff5555; border-color: #ff5555;">MENU</button>
+        </div>
+        <div class="pad-group">
+            <div class="action-container">
+                <div class="act-btn act-tri" data-key="TRIANGLE">△</div>
+                <div class="act-btn act-squ" data-key="SQUARE">□</div>
+                <div class="act-btn act-cir" data-key="CIRCLE">○</div>
+                <div class="act-btn act-cro" data-key="CROSS">✕</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANEL MENU & PENGATURAN -->
     <div id="pro-menu-overlay">
         <div class="menu-tabs">
             <div class="tab-item active" onclick="openTab('system')">System & ROM</div>
@@ -208,24 +216,15 @@
             </div>
 
             <div id="tab-interface" class="setting-section">
-                <div class="menu-row">
-                    <div class="menu-row-info"><h4>Save State On Exit</h4><p>Simpan otomatis saat keluar.</p></div>
-                    <label class="switch"><input type="checkbox" checked><span class="slider-chk"></span></label>
-                </div>
+                <div class="menu-row"><div class="menu-row-info"><h4>Save State On Exit</h4><p>Simpan otomatis saat keluar.</p></div></div>
             </div>
 
             <div id="tab-graphics" class="setting-section">
-                <div class="menu-row">
-                    <div class="menu-row-info"><h4>Internal Resolution</h4><p>Upscaling grafis.</p></div>
-                    <select class="select-box"><option>2x HD</option><option>1x Native</option></select>
-                </div>
+                <div class="menu-row"><div class="menu-row-info"><h4>Internal Resolution (Upscaling)</h4><p>Resolusi HD Poligon.</p></div></div>
             </div>
 
             <div id="tab-audio" class="setting-section">
-                <div class="menu-row">
-                    <div class="menu-row-info"><h4>Audio Sync</h4><p>Sinkronisasi suara.</p></div>
-                    <label class="switch"><input type="checkbox" checked><span class="slider-chk"></span></label>
-                </div>
+                <div class="menu-row"><div class="menu-row-info"><h4>Audio Sync</h4><p>Sinkronisasi suara.</p></div></div>
             </div>
 
             <div id="tab-profile" class="setting-section">
@@ -238,35 +237,6 @@
                 <hr style="border: 0; border-top: 1px solid #333; margin: 10px 0;">
                 <h4 style="color: #ffaa00; margin: 0 0 4px 0;">🏆 Leaderboard Global</h4>
                 <div id="leaderboard-list-container" style="max-height: 120px; overflow-y: auto;"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- GAMEPAD VIRTUAL DI BAWAH KANVAS -->
-    <div id="virtual-gamepad">
-        <div class="pad-zone">
-            <div class="dpad-container">
-                <div class="pad-btn p-up" data-key="UP">▲</div>
-                <div class="pad-btn p-down" data-key="DOWN">▼</div>
-                <div class="pad-btn p-left" data-key="LEFT">◀</div>
-                <div class="pad-btn p-right" data-key="RIGHT">▶</div>
-                <div class="pad-btn p-center" id="analog-toggle" onclick="toggleAnalogMode()">ANALOG</div>
-            </div>
-        </div>
-        <div class="pad-zone center-pad">
-            <div style="display: flex; gap: 4px;">
-                <button class="mini-sys-btn" data-key="SELECT">SELECT</button>
-                <button class="mini-sys-btn" data-key="START">START</button>
-            </div>
-            <button class="mini-sys-btn" onclick="toggleMenu()" style="background: #ff5555; border-color: #ff5555; color: #fff;">MENU</button>
-            <button class="mini-sys-btn" onclick="toggleFullscreen()" style="background: #00ffcc; color: #000; border-color: #00ffcc;">FULLSCREEN</button>
-        </div>
-        <div class="pad-zone">
-            <div class="action-container">
-                <div class="act-btn act-tri" data-key="TRIANGLE">△</div>
-                <div class="act-btn act-squ" data-key="SQUARE">□</div>
-                <div class="act-btn act-cir" data-key="CIRCLE">○</div>
-                <div class="act-btn act-cro" data-key="CROSS">✕</div>
             </div>
         </div>
     </div>
@@ -306,34 +276,25 @@
         function handleBiosUpload(input) {
             const file = input.files[0];
             if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                // Gunakan flag penanda agar tidak terhalang validasi ukuran string
-                localStorage.setItem('klabs_bios_ready', 'true');
-                localStorage.setItem('klabs_cached_bios_name', file.name);
-                document.getElementById('bios-status-label').innerHTML = "BIOS Aktif: <span style='color:#00ffcc'>" + file.name + "</span>";
-                alert("✅ BIOS tersimpan dan siap digunakan!");
-            };
-            reader.readAsDataURL(file);
+            localStorage.setItem('klabs_bios_ready', 'true');
+            localStorage.setItem('klabs_cached_bios_name', file.name);
+            document.getElementById('bios-status-label').innerHTML = "BIOS Aktif: <span style='color:#00ffcc'>" + file.name + "</span>";
+            alert("✅ BIOS tersimpan!");
         }
 
         function handleRomUpload(input) {
             const file = input.files[0];
             if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                localStorage.setItem('klabs_rom_ready', 'true');
-                localStorage.setItem('klabs_cached_rom_name', file.name);
-                let playlist = JSON.parse(localStorage.getItem('klabs_playlist') || '[]');
-                if(!playlist.includes(file.name)) {
-                    playlist.push(file.name);
-                    localStorage.setItem('klabs_playlist', JSON.stringify(playlist));
-                }
-                document.getElementById('rom-status-label').innerHTML = "ROM Aktif: <span style='color:#ffaa00'>" + file.name + "</span>";
-                renderPlaylist();
-                alert("🚀 Game berhasil ditambahkan ke Playlist dan siap dimainkan!");
-            };
-            reader.readAsDataURL(file);
+            localStorage.setItem('klabs_rom_ready', 'true');
+            localStorage.setItem('klabs_cached_rom_name', file.name);
+            let playlist = JSON.parse(localStorage.getItem('klabs_playlist') || '[]');
+            if(!playlist.includes(file.name)) {
+                playlist.push(file.name);
+                localStorage.setItem('klabs_playlist', JSON.stringify(playlist));
+            }
+            document.getElementById('rom-status-label').innerHTML = "ROM Aktif: <span style='color:#ffaa00'>" + file.name + "</span>";
+            renderPlaylist();
+            alert("🚀 Game ditambahkan ke Playlist!");
         }
 
         function renderPlaylist() {
@@ -351,32 +312,26 @@
                     localStorage.setItem('klabs_rom_ready', 'true');
                     localStorage.setItem('klabs_cached_rom_name', gameName);
                     document.getElementById('rom-status-label').innerHTML = "ROM Aktif: <span style='color:#ffaa00'>" + gameName + "</span>";
-                    alert("Game '" + gameName + "' dipilih dan siap dimainkan!");
+                    alert("Game dipilih!");
                 };
                 container.appendChild(item);
             });
         }
 
-        // PERBAIKAN UTAMA: Validasi Fleksibel Berbasis Flag Siap
         function startGameEngine() {
             let biosReady = localStorage.getItem('klabs_bios_ready') || localStorage.getItem('klabs_cached_bios_name');
             let romReady = localStorage.getItem('klabs_rom_ready') || localStorage.getItem('klabs_cached_rom_name');
 
             if (!biosReady || !romReady) {
-                alert("⚠️ Harap unggah file BIOS dan Game ROM terlebih dahulu pada tab System!");
+                alert("⚠️ Harap unggah file BIOS dan Game ROM terlebih dahulu!");
                 openTab('system');
                 return;
             }
 
-            // Langsung hilangkan overlay menu dan mulai jalankan emulator di kanvas
             document.getElementById('pro-menu-overlay').style.display = 'none';
-
             let romName = localStorage.getItem('klabs_cached_rom_name') || "Game PS1";
             if (activeEngineWorker) {
-                activeEngineWorker.postMessage({
-                    type: 'START_PSX_EMULATION',
-                    romName: romName
-                });
+                activeEngineWorker.postMessage({ type: 'START_PSX_EMULATION', romName: romName });
             }
         }
 
@@ -436,8 +391,6 @@
             let s = mySeconds % 60;
             document.getElementById('play-time-counter').innerText = 
                 (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
-            const pvTime = document.getElementById('profile-playtime-val');
-            if(pvTime) pvTime.innerText = h + " Jam " + m + " Menit";
         }
 
         setTimeout(initPlayerSession, 800);
@@ -446,18 +399,13 @@
             mySeconds++;
             localStorage.setItem('kialdevaro_seconds', mySeconds);
             updateUI();
-
             if (mySeconds > 0 && mySeconds % 3600 === 0) {
                 let earned = Math.floor(Math.random() * 10) + 1;
                 myCoins += earned;
                 localStorage.setItem('kialdevaro_coins', myCoins);
             }
-
             if (supabaseClient && mySeconds % 30 === 0 && myPlayerId) {
-                await supabaseClient.from('players').update({
-                    coins: myCoins,
-                    playtime_seconds: mySeconds
-                }).eq('id', myPlayerId);
+                await supabaseClient.from('players').update({ coins: myCoins, playtime_seconds: mySeconds }).eq('id', myPlayerId);
             }
         }, 1000);
 
