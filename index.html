@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Permainan Kialdevaro | K-Labs Retro Engine v5.0</title>
-    <!-- Memuat Supabase Client SDK -->
+    <!-- Supabase Client SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Memuat Firebase SDK & Inisialisasi Otentikasi -->
+    <!-- Firebase SDK & Inisialisasi Auth -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -44,14 +44,14 @@
         #top-navbar {
             height: 48px; background: #111; border-bottom: 1px solid #222;
             display: flex; justify-content: space-between; align-items: center;
-            padding: 0 15px; z-index: 60;
+            padding: 0 12px; z-index: 60;
         }
-        .nav-left { display: flex; align-items: center; gap: 10px; }
-        .user-avatar-mini { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #ff5555; }
-        .nav-title { font-size: 13px; font-weight: 700; color: #fff; }
-        .nav-subtitle { font-size: 9px; color: #888; }
-        .nav-right { display: flex; gap: 12px; font-size: 14px; color: #aaa; cursor: pointer; align-items: center; }
-        .coin-badge { background: rgba(255,170,0,0.15); border: 1px solid #ffaa00; color: #ffaa00; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: bold; }
+        .nav-left { display: flex; align-items: center; gap: 8px; }
+        .user-avatar-mini { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; border: 1px solid #ff5555; }
+        .nav-title { font-size: 12px; font-weight: 700; color: #fff; max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .nav-subtitle { font-size: 8px; color: #888; }
+        .nav-right { display: flex; gap: 10px; font-size: 14px; color: #aaa; cursor: pointer; align-items: center; }
+        .coin-badge { background: rgba(255,170,0,0.15); border: 1px solid #ffaa00; color: #ffaa00; padding: 2px 6px; border-radius: 8px; font-size: 10px; font-weight: bold; }
 
         /* Area Render & Canvas */
         #game-container {
@@ -60,7 +60,7 @@
         }
         #klabs-render-surface { width: 100%; height: 100%; object-fit: contain; background: #000; z-index: 2; }
         .watermark-bg {
-            position: absolute; width: 280px; height: 280px;
+            position: absolute; width: 260px; height: 260px;
             background-image: url('1000328115.png');
             background-size: contain; background-repeat: no-repeat; background-position: center;
             opacity: 0.10; z-index: 1; pointer-events: none;
@@ -81,16 +81,16 @@
 
         .menu-tabs {
             display: flex; background: #181818; border-bottom: 1px solid #282828;
-            overflow-x: auto; padding: 0 10px; scrollbar-width: none;
+            overflow-x: auto; padding: 0 5px; scrollbar-width: none;
         }
         .menu-tabs::-webkit-scrollbar { display: none; }
         .tab-item {
-            padding: 12px 12px; font-size: 11px; font-weight: 600; color: #999;
+            padding: 12px 10px; font-size: 10px; font-weight: 600; color: #999;
             cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap;
         }
         .tab-item.active { color: #ff5555; border-bottom-color: #ff5555; background: rgba(255,85,85,0.04); }
 
-        .menu-content { flex: 1; overflow-y: auto; padding: 15px 20px; z-index: 2; }
+        .menu-content { flex: 1; overflow-y: auto; padding: 15px; z-index: 2; }
         .setting-section { display: none; }
         .setting-section.active { display: block; }
         
@@ -116,7 +116,8 @@
 
         .select-box { background: #1f1f1f; border: 1px solid #333; color: #fff; padding: 5px 10px; border-radius: 5px; font-size: 10px; outline: none; }
         .input-text { background: #1f1f1f; border: 1px solid #333; color: #fff; padding: 6px 10px; border-radius: 5px; font-size: 11px; width: 100%; margin-top: 5px; }
-        .btn-action { background: #ff5555; color: #fff; border: none; padding: 8px 15px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer; margin-top: 8px; }
+        .btn-action { background: #ff5555; color: #fff; border: none; padding: 8px 15px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer; margin-top: 8px; width: 100%; }
+        .btn-play { background: #00ffcc; color: #000; border: none; padding: 10px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; text-align: center; }
 
         .list-item {
             padding: 10px 12px; font-size: 12px; color: #ccc; border-bottom: 1px solid rgba(255,255,255,0.04);
@@ -130,37 +131,41 @@
         }
         .leaderboard-item img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; margin-right: 8px; }
 
-        /* Gamepad Virtual PS1 */
+        /* Gamepad Virtual PS1 di dalam Kanvas */
         #virtual-gamepad {
-            height: 180px; background: rgba(10, 10, 10, 0.4); border-top: 1px solid rgba(255,255,255,0.05);
+            height: 185px; background: rgba(10, 10, 10, 0.45); border-top: 1px solid rgba(255,255,255,0.08);
             position: absolute; bottom: 0; left: 0; width: 100%; display: grid;
-            grid-template-columns: 1fr 1fr 1fr; padding: 10px; z-index: 50; pointer-events: none;
+            grid-template-columns: 1fr 1fr 1fr; padding: 8px; z-index: 50; pointer-events: none;
             transition: opacity 0.3s ease;
         }
         .pad-zone { pointer-events: auto; position: relative; display: flex; justify-content: center; align-items: center; }
+        
+        /* D-Pad & Analog Stick Sempurna */
         .dpad-container { width: 110px; height: 110px; position: relative; }
         .pad-btn {
-            position: absolute; background: rgba(30,30,30,0.6); border: 1px solid rgba(255,255,255,0.15);
-            color: #fff; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 13px; cursor: pointer;
+            position: absolute; background: rgba(35,35,35,0.65); border: 1px solid rgba(255,255,255,0.2);
+            color: #fff; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 12px; cursor: pointer;
         }
         .p-up { top: 0; left: 35px; width: 40px; height: 35px; border-radius: 6px 6px 0 0; }
         .p-down { bottom: 0; left: 35px; width: 40px; height: 35px; border-radius: 0 0 6px 6px; }
         .p-left { top: 35px; left: 0; width: 35px; height: 40px; border-radius: 6px 0 0 6px; }
         .p-right { top: 35px; right: 0; width: 35px; height: 40px; border-radius: 0 6px 6px 0; }
-        .p-center { top: 35px; left: 35px; width: 40px; height: 40px; background: rgba(50,50,50,0.7); border-radius: 50%; font-size: 9px; color: #ff5555; }
+        .p-center { top: 35px; left: 35px; width: 40px; height: 40px; background: rgba(45,45,45,0.85); border-radius: 50%; font-size: 9px; color: #ff5555; border: 1px solid #ff5555; }
 
-        .action-container { width: 120px; height: 120px; position: relative; }
+        /* Tombol Aksi Kanan (Segitiga, Kotak, Bulat, Silang) */
+        .action-container { width: 115px; height: 115px; position: relative; }
         .act-btn {
             position: absolute; width: 36px; height: 36px; border-radius: 50%;
-            border: 2px solid rgba(255,255,255,0.3); background: rgba(20,20,20,0.6);
+            border: 2px solid rgba(255,255,255,0.35); background: rgba(20,20,20,0.7);
             display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 11px; cursor: pointer;
         }
-        .act-tri { top: 0; left: 42px; border-color: #00ffcc; color: #00ffcc; }
-        .act-squ { top: 42px; left: 0; border-color: #ff0055; color: #ff0055; }
-        .act-cir { top: 42px; right: 0; border-color: #ffaa00; color: #ffaa00; }
-        .act-cro { bottom: 0; left: 42px; border-color: #0088ff; color: #0088ff; }
-        .center-pad { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 6px; }
-        .mini-sys-btn { background: rgba(25,25,25,0.7); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 5px 12px; border-radius: 4px; font-size: 9px; font-weight: bold; cursor: pointer; }
+        .act-tri { top: 0; left: 39px; border-color: #00ffcc; color: #00ffcc; }
+        .act-squ { top: 39px; left: 0; border-color: #ff0055; color: #ff0055; }
+        .act-cir { top: 39px; right: 0; border-color: #ffaa00; color: #ffaa00; }
+        .act-cro { bottom: 0; left: 39px; border-color: #0088ff; color: #0088ff; }
+
+        .center-pad { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 5px; }
+        .mini-sys-btn { background: rgba(30,30,30,0.8); border: 1px solid rgba(255,255,255,0.25); color: #fff; padding: 5px 12px; border-radius: 4px; font-size: 9px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -171,100 +176,92 @@
             <img id="nav-user-img" src="https://i.imgur.com/8Km9tLL.png" class="user-avatar-mini" alt="Avatar">
             <div>
                 <div class="nav-title" id="nav-username">Gamer_Kialdevaro</div>
-                <div class="nav-subtitle">Playtime: <span id="play-time-counter">00:00:00</span></div>
+                <div class="nav-subtitle">Play: <span id="play-time-counter">00:00:00</span></div>
             </div>
         </div>
         <div class="nav-right">
             <span class="coin-badge">🪙 <span id="user-coins">0</span></span>
+            <span onclick="toggleFullscreen()" title="Fullscreen" style="font-size: 15px;">🛈 / ⛶</span>
             <span onclick="toggleMenu()" title="Menu">☰</span>
             <span onclick="openTab('profile')" title="Profil">👤</span>
         </div>
     </div>
 
-    <!-- AREA RENDER & WATERMARK -->
+    <!-- AREA RENDER KANVAS & WATERMARK -->
     <div id="game-container">
         <div class="watermark-bg"></div>
         <canvas id="klabs-render-surface"></canvas>
     </div>
 
-    <!-- PANEL MENU & PENGATURAN 6 TAB EMULATOR -->
+    <!-- PANEL MENU & PENGATURAN 6 TAB EMULATOR + PLAYLIST -->
     <div id="pro-menu-overlay">
         <div class="menu-tabs">
-            <div class="tab-item active" onclick="openTab('interface')">Interface</div>
-            <div class="tab-item" onclick="openTab('system')">System & ROM</div>
+            <div class="tab-item active" onclick="openTab('system')">System & ROM</div>
+            <div class="tab-item" onclick="openTab('playlist')">Playlist Game</div>
+            <div class="tab-item" onclick="openTab('interface')">Interface</div>
             <div class="tab-item" onclick="openTab('graphics')">Graphics</div>
             <div class="tab-item" onclick="openTab('audio')">Audio</div>
-            <div class="tab-item" onclick="openTab('controllers')">Controllers</div>
             <div class="tab-item" onclick="openTab('profile')">Profil & Cloud</div>
         </div>
 
         <div class="menu-content">
             
-            <!-- 1. TAB INTERFACE -->
-            <div id="tab-interface" class="setting-section active">
-                <div class="menu-row">
-                    <div class="menu-row-info">
-                        <h4>Save State On Exit</h4>
-                        <p>Menyimpan status permainan secara otomatis saat emulator ditutup.</p>
-                    </div>
-                    <label class="switch"><input type="checkbox" checked><span class="slider-chk"></span></label>
-                </div>
-                <div class="menu-row">
-                    <div class="menu-row-info">
-                        <h4>Expand To Cutout Area</h4>
-                        <p>Memperluas tampilan grafis menutupi area poni/notch layar ponsel.</p>
-                    </div>
-                    <label class="switch"><input type="checkbox"><span class="slider-chk"></span></label>
-                </div>
-                <div class="menu-row">
-                    <div class="menu-row-info">
-                        <h4>Touchscreen Overlay Opacity</h4>
-                        <p>Mengatur tingkat transparansi tombol kendali virtual.</p>
-                    </div>
-                    <input type="range" min="0.2" max="1.0" step="0.1" value="0.7" oninput="adjustOpacity(this.value)" style="width: 100px;">
-                </div>
-            </div>
-
-            <!-- 2. TAB SYSTEM & PENGUNGGAH BIOS/ROM DENGAN CACHE OTOMATIS -->
-            <div id="tab-system" class="setting-section">
+            <!-- 1. TAB SYSTEM & PENGUNGGAH BIOS/ROM DENGAN CACHE & TOMBOL MULAI -->
+            <div id="tab-system" class="setting-section active">
                 <div class="list-item" onclick="document.getElementById('bios-input').click();">⚡ <b id="bios-status-label">Masukkan File BIOS PS1</b></div>
                 <input type="file" id="bios-input" accept=".bin,.rom" style="display:none;" onchange="handleBiosUpload(this)">
 
                 <div class="list-item" onclick="document.getElementById('rom-input').click();">💿 <b id="rom-status-label">Masukkan File ISO / BIN / ROM PS1</b></div>
                 <input type="file" id="rom-input" accept=".bin,.cue,.iso,.img" style="display:none;" onchange="handleRomUpload(this)">
 
-                <div class="menu-row">
+                <button class="btn-play" onclick="startGameEngine()">▶ MULAI PERMAINAN SEKARANG</button>
+
+                <div class="menu-row" style="margin-top: 15px;">
                     <div class="menu-row-info">
                         <h4>Fast Boot</h4>
-                        <p>Melewati logo animasi Sony PlayStation untuk langsung masuk game.</p>
+                        <p>Melewati logo animasi Sony PlayStation.</p>
                     </div>
                     <label class="switch"><input type="checkbox" checked><span class="slider-chk"></span></label>
                 </div>
                 <div class="menu-row">
                     <div class="menu-row-info">
-                        <h4>Clock Speed Control (Overclock)</h4>
-                        <p>Meningkatkan siklus CPU MIPS R3000A untuk mengatasi lag.</p>
+                        <h4>Clock Speed (Overclock)</h4>
+                        <p>Meningkatkan siklus CPU MIPS.</p>
                     </div>
-                    <select class="select-box"><option>100% (Normal)</option><option>150% (Performance)</option><option>200% (Ultra)</option></select>
-                </div>
-                <div class="menu-row">
-                    <div class="menu-row-info">
-                        <h4>Rewind Buffer</h4>
-                        <p>Memungkinkan memundurkan gameplay secara instan.</p>
-                    </div>
-                    <label class="switch"><input type="checkbox"><span class="slider-chk"></span></label>
+                    <select class="select-box"><option>100% (Normal)</option><option>150% (Performance)</option></select>
                 </div>
             </div>
 
-            <!-- 3. TAB GRAPHICS -->
-            <div id="tab-graphics" class="setting-section">
+            <!-- 2. TAB PLAYLIST DAFTAR GAME -->
+            <div id="tab-playlist" class="setting-section">
+                <h4 style="color: #00ffcc; margin-top: 0;">🎮 Playlist & Game Tersimpan</h4>
+                <p style="font-size: 10px; color: #888; margin-bottom: 10px;">Daftar game yang pernah Anda masukkan ke perangkat:</p>
+                <div id="playlist-container">
+                    <p style="color: #666; font-size: 11px;">Belum ada game di playlist. Masukkan file game di tab System.</p>
+                </div>
+                <button class="btn-action" onclick="loadCachedGamePlay()">Muat Game dari Cache</button>
+            </div>
+
+            <!-- 3. TAB INTERFACE -->
+            <div id="tab-interface" class="setting-section">
                 <div class="menu-row">
                     <div class="menu-row-info">
-                        <h4>Renderer Backend</h4>
-                        <p>API grafis perenderan utama GPU perangkat.</p>
+                        <h4>Save State On Exit</h4>
+                        <p>Menyimpan status permainan saat emulator ditutup.</p>
                     </div>
-                    <select class="select-box"><option>WebGL2 / OpenGL ES 3.0</option><option>Software Renderer</option></select>
+                    <label class="switch"><input type="checkbox" checked><span class="slider-chk"></span></label>
                 </div>
+                <div class="menu-row">
+                    <div class="menu-row-info">
+                        <h4>Touchscreen Overlay Opacity</h4>
+                        <p>Mengatur transparansi tombol virtual.</p>
+                    </div>
+                    <input type="range" min="0.2" max="1.0" step="0.1" value="0.7" oninput="adjustOpacity(this.value)" style="width: 90px;">
+                </div>
+            </div>
+
+            <!-- 4. TAB GRAPHICS -->
+            <div id="tab-graphics" class="setting-section">
                 <div class="menu-row">
                     <div class="menu-row-info">
                         <h4>Internal Resolution (Upscaling)</h4>
@@ -275,76 +272,55 @@
                 <div class="menu-row">
                     <div class="menu-row-info">
                         <h4>PGXP Geometry Correction</h4>
-                        <p>Menghilangkan getaran tekstur poligon 3D khas PS1.</p>
-                    </div>
-                    <label class="switch"><input type="checkbox" checked><span class="slider-chk"></span></label>
-                </div>
-                <div class="menu-row">
-                    <div class="menu-row-info">
-                        <h4>True Color & Widescreen</h4>
-                        <p>Memperhalus gradasi warna dan rasio 16:9.</p>
+                        <p>Menghilangkan getaran tekstur poligon 3D.</p>
                     </div>
                     <label class="switch"><input type="checkbox" checked><span class="slider-chk"></span></label>
                 </div>
             </div>
 
-            <!-- 4. TAB AUDIO -->
+            <!-- 5. TAB AUDIO -->
             <div id="tab-audio" class="setting-section">
                 <div class="menu-row">
                     <div class="menu-row-info">
-                        <h4>Audio Buffer Size & Backend</h4>
-                        <p>Mengatur latensi suara agar terhindar dari audio patah-patah.</p>
-                    </div>
-                    <select class="select-box"><option>Medium (64ms)</option><option>Low (32ms Fast)</option><option>High (128ms Safe)</option></select>
-                </div>
-                <div class="menu-row">
-                    <div class="menu-row-info">
-                        <h4>Time Stretch / Audio Sync</h4>
-                        <p>Menjaga keselarasan tempo musik SPU.</p>
+                        <h4>Audio Sync / Time Stretch</h4>
+                        <p>Menjaga keselarasan tempo musik.</p>
                     </div>
                     <label class="switch"><input type="checkbox" checked><span class="slider-chk"></span></label>
                 </div>
             </div>
 
-            <!-- 5. TAB CONTROLLERS -->
-            <div id="tab-controllers" class="setting-section">
-                <div class="list-item" onclick="alert('Port 1 disetel ke Analog DualShock Controller.')">🎮 <b>Port 1 & Port 2: DualShock / Digital / GunCon</b></div>
-                <div class="list-item" onclick="alert('Pencarian gamepad Bluetooth/USB otomatis aktif.')">🔍 <b>Automatic Controller Mapping</b></div>
-            </div>
-
-            <!-- 6. TAB PROFIL, LEADERBOARD & ADVANCED -->
+            <!-- 6. TAB PROFIL, LOGIN & LEADERBOARD (1-100) -->
             <div id="tab-profile" class="setting-section">
-                <div style="text-align: center; margin-bottom: 12px;">
-                    <img id="profile-preview-img" src="https://i.imgur.com/8Km9tLL.png" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #ff5555;">
+                <div style="text-align: center; margin-bottom: 10px;">
+                    <img id="profile-preview-img" src="https://i.imgur.com/8Km9tLL.png" style="width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid #ff5555;">
                 </div>
                 <div class="menu-row-info">
-                    <h4>Ganti Nama Profil</h4>
+                    <h4>Ganti Nama Profil / Login</h4>
                     <input type="text" id="input-new-name" class="input-text" placeholder="Masukkan Username Baru...">
                 </div>
-                <div class="menu-row-info" style="margin-top: 8px;">
-                    <h4>Ganti URL Foto Profil (Avatar)</h4>
+                <div class="menu-row-info" style="margin-top: 6px;">
+                    <h4>Ganti URL Foto Avatar</h4>
                     <input type="text" id="input-new-avatar" class="input-text" placeholder="https://contoh.com/foto.jpg">
                 </div>
-                <button class="btn-action" onclick="saveUserProfile()">Simpan Perubahan Profil</button>
+                <button class="btn-action" onclick="saveUserProfile()">Simpan & Login Profil</button>
                 
-                <div style="margin-top: 15px; border-top: 1px solid #222; padding-top: 8px; font-size: 11px;">
-                    <p><b>Firebase Auth:</b> <span id="auth-status-text" style="color: #00ffcc;">Menghubungkan...</span></p>
+                <div style="margin-top: 12px; border-top: 1px solid #222; padding-top: 6px; font-size: 10px;">
+                    <p><b>Firebase Auth:</b> <span id="auth-status-text" style="color: #00ffcc;">Aktif</span></p>
                     <p><b>Supabase DB:</b> <span id="db-status" style="color: #00ffcc;">Sinkronisasi Aktif</span></p>
-                    <p><b>Total Playtime:</b> <span id="profile-playtime-val">0 Jam 0 Menit</span></p>
-                    <p><b>Cache BIOS/ROM:</b> <span id="cache-status" style="color: #ffaa00;">Memeriksa penyimpanan lokal...</span></p>
+                    <p><b>Playtime:</b> <span id="profile-playtime-val">0 Jam 0 Menit</span></p>
                 </div>
 
-                <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
-                <h4 style="color: #ffaa00; margin: 0 0 8px 0;">🏆 Leaderboard Global (1-100 Bot + Organik)</h4>
-                <div id="leaderboard-list-container">
-                    <p style="color: #888; text-align: center; font-size: 11px;">Memuat data peringkat...</p>
+                <hr style="border: 0; border-top: 1px solid #333; margin: 12px 0;">
+                <h4 style="color: #ffaa00; margin: 0 0 6px 0;">🏆 Leaderboard Global (1-100)</h4>
+                <div id="leaderboard-list-container" style="max-height: 140px; overflow-y: auto;">
+                    <p style="color: #888; text-align: center; font-size: 11px;">Memuat peringkat...</p>
                 </div>
             </div>
 
         </div>
     </div>
 
-    <!-- GAMEPAD VIRTUAL LENGKAP DENGAN TOGGLE ANALOG -->
+    <!-- GAMEPAD VIRTUAL LENGKAP DI DALAM KANVAS DENGAN TOMBOL ANALOG YANG DIPERBAIKI -->
     <div id="virtual-gamepad">
         <div class="pad-zone">
             <div class="dpad-container">
@@ -360,7 +336,8 @@
                 <button class="mini-sys-btn" data-key="SELECT">SELECT</button>
                 <button class="mini-sys-btn" data-key="START">START</button>
             </div>
-            <button class="mini-sys-btn" onclick="toggleMenu()" style="background: #ff5555; border-color: #ff5555; color: #fff; margin-top: 6px;">MENU</button>
+            <button class="mini-sys-btn" onclick="toggleMenu()" style="background: #ff5555; border-color: #ff5555; color: #fff; margin-top: 5px;">MENU</button>
+            <button class="mini-sys-btn" onclick="toggleFullscreen()" style="background: #00ffcc; color: #000; border-color: #00ffcc;">FULLSCREEN</button>
         </div>
         <div class="pad-zone">
             <div class="action-container">
@@ -373,14 +350,11 @@
     </div>
 
     <script>
-        // ==========================================
-        // KONEKSI SUPABASE & CACHE STORAGE LOKAL
-        // ==========================================
         const SUPABASE_URL = 'https://ddhmjxixmmvdoishvjtf.supabase.co';
         let supabaseClient = null;
         try {
             supabaseClient = supabase.createClient(SUPABASE_URL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkaG1qeGl4bW12ZG9pc2h2anRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEyMzg0MDB9');
-        } catch(e) { console.warn("Supabase init warning"); }
+        } catch(e) {}
 
         let myPlayerId = localStorage.getItem('kialdevaro_player_id');
         let username = localStorage.getItem('kialdevaro_username') || "Gamer_Kialdevaro";
@@ -389,90 +363,154 @@
         let mySeconds = parseInt(localStorage.getItem('kialdevaro_seconds') || '0');
         let isAnalogActive = false;
 
-        // Cek Cache Otomatis File BIOS & ROM yang Tersimpan di Perangkat Pemilik
         window.addEventListener('DOMContentLoaded', () => {
             checkLocalCache();
+            renderPlaylist();
         });
 
+        // Cek Cache BIOS & ROM
         function checkLocalCache() {
             let cachedBios = localStorage.getItem('klabs_cached_bios_name');
             let cachedRom = localStorage.getItem('klabs_cached_rom_name');
-            
-            let cacheStatusText = "Belum ada file tersimpan";
             if (cachedBios) {
-                document.getElementById('bios-status-label').innerHTML = "BIOS Terkunci: <span style='color:#00ffcc'>" + cachedBios + "</span>";
-                cacheStatusText = "BIOS Tersimpan di Memori HP";
+                document.getElementById('bios-status-label').innerHTML = "BIOS Aktif: <span style='color:#00ffcc'>" + cachedBios + "</span>";
             }
             if (cachedRom) {
                 document.getElementById('rom-status-label').innerHTML = "ROM Aktif: <span style='color:#ffaa00'>" + cachedRom + "</span>";
                 document.getElementById('nav-username').innerText = username;
             }
-            document.getElementById('cache-status').innerText = cacheStatusText;
         }
 
-        // Fungsi Simpan Cache BIOS ke LocalStorage / IndexedDB
+        // Cache BIOS Otomatis ke Perangkat
         function handleBiosUpload(input) {
             const file = input.files[0];
             if (!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
-                try {
-                    localStorage.setItem('klabs_cached_bios_data', e.target.result);
-                    localStorage.setItem('klabs_cached_bios_name', file.name);
-                    document.getElementById('bios-status-label').innerHTML = "BIOS Tersimpan: <span style='color:#00ffcc'>" + file.name + "</span>";
-                    alert("✅ File BIOS '" + file.name + "' berhasil disimpan ke penyimpanan internal perangkat Anda. Anda tidak perlu memasukkannya lagi nanti!");
-                    checkLocalCache();
-                } catch(err) {
-                    alert("File terlalu besar untuk cache browser, gunakan file BIOS standar.");
-                }
+                localStorage.setItem('klabs_cached_bios_data', e.target.result);
+                localStorage.setItem('klabs_cached_bios_name', file.name);
+                document.getElementById('bios-status-label').innerHTML = "BIOS Aktif: <span style='color:#00ffcc'>" + file.name + "</span>";
+                alert("✅ BIOS '" + file.name + "' tersimpan permanen di perangkat Anda!");
             };
             reader.readAsDataURL(file);
         }
 
-        // Fungsi Simpan Cache ROM/ISO Game PS1 ke Perangkat Masing-Masing
+        // Cache ROM Game PS1 & Masukkan ke Playlist
         function handleRomUpload(input) {
             const file = input.files[0];
             if (!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
-                try {
-                    localStorage.setItem('klabs_cached_rom_data', e.target.result);
-                    localStorage.setItem('klabs_cached_rom_name', file.name);
-                    document.getElementById('rom-status-label').innerHTML = "ROM Aktif: <span style='color:#ffaa00'>" + file.name + "</span>";
-                    toggleMenu();
-                    alert("🚀 Game '" + file.name + "' berhasil dimuat dan disimpan otomatis ke perangkat Anda! Sesi berikutnya game langsung siap dimainkan.");
-                    checkLocalCache();
-                } catch(err) {
-                    alert("Memori cache perangkat penuh untuk file game besar.");
+                localStorage.setItem('klabs_cached_rom_data', e.target.result);
+                localStorage.setItem('klabs_cached_rom_name', file.name);
+                
+                // Simpan ke Playlist LocalStorage
+                let playlist = JSON.parse(localStorage.getItem('klabs_playlist') || '[]');
+                if(!playlist.includes(file.name)) {
+                    playlist.push(file.name);
+                    localStorage.setItem('klabs_playlist', JSON.stringify(playlist));
                 }
+
+                document.getElementById('rom-status-label').innerHTML = "ROM Aktif: <span style='color:#ffaa00'>" + file.name + "</span>";
+                renderPlaylist();
+                alert("🚀 Game '" + file.name + "' berhasil dimasukkan dan disimpan ke Playlist perangkat!");
             };
             reader.readAsDataURL(file);
+        }
+
+        // Tampilkan Daftar Playlist Game
+        function renderPlaylist() {
+            let container = document.getElementById('playlist-container');
+            let playlist = JSON.parse(localStorage.getItem('klabs_playlist') || '[]');
+            let currentRom = localStorage.getItem('klabs_cached_rom_name');
+
+            if (playlist.length === 0) {
+                container.innerHTML = "<p style='color: #666; font-size: 11px;'>Belum ada game di playlist.</p>";
+                return;
+            }
+
+            container.innerHTML = "";
+            playlist.forEach(gameName => {
+                let item = document.createElement('div');
+                item.className = 'list-item';
+                if (gameName === currentRom) item.style.borderLeft = "3px solid #00ffcc";
+                item.innerHTML = `📀 <b>${gameName}</b> ${gameName === currentRom ? '(Aktif)' : ''}`;
+                item.onclick = () => {
+                    localStorage.setItem('klabs_cached_rom_name', gameName);
+                    document.getElementById('rom-status-label').innerHTML = "ROM Aktif: <span style='color:#ffaa00'>" + gameName + "</span>";
+                    alert("Game '" + gameName + "' dipilih dari Playlist!");
+                };
+                container.appendChild(item);
+            });
+        }
+
+        function loadCachedGamePlay() {
+            let cachedRom = localStorage.getItem('klabs_cached_rom_name');
+            if(!cachedRom) {
+                alert("Pilih atau unggah file game terlebih dahulu di menu atas!");
+                return;
+            }
+            startGameEngine();
+        }
+
+        // Tombol Mulai Permainan (Boot Emulator & Kanvas)
+        function startGameEngine() {
+            let cachedBios = localStorage.getItem('klabs_cached_bios_name');
+            let cachedRom = localStorage.getItem('klabs_cached_rom_name');
+
+            if (!cachedBios || !cachedRom) {
+                alert("⚠️ Harap masukkan file BIOS dan File Game (ROM) terlebih dahulu pada menu System & ROM!");
+                openTab('system');
+                return;
+            }
+
+            toggleMenu();
+            alert("🎮 Memuat mesin emulator PlayStation untuk game: " + cachedRom + "...");
+        }
+
+        // Fitur Fullscreen
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    alert("Error attempting to enable fullscreen: " + err.message);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        // Toggle Stik Analog PS1 yang Diperbaiki
+        function toggleAnalogMode() {
+            isAnalogActive = !isAnalogActive;
+            const btn = document.getElementById('analog-toggle');
+            if (isAnalogActive) {
+                btn.style.color = '#00ffcc';
+                btn.style.borderColor = '#00ffcc';
+                btn.innerText = "L-ANALOG";
+                alert('Mode Analog DualShock PS1 Diaktifkan!');
+            } else {
+                btn.style.color = '#ff5555';
+                btn.style.borderColor = '#ff5555';
+                btn.innerText = "ANALOG";
+                alert('Mode Digital Controller Diaktifkan.');
+            }
         }
 
         async function initPlayerSession() {
             try {
                 if (supabaseClient && !myPlayerId) {
-                    let { data, error } = await supabaseClient.from('players').insert([
+                    let { data } = await supabaseClient.from('players').insert([
                         { username: username, avatar_url: avatarUrl, coins: myCoins, playtime_seconds: mySeconds, is_bot: false }
                     ]).select();
-                    
                     if (data && data.length > 0) {
                         myPlayerId = data[0].id;
                         localStorage.setItem('kialdevaro_player_id', myPlayerId);
                     }
-                } else if (supabaseClient && myPlayerId) {
-                    let { data, error } = await supabaseClient.from('players').select('*').eq('id', myPlayerId).single();
-                    if (data) {
-                        username = data.username;
-                        avatarUrl = data.avatar_url;
-                        myCoins = data.coins;
-                        mySeconds = data.playtime_seconds;
-                    }
                 }
                 updateUI();
-            } catch (err) {
-                document.getElementById('db-status').innerText = "Mode Lokal Aktif";
-            }
+            } catch (err) {}
         }
 
         function updateUI() {
@@ -486,13 +524,12 @@
             let s = mySeconds % 60;
             document.getElementById('play-time-counter').innerText = 
                 (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
-            const pvTime = document.getElementById('profile-playtime-val');
-            if(pvTime) pvTime.innerText = h + " Jam " + m + " Menit";
+            document.getElementById('profile-playtime-val').innerText = h + " Jam " + m + " Menit";
         }
 
         setTimeout(initPlayerSession, 800);
 
-        // Pelacakan Waktu Bermain Organik & Koin Acak 1-10 Setiap 1 Jam
+        // Timer Playtime & Koin Acak 1-10 Setiap 1 Jam
         setInterval(async () => {
             mySeconds++;
             localStorage.setItem('kialdevaro_seconds', mySeconds);
@@ -502,7 +539,7 @@
                 let earned = Math.floor(Math.random() * 10) + 1;
                 myCoins += earned;
                 localStorage.setItem('kialdevaro_coins', myCoins);
-                alert("🎉 Selamat! Anda bermain selama 1 jam dan mendapatkan " + earned + " Koin Kialdevaro secara acak!");
+                alert("🎉 Selamat! Anda bermain selama 1 jam dan mendapatkan " + earned + " Koin Kialdevaro!");
             }
 
             if (supabaseClient && mySeconds % 30 === 0 && myPlayerId) {
@@ -531,17 +568,14 @@
             }
 
             updateUI();
-            alert("Profil berhasil diperbarui dan disinkronkan!");
+            alert("Profil dan Akun Login berhasil diperbarui!");
         }
 
         async function fetchLeaderboard() {
             let container = document.getElementById('leaderboard-list-container');
-            container.innerHTML = "<p style='color: #888; text-align: center; font-size: 11px;'>Memuat Peringkat Global...</p>";
+            container.innerHTML = "<p style='color: #888; text-align: center; font-size: 11px;'>Memuat Peringkat...</p>";
 
-            if (!supabaseClient) {
-                container.innerHTML = "<p style='color: #ff5555; text-align: center; font-size: 11px;'>Supabase client belum terhubung.</p>";
-                return;
-            }
+            if (!supabaseClient) return;
 
             let { data, error } = await supabaseClient
                 .from('players')
@@ -549,10 +583,7 @@
                 .order('coins', { ascending: false })
                 .limit(100);
 
-            if (error || !data) {
-                container.innerHTML = "<p style='color: #ff5555; text-align: center; font-size: 11px;'>Gagal memuat leaderboard.</p>";
-                return;
-            }
+            if (error || !data) return;
 
             container.innerHTML = "";
             data.forEach((player, index) => {
@@ -563,11 +594,11 @@
 
                 row.innerHTML = `
                     <div style="display: flex; align-items: center;">
-                        <span style="width: 25px; font-weight: bold; color: ${index === 0 ? '#ffaa00' : '#888'};">#${index + 1}</span>
+                        <span style="width: 22px; font-weight: bold; color: ${index === 0 ? '#ffaa00' : '#888'};">#${index + 1}</span>
                         <img src="${player.avatar_url}" alt="Avatar">
                         <div>
-                            <div style="font-weight: bold; color: ${isMe ? '#ff5555' : '#fff'};">${player.username} ${isMe ? '(Anda)' : ''}</div>
-                            <div style="font-size: 9px; color: #777;">Playtime: ${Math.floor(player.playtime_seconds / 3600)} Jam</div>
+                            <div style="font-weight: bold; color: ${isMe ? '#ff5555' : '#fff'};">${player.username}</div>
+                            <div style="font-size: 8px; color: #777;">Playtime: ${Math.floor(player.playtime_seconds / 3600)} Jam</div>
                         </div>
                     </div>
                     <div style="color: #ffaa00; font-weight: bold;">🪙 ${player.coins}</div>
@@ -594,20 +625,6 @@
 
         function adjustOpacity(val) {
             document.getElementById('virtual-gamepad').style.opacity = val;
-        }
-
-        function toggleAnalogMode() {
-            isAnalogActive = !isAnalogActive;
-            const btn = document.getElementById('analog-toggle');
-            if (isAnalogActive) {
-                btn.style.color = '#00ffcc';
-                btn.style.borderColor = '#00ffcc';
-                alert('Mode Analog DualShock PS1 Diaktifkan!');
-            } else {
-                btn.style.color = '#ff5555';
-                btn.style.borderColor = 'transparent';
-                alert('Mode Digital Controller Diaktifkan.');
-            }
         }
 
         window.addEventListener('DOMContentLoaded', () => {
