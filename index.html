@@ -254,7 +254,7 @@
                 <hr style="border: 0; border-top: 1px solid #333; margin: 12px 0;">
                 <h4 style="color: #ffaa00; margin: 0 0 6px 0;">🏆 Leaderboard Global (Bot + Organik)</h4>
                 <div id="leaderboard-list-container" style="max-height: 150px; overflow-y: auto;">
-                    <p style="color: #888; text-align: center; font-size: 11px;">Memuat peringkat bot...</p>
+                    <p style="color: #888; text-align: center; font-size: 11px;">Memuat peringkat...</p>
                 </div>
             </div>
         </div>
@@ -459,7 +459,8 @@
                 .limit(100);
 
             if (error || !data) {
-                container.innerHTML = "<p style='color: #ff5555; text-align: center; font-size: 11px;'>Gagal memuat leaderboard.</p>";
+                container.innerHTML = "<div style='color: #ffaa00; text-align: center; font-size: 11px; padding: 10px;'>Leaderboard Offline (Menggunakan Bot Lokal)</div>" +
+                    `<div class="leaderboard-item"><div style="display:flex;align-items:center;"><span style="width:24px;font-weight:bold;color:#ffaa00;">#1</span><img src="${avatarUrl}"><div><div style="font-weight:bold;color:#ff5555;">${username}</div><div style="font-size:8px;color:#777;">Playtime: 0 Jam</div></div></div><div style="color:#ffaa00;font-weight:bold;">🪙 ${myCoins}</div></div>`;
                 return;
             }
 
@@ -495,7 +496,9 @@
                 localStorage.setItem('kialdevaro_coins', myCoins);
             }
             if (supabaseClient && mySeconds % 30 === 0 && myPlayerId) {
-                await supabaseClient.from('players').update({ coins: myCoins, playtime_seconds: mySeconds }).eq('id', myPlayerId);
+                try {
+                    await supabaseClient.from('players').update({ coins: myCoins, playtime_seconds: mySeconds }).eq('id', myPlayerId);
+                } catch(e) {}
             }
         }, 1000);
 
@@ -507,7 +510,9 @@
             localStorage.setItem('kialdevaro_username', username);
             localStorage.setItem('kialdevaro_avatar', avatarUrl);
             if (supabaseClient && myPlayerId) {
-                await supabaseClient.from('players').update({ username: username, avatar_url: avatarUrl }).eq('id', myPlayerId);
+                try {
+                    await supabaseClient.from('players').update({ username: username, avatar_url: avatarUrl }).eq('id', myPlayerId);
+                } catch(e) {}
             }
             updateUI();
             alert("Profil berhasil diperbarui!");
